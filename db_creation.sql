@@ -28,7 +28,7 @@ CREATE TABLE enter (
     username_user VARCHAR(20),
     session_number INT CONSTRAINT session_number_constraint CHECK ( session_number > 0 ),
     PRIMARY KEY (id_game, email_user, username_user, session_number),
-    FOREIGN KEY (id_game) REFERENCES game(id),
+    FOREIGN KEY (id_game) REFERENCES game(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (email_user, username_user) REFERENCES users(email, username)
 );
 
@@ -42,5 +42,5 @@ CREATE TABLE discover (
     score INT CONSTRAINT score_constraint CHECK ( score >= 0 ) NOT NULL,
     is_valid BOOLEAN NOT NULL,
     PRIMARY KEY (id_game, email_user, username_user, session_number_enter, word),
-    FOREIGN KEY (id_game, email_user, username_user, session_number_enter) REFERENCES enter(id_game, email_user, username_user, session_number)
+    FOREIGN KEY (id_game, email_user, username_user, session_number_enter) REFERENCES enter(id_game, email_user, username_user, session_number) ON DELETE CASCADE ON UPDATE CASCADE
 );
