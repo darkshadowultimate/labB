@@ -18,12 +18,13 @@ import javax.mail.MessagingException;
 
 
 public class PlayerThread extends Player implements Runnable {
-    private final PlayerCredentials player;
-    private final String name;
-    private final String surname;
-    private final String username;
-    private final String email;
-    private final String password;
+    private PlayerCredentials player;
+    private String name;
+    private String surname;
+    private String username;
+    private String email;
+    private String password;
+    private String confirmationCode;
 
     private Database db;
     private final String action;
@@ -43,6 +44,12 @@ public class PlayerThread extends Player implements Runnable {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.action = action;
+    }
+
+    public PlayerThread (String confirmationCode, PlayerCredentials player, String action) {
+        this.confirmationCode = confirmationCode;
+        this.player = player;
         this.action = action;
     }
 
@@ -135,6 +142,16 @@ public class PlayerThread extends Player implements Runnable {
         dbConnection.close();
     }
 
+    protected void confirmPlayerAccount (String confirmationCode, PlayerCredentials player) throws RemoteException, SQLException {
+        Connection dbConnection = this.db.getDatabaseConnection();
+        String sqlUpdate = "UPDATE users SET is_confirmed = true AND code = NULL WHERE code = ?";
+        PreparedStatement pst = dbConnection.prepareStatement(sqlUpdate);
+        pst.setString(1, confirmationCode);
+
+        this.db.performChangeState(pst);
+        player.confirmCodeConfirmation();
+    }
+
     public void run () {
         switch (this.action) {
             case "create": {
@@ -162,6 +179,24 @@ public class PlayerThread extends Player implements Runnable {
                     System.err.println("Error while sending the email " + exc);
                     try {
                         this.player.errorPlayerRegistration("Error while sending the email " + exc);
+                        break;
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "confirm": {
+                try {
+                    this.confirmPlayerAccount(this.confirmationCode, this.player);
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.player.errorCodeConfirmation("Error while contacting the client " + exc);
+                        break;
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    System.err.println("Error while performing DB operations " + exc);
+                    try {
+                        this.player.errorCodeConfirmation("Error while performing DB operations " + exc);
                         break;
                     } catch (RemoteException e) {}
                 }

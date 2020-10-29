@@ -31,6 +31,12 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     thread.start();
   }
 
+  public void confirmPlayerAccount (String confirmationCode, PlayerCredentials player) throws RemoteException {
+    PlayerThread playerThread = new PlayerThread(confirmationCode, player, "confirm");
+    Thread thread = new Thread(playerThread);
+    thread.start();
+  }
+
   public static void main (String[] args) throws RemoteException {
     /*if (System.getSecurityManager() == null) {
       System.setSecurityManager(new RMISecurityManager());
