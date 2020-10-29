@@ -128,9 +128,11 @@ public class PlayerThread extends Player implements Runnable {
                 System.out.println("Removed the account");
             }
             System.out.println("Account creation flow completed correctly");
+        } else {
+            System.out.println("An account with the same email or username already exists");
+            player.errorPlayerRegistration("An account with the same email or username already exists");
         }
-        System.out.println("An account with the same email or username already exists");
-        player.errorPlayerRegistration("An account with the same email or username already exists");
+        dbConnection.close();
     }
 
     public void run () {
