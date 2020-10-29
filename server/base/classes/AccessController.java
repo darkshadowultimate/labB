@@ -7,21 +7,19 @@ import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import server.base.interfaces.Access;
-import server.base.interfaces.Database;
-
-import server.base.classes.DatabaseController;
+import server.base.abstracts.Access;
+import server.base.abstracts.Database;
 
 
-public class AccessController implements Access {
-  private Scanner scanner;
+public class AccessController extends Access {
+  private final Scanner scanner;
   private Database db;
 
   public AccessController () {
     this.scanner = new Scanner(System.in);
   }
 
-  private String[] askForCredentials () {
+  protected String[] askForCredentials () {
     String[] credentials = new String[3];
 
     System.out.print("Insert the DB host: ");
@@ -39,7 +37,7 @@ public class AccessController implements Access {
     return credentials;
   }
 
-  private String[] askAdministratorCredentials() {
+  protected String[] askAdministratorCredentials() {
     String[] credentials = new String[2];
 
     System.out.print("Insert the uid: ");
@@ -53,9 +51,10 @@ public class AccessController implements Access {
     return credentials;
   }
 
-  private boolean checkAdminProfile () {
+  protected boolean checkAdminProfile () {
+    Connection dbConnection = null;
     try {
-      Connection dbConnection = this.db.getDatabaseConnection();
+      dbConnection = this.db.getDatabaseConnection();
     } catch (SQLException exc) {
       System.err.println("Error while establishing the connection with the DB " + exc);
       System.exit(1);
@@ -75,19 +74,25 @@ public class AccessController implements Access {
         return true;
       } else {
         System.out.println("No administrator profile found. Creating new one...");
+        dbConnection.close();
+        pst.close();
+        result.close();
+
         return false;
       }
     } catch (SQLException exc) {
       System.err.println("Error while performing SQL operations " + exc);
       System.exit(1);
     }
+    return false;
   }
 
-  private void createAdminProfile () {
+  protected void createAdminProfile () {
     String[] credentials = this.askAdministratorCredentials();
+    Connection dbConnection = null;
 
     try {
-      Connection dbConnection = this.db.getDatabaseConnection();
+      dbConnection = this.db.getDatabaseConnection();
     } catch (SQLException exc) {
       System.err.println("Error while establishing the connection with the DB " + exc);
       System.exit(1);
@@ -95,7 +100,7 @@ public class AccessController implements Access {
 
     String sqlInsert = "INSERT INTO administrator(uid, password) VALUES(?, ?)";
     try {
-      pst = dbConnection.prepareStatement(sqlInsert);
+      PreparedStatement pst = dbConnection.prepareStatement(sqlInsert);
       pst.setString(1, credentials[0]);
       pst.setString(2, credentials[1]);
       this.db.performChangeState(pst);

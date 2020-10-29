@@ -7,13 +7,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import server.base.interfaces.Database;
+import server.base.abstracts.Database;
 
 
-public class DatabaseController implements Database {
-  private String host;
-  private String username;
-  private String password;
+public class DatabaseController extends Database {
+  private final String host;
+  private final String username;
+  private final String password;
 
   public DatabaseController (String host, String username, String password) {
     this.host = host;
