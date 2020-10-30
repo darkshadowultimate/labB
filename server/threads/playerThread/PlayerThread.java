@@ -192,76 +192,71 @@ public class PlayerThread extends Player implements Runnable {
                 System.out.println("The password is incorrect");
                 player.errorLoginPlayerAccount("The password is not correct");
             }
+        } else {
+            System.out.println("No player account found with the given email");
+            player.errorLoginPlayerAccount("No player account found with the given email");
         }
+        result.close();
+        pst.close();
+        dbConnection.close();
     }
 
     public void run () {
         switch (this.action) {
-            case "create": {
+            case "create" -> {
                 try {
                     this.createPlayerAccount(this.name, this.surname, this.username, this.email, this.password, this.player);
                 } catch (InterruptedException exc) {
                     System.err.println("Thread has been interrupted " + exc);
                     try {
                         this.player.errorPlayerRegistration("Thread has been interrupted " + exc);
-                        break;
                     } catch (RemoteException e) {}
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {
                         this.player.errorPlayerRegistration("Error while contacting the client " + exc);
-                        break;
                     } catch (RemoteException e) {}
                 } catch (SQLException exc) {
                     System.err.println("Error while performing DB operations " + exc);
                     try {
                         this.player.errorPlayerRegistration("Error while performing DB operations " + exc);
-                        break;
                     } catch (RemoteException e) {}
                 } catch (MessagingException exc) {
                     System.err.println("Error while sending the email " + exc);
                     try {
                         this.player.errorPlayerRegistration("Error while sending the email " + exc);
-                        break;
                     } catch (RemoteException e) {}
                 }
-                break;
             }
-            case "confirm": {
+            case "confirm" -> {
                 try {
                     this.confirmPlayerAccount(this.confirmationCode, this.player);
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {
                         this.player.errorCodeConfirmation("Error while contacting the client " + exc);
-                        break;
                     } catch (RemoteException e) {}
                 } catch (SQLException exc) {
                     System.err.println("Error while performing DB operations " + exc);
                     try {
                         this.player.errorCodeConfirmation("Error while performing DB operations " + exc);
-                        break;
                     } catch (RemoteException e) {}
                 }
-                break;
             }
-            case "login": {
+            case "login" -> {
                 try {
                     this.loginPlayerAccount(this.email, this.password, this.player);
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {
-                        this.player.errorCodeConfirmation("Error while contacting the client " + exc);
-                        break;
+                        this.player.errorLoginPlayerAccount("Error while contacting the client " + exc);
                     } catch (RemoteException e) {}
                 } catch (SQLException exc) {
                     System.err.println("Error while performing DB operations " + exc);
                     try {
-                        this.player.errorCodeConfirmation("Error while performing DB operations " + exc);
-                        break;
+                        this.player.errorLoginPlayerAccount("Error while performing DB operations " + exc);
                     } catch (RemoteException e) {}
                 }
-                break;
             }
         }
     }
