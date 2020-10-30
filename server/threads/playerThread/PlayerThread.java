@@ -62,6 +62,12 @@ public class PlayerThread extends Player implements Runnable {
         this.action = action;
     }
 
+    public PlayerThread (PlayerCredentials player, String email, String action) {
+        this.email = email;
+        this.player = player;
+        this.action = action;
+    }
+
     private boolean checkProfileExists (String email, String username, Connection dbConnection) throws SQLException {
         String sqlQueryEmail = "SELECT * FROM users WHERE email = ?", sqlQueryUsername = "SELECT * FROM users WHERE username = ?";
         PreparedStatement pst1 = dbConnection.prepareStatement(sqlQueryEmail), pst2 = dbConnection.prepareStatement(sqlQueryUsername);
@@ -201,6 +207,30 @@ public class PlayerThread extends Player implements Runnable {
         dbConnection.close();
     }
 
+    protected void resetPlayerPassword (String email, PlayerCredentials player) throws RemoteException, SQLException, MessagingException {
+        System.out.println("Resetting the player password...");
+        Connection dbConnection = this.db.getDatabaseConnection();
+        String sqlUpdate = "UPDATE users SET password = ? WHERE email = ?";
+        PreparedStatement pst = dbConnection.prepareStatement(sqlUpdate);
+
+        String password = UUID.randomUUID().toString();
+        pst.setString(1, BCrypt.hashpw(password, BCrypt.gensalt()));
+        pst.setString(2, email);
+        this.db.performChangeState(pst);
+
+        JavaMail mailController = new JavaMailController();
+        mailController.sendEmail(
+                email,
+                "Reset Password - Il Paroliere Platform",
+                "Your new password is: " + password
+        );
+        player.confirmResetPlayerPassword();
+        System.out.println("Correctly reset the player password");
+
+        pst.close();
+        dbConnection.close();
+    }
+
     public void run () {
         switch (this.action) {
             case "create" -> {
@@ -255,6 +285,26 @@ public class PlayerThread extends Player implements Runnable {
                     System.err.println("Error while performing DB operations " + exc);
                     try {
                         this.player.errorLoginPlayerAccount("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+            }
+            case "reset" -> {
+                try {
+                    this.resetPlayerPassword(this.email, this.player);
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.player.errorResetPlayerPassword("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    System.err.println("Error while performing DB operations " + exc);
+                    try {
+                        this.player.errorResetPlayerPassword("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                } catch (MessagingException exc) {
+                    System.err.println("Error while sending the email " + exc);
+                    try {
+                        this.player.errorResetPlayerPassword("Error while sending the email " + exc);
                     } catch (RemoteException e) {}
                 }
             }

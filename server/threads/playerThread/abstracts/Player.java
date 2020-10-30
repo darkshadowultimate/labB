@@ -28,4 +28,9 @@ public abstract class Player  {
         String password,
         PlayerCredentials player
     ) throws RemoteException, SQLException;
+
+    protected abstract void resetPlayerPassword (
+        String email,
+        PlayerCredentials player
+    ) throws RemoteException, SQLException, MessagingException;
 }

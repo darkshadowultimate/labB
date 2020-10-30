@@ -24,4 +24,6 @@ public interface Server extends Remote {
             String password,
             PlayerCredentials player
     ) throws RemoteException;
+
+    void resetPlayerPassword (String email, PlayerCredentials player) throws RemoteException;
 }

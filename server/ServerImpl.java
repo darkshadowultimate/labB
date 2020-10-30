@@ -38,11 +38,17 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
   }
 
   public void loginPlayerAccount (
-          String email,
-          String password,
-          PlayerCredentials player
+    String email,
+    String password,
+    PlayerCredentials player
   ) throws RemoteException {
     PlayerThread playerThread = new PlayerThread(email, password, player, "login");
+    Thread thread = new Thread(playerThread);
+    thread.start();
+  }
+
+  public void resetPlayerPassword (String email, PlayerCredentials player) throws RemoteException {
+    PlayerThread playerThread = new PlayerThread(player, email, "reset");
     Thread thread = new Thread(playerThread);
     thread.start();
   }
