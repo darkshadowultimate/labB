@@ -1,11 +1,12 @@
 package server.threads.playerThread.interfaces;
 
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 
-public interface PlayerCredentials extends Remote {
+public interface PlayerCredentials extends Remote, Serializable {
     void confirmPlayerRegistration () throws RemoteException;
 
     void errorPlayerRegistration (String reason) throws RemoteException;
@@ -13,4 +14,8 @@ public interface PlayerCredentials extends Remote {
     void confirmCodeConfirmation () throws RemoteException;
 
     void errorCodeConfirmation (String reason) throws RemoteException;
+
+    void confirmLoginPlayerAccount (String name, String surname, String username) throws RemoteException;
+
+    void errorLoginPlayerAccount (String reason) throws RemoteException;
 }

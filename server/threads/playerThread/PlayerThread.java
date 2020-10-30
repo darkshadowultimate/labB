@@ -5,6 +5,8 @@ import server.base.abstracts.Database;
 import server.base.classes.JavaMailController;
 import server.base.interfaces.JavaMail;
 
+import server.org.mindrot.jbcrypt.BCrypt;
+
 import server.threads.playerThread.abstracts.Player;
 import server.threads.playerThread.interfaces.PlayerCredentials;
 
@@ -18,7 +20,7 @@ import javax.mail.MessagingException;
 
 
 public class PlayerThread extends Player implements Runnable {
-    private PlayerCredentials player;
+    private final PlayerCredentials player;
     private String name;
     private String surname;
     private String username;
@@ -49,6 +51,13 @@ public class PlayerThread extends Player implements Runnable {
 
     public PlayerThread (String confirmationCode, PlayerCredentials player, String action) {
         this.confirmationCode = confirmationCode;
+        this.player = player;
+        this.action = action;
+    }
+
+    public PlayerThread (String email, String password, PlayerCredentials player, String action) {
+        this.email = email;
+        this.password = password;
         this.player = player;
         this.action = action;
     }
@@ -114,16 +123,16 @@ public class PlayerThread extends Player implements Runnable {
             pst.setString(2, username);
             pst.setString(3, name);
             pst.setString(4, surname);
-            pst.setString(5, password);
+            pst.setString(5, BCrypt.hashpw(password, BCrypt.gensalt()));
             pst.setString(6, token);
 
             System.out.println("Creating the new player account...");
             this.db.performChangeState(pst);
             JavaMail mailController = new JavaMailController();
             mailController.sendEmail(
-                    email,
-                    "Welcome to the Il Paroliere Platform",
-                    "Your activation code is the following: " + token
+                email,
+                "Welcome to the Il Paroliere Platform",
+                "Your activation code is the following: " + token
             );
 
             player.confirmPlayerRegistration();
@@ -135,6 +144,7 @@ public class PlayerThread extends Player implements Runnable {
                 System.out.println("Removed the account");
             }
             System.out.println("Account creation flow completed correctly");
+            pst.close();
         } else {
             System.out.println("An account with the same email or username already exists");
             player.errorPlayerRegistration("An account with the same email or username already exists");
@@ -143,6 +153,7 @@ public class PlayerThread extends Player implements Runnable {
     }
 
     protected void confirmPlayerAccount (String confirmationCode, PlayerCredentials player) throws RemoteException, SQLException {
+        System.out.println("Confirming the player account...");
         Connection dbConnection = this.db.getDatabaseConnection();
         String sqlUpdate = "UPDATE users SET is_confirmed = true AND code = NULL WHERE code = ?";
         PreparedStatement pst = dbConnection.prepareStatement(sqlUpdate);
@@ -150,6 +161,38 @@ public class PlayerThread extends Player implements Runnable {
 
         this.db.performChangeState(pst);
         player.confirmCodeConfirmation();
+        System.out.println("The player account has been correctly confirmed");
+
+        pst.close();
+        dbConnection.close();
+    }
+
+    protected void loginPlayerAccount (
+        String email,
+        String password,
+        PlayerCredentials player
+    ) throws RemoteException, SQLException {
+        System.out.println("Logging in the player...");
+        Connection dbConnection = this.db.getDatabaseConnection();
+        String sqlQuery = "SELECT name, surname, username, password FROM users WHERE email = ?";
+        PreparedStatement pst = dbConnection.prepareStatement(sqlQuery);
+        pst.setString(1, email);
+
+        ResultSet result = this.db.performQuery(pst);
+        if (result.isBeforeFirst()) {
+            result.next();
+            if (BCrypt.checkpw(password, result.getString("password"))) {
+                System.out.println("User correctly logged in");
+                player.confirmLoginPlayerAccount(
+                    result.getString("name"),
+                    result.getString("surname"),
+                    result.getString("username")
+                );
+            } else {
+                System.out.println("The password is incorrect");
+                player.errorLoginPlayerAccount("The password is not correct");
+            }
+        }
     }
 
     public void run () {
@@ -187,6 +230,24 @@ public class PlayerThread extends Player implements Runnable {
             case "confirm": {
                 try {
                     this.confirmPlayerAccount(this.confirmationCode, this.player);
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.player.errorCodeConfirmation("Error while contacting the client " + exc);
+                        break;
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    System.err.println("Error while performing DB operations " + exc);
+                    try {
+                        this.player.errorCodeConfirmation("Error while performing DB operations " + exc);
+                        break;
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "login": {
+                try {
+                    this.loginPlayerAccount(this.email, this.password, this.player);
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {

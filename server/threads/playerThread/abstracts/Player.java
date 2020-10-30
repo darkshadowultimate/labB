@@ -19,6 +19,13 @@ public abstract class Player  {
     ) throws InterruptedException, RemoteException, SQLException, MessagingException;
 
     protected abstract void confirmPlayerAccount (
-        String confirmationCode, PlayerCredentials playerCredentials
+        String confirmationCode,
+        PlayerCredentials playerCredentials
+    ) throws RemoteException, SQLException;
+
+    protected abstract void loginPlayerAccount (
+        String email,
+        String password,
+        PlayerCredentials player
     ) throws RemoteException, SQLException;
 }
