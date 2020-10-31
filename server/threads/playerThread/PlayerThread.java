@@ -26,6 +26,7 @@ public class PlayerThread extends Player implements Runnable {
     private String username;
     private String email;
     private String password;
+    private String oldPassword;
     private String confirmationCode;
 
     private Database db;
@@ -64,6 +65,26 @@ public class PlayerThread extends Player implements Runnable {
 
     public PlayerThread (PlayerCredentials player, String email, String action) {
         this.email = email;
+        this.player = player;
+        this.action = action;
+    }
+
+    public PlayerThread (
+        String email,
+        String name,
+        String surname,
+        String username,
+        String password,
+        String oldPassword,
+        PlayerCredentials player,
+        String action
+    ) {
+        this.email = email;
+        this.name = name;
+        this.surname = surname;
+        this.username = username;
+        this.password = password;
+        this.oldPassword = oldPassword;
         this.player = player;
         this.action = action;
     }
@@ -220,13 +241,78 @@ public class PlayerThread extends Player implements Runnable {
 
         JavaMail mailController = new JavaMailController();
         mailController.sendEmail(
-                email,
-                "Reset Password - Il Paroliere Platform",
-                "Your new password is: " + password
+            email,
+            "Reset Password - Il Paroliere Platform",
+            "Your new password is: " + password
         );
         player.confirmResetPlayerPassword();
         System.out.println("Correctly reset the player password");
 
+        pst.close();
+        dbConnection.close();
+    }
+
+    private boolean checkOldPassword (String password, String email, Connection dbConnection) throws SQLException {
+        String sqlQuery = "SELECT password FROM users WHERE email = ?";
+        PreparedStatement pst = dbConnection.prepareStatement(sqlQuery);
+        pst.setString(1, email);
+        ResultSet result = this.db.performQuery(pst);
+
+        if (BCrypt.checkpw(password, result.getString("password"))) {
+            System.out.println("Passord matches");
+
+            result.close();
+            pst.close();
+            return true;
+        } else {
+            System.out.println("Passord doesn't match");
+
+            result.close();
+            pst.close();
+            return false;
+        }
+    }
+
+    protected void changePlayerData (
+        String email,
+        String name,
+        String surname,
+        String username,
+        String password,
+        String oldPassword,
+        PlayerCredentials player
+    ) throws RemoteException, SQLException, MessagingException {
+        System.out.println("Changing player data...");
+        Connection dbConnection = this.db.getDatabaseConnection();
+        String sqlUpdate = "UPDATE users SET name = ?, surname = ?, username = ? WHERE email = ?";
+        PreparedStatement pst = dbConnection.prepareStatement(sqlUpdate);
+        pst.setString(1, name);
+        pst.setString(2, surname);
+        pst.setString(3, username);
+        pst.setString(4, email);
+        this.db.performChangeState(pst);
+
+        if (password != null) {
+            System.out.println("Changing also password...");
+            if (this.checkOldPassword(oldPassword, email, dbConnection)) {
+                sqlUpdate = "UPDATE users SET password = ? WHERE email = ?";
+                pst = dbConnection.prepareStatement(sqlUpdate);
+                pst.setString(1, BCrypt.hashpw(password, BCrypt.gensalt()));
+                pst.setString(2, email);
+                this.db.performChangeState(pst);
+
+                JavaMail mailController = new JavaMailController();
+                mailController.sendEmail(
+                    email,
+                    "Change Password Confirm - Il Paroliere Platform",
+                    "Your new password has been correctly set"
+                );
+                player.confirmChangePlayerData();
+            } else {
+                player.errorChangePlayerData("Passord doesn't match");
+            }
+        }
+        System.out.println("The player data have been correctly changed");
         pst.close();
         dbConnection.close();
     }
@@ -305,6 +391,26 @@ public class PlayerThread extends Player implements Runnable {
                     System.err.println("Error while sending the email " + exc);
                     try {
                         this.player.errorResetPlayerPassword("Error while sending the email " + exc);
+                    } catch (RemoteException e) {}
+                }
+            }
+            case "change" -> {
+                try {
+                    this.changePlayerData(this.email, this.name, this.surname, this.username, this.password, this.oldPassword, this.player);
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.player.errorChangePlayerData("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    System.err.println("Error while performing DB operations " + exc);
+                    try {
+                        this.player.errorChangePlayerData("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                } catch (MessagingException exc) {
+                    System.err.println("Error while sending the email " + exc);
+                    try {
+                        this.player.errorChangePlayerData("Error while sending the email " + exc);
                     } catch (RemoteException e) {}
                 }
             }

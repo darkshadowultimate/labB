@@ -33,4 +33,14 @@ public abstract class Player  {
         String email,
         PlayerCredentials player
     ) throws RemoteException, SQLException, MessagingException;
+
+    protected abstract void changePlayerData (
+        String email,
+        String name,
+        String surname,
+        String username,
+        String password,
+        String oldPassword,
+        PlayerCredentials player
+    ) throws RemoteException, SQLException, MessagingException;
 }

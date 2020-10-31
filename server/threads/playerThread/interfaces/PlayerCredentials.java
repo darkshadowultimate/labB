@@ -21,4 +21,8 @@ public interface PlayerCredentials extends Remote {
     void confirmResetPlayerPassword () throws RemoteException;
 
     void errorResetPlayerPassword (String reason) throws RemoteException;
+
+    void confirmChangePlayerData () throws RemoteException;
+
+    void errorChangePlayerData (String reason) throws RemoteException;
 }
