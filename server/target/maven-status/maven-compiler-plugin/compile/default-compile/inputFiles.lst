@@ -1,0 +1,12 @@
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/base/abstracts/Database.java
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/threads/playerThread/interfaces/PlayerCredentials.java
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/ServerImpl.java
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/base/abstracts/Access.java
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/base/classes/DatabaseController.java
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/org/mindrot/jbcrypt/BCrypt.java
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/base/classes/JavaMailController.java
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/base/classes/AccessController.java
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/base/interfaces/Server.java
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/threads/playerThread/PlayerThread.java
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/threads/playerThread/abstracts/Player.java
+/home/stefano/Desktop/labB/server/src/main/java/com/insubria/it/server/base/interfaces/JavaMail.java
