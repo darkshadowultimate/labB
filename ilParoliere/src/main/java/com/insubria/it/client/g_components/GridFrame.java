@@ -8,7 +8,6 @@ public class GridFrame extends GraphicComponent {
   private Container container;
 
   public GridFrame(String windowTitle, int rows, int cols) {
-    this(rows, cols);
     this.window = new JFrame(windowTitle);
     // Setting up grid container
     this.container = this.window.getContentPane();

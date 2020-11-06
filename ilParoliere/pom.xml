@@ -4,7 +4,7 @@
   <groupId>com.insubria.it</groupId>
   <artifactId>ilParoliere</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <name>ilParoliere</name>
   <url>http://maven.apache.org</url>
 
@@ -22,6 +22,12 @@
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.2.9</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -31,7 +37,6 @@
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.2.0</version>
         <executions>
-          <!-- Attach the shade into the package phase -->
           <execution>
             <phase>package</phase>
             <goals>
