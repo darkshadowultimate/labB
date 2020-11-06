@@ -319,7 +319,7 @@ public class PlayerThread extends Player implements Runnable {
 
     public void run () {
         switch (this.action) {
-            case "create" -> {
+            case "create": {
                 try {
                     this.createPlayerAccount(this.name, this.surname, this.username, this.email, this.password, this.player);
                 } catch (InterruptedException exc) {
@@ -344,7 +344,7 @@ public class PlayerThread extends Player implements Runnable {
                     } catch (RemoteException e) {}
                 }
             }
-            case "confirm" -> {
+            case "confirm": {
                 try {
                     this.confirmPlayerAccount(this.confirmationCode, this.player);
                 } catch (RemoteException exc) {
@@ -359,7 +359,7 @@ public class PlayerThread extends Player implements Runnable {
                     } catch (RemoteException e) {}
                 }
             }
-            case "login" -> {
+            case "login": {
                 try {
                     this.loginPlayerAccount(this.email, this.password, this.player);
                 } catch (RemoteException exc) {
@@ -374,7 +374,7 @@ public class PlayerThread extends Player implements Runnable {
                     } catch (RemoteException e) {}
                 }
             }
-            case "reset" -> {
+            case "reset": {
                 try {
                     this.resetPlayerPassword(this.email, this.player);
                 } catch (RemoteException exc) {
@@ -394,7 +394,7 @@ public class PlayerThread extends Player implements Runnable {
                     } catch (RemoteException e) {}
                 }
             }
-            case "change" -> {
+            case "change": {
                 try {
                     this.changePlayerData(this.email, this.name, this.surname, this.username, this.password, this.oldPassword, this.player);
                 } catch (RemoteException exc) {
