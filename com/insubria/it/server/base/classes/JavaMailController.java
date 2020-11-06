@@ -1,7 +1,7 @@
-package server.base.classes;
+package com.insubria.it.server.base.classes;
 
 
-import server.base.interfaces.JavaMail;
+import com.insubria.it.server.base.interfaces.JavaMail;
 
 import java.util.Properties;
 

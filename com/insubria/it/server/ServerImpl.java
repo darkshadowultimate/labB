@@ -1,16 +1,15 @@
-package server;
+package com.insubria.it.server;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.rmi.RMISecurityManager;
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 
-import server.base.interfaces.Server;
-import server.base.classes.AccessController;
+import com.insubria.it.server.base.interfaces.Server;
+import com.insubria.it.server.base.classes.AccessController;
 
-import server.threads.playerThread.PlayerThread;
-import server.threads.playerThread.interfaces.PlayerCredentials;
+import com.insubria.it.server.threads.playerThread.PlayerThread;
+import com.insubria.it.server.threads.playerThread.interfaces.PlayerCredentials;
 
 
 public class ServerImpl extends UnicastRemoteObject implements Server {
@@ -87,10 +86,10 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     try {
       ServerImpl server = new ServerImpl();
       Registry registry = LocateRegistry.createRegistry(1099);
-      registry.rebind("server", server);
+      registry.rebind("com/insubria/it/server", server);
       System.out.println("Server is listening...");
     } catch (Exception e) {
-      System.err.println("Error while starting the server");
+      System.err.println("Error while starting the com.insubria.it.server");
       System.exit(1);
     }
   }

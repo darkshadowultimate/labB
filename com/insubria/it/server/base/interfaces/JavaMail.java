@@ -1,4 +1,4 @@
-package server.base.interfaces;
+package com.insubria.it.server.base.interfaces;
 
 
 import javax.mail.MessagingException;

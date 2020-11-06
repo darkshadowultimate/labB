@@ -1,4 +1,4 @@
-package server.threads.playerThread.interfaces;
+package com.insubria.it.server.threads.playerThread.interfaces;
 
 
 import java.rmi.Remote;

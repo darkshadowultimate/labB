@@ -1,7 +1,7 @@
-package server.base.interfaces;
+package com.insubria.it.server.base.interfaces;
 
 
-import server.threads.playerThread.interfaces.PlayerCredentials;
+import com.insubria.it.server.threads.playerThread.interfaces.PlayerCredentials;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

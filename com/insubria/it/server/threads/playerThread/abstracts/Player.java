@@ -1,11 +1,11 @@
-package server.threads.playerThread.abstracts;
+package com.insubria.it.server.threads.playerThread.abstracts;
 
 
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import javax.mail.MessagingException;
 
-import server.threads.playerThread.interfaces.PlayerCredentials;
+import com.insubria.it.server.threads.playerThread.interfaces.PlayerCredentials;
 
 
 public abstract class Player  {

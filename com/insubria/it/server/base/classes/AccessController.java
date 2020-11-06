@@ -1,4 +1,4 @@
-package server.base.classes;
+package com.insubria.it.server.base.classes;
 
 
 import java.util.Scanner;
@@ -7,8 +7,8 @@ import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import server.base.abstracts.Access;
-import server.base.abstracts.Database;
+import com.insubria.it.server.base.abstracts.Access;
+import com.insubria.it.server.base.abstracts.Database;
 
 
 public class AccessController extends Access {

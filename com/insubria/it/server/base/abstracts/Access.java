@@ -1,4 +1,4 @@
-package server.base.abstracts;
+package com.insubria.it.server.base.abstracts;
 
 
 public abstract class Access {

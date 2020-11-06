@@ -1,14 +1,14 @@
-package server.threads.playerThread;
+package com.insubria.it.server.threads.playerThread;
 
 
-import server.base.abstracts.Database;
-import server.base.classes.JavaMailController;
-import server.base.interfaces.JavaMail;
+import com.insubria.it.server.base.abstracts.Database;
+import com.insubria.it.server.base.classes.JavaMailController;
+import com.insubria.it.server.base.interfaces.JavaMail;
 
-import server.org.mindrot.jbcrypt.BCrypt;
+import com.insubria.it.server.org.mindrot.jbcrypt.BCrypt;
 
-import server.threads.playerThread.abstracts.Player;
-import server.threads.playerThread.interfaces.PlayerCredentials;
+import com.insubria.it.server.threads.playerThread.abstracts.Player;
+import com.insubria.it.server.threads.playerThread.interfaces.PlayerCredentials;
 
 import java.rmi.RemoteException;
 import java.sql.Connection;

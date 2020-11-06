@@ -1,4 +1,4 @@
-package server.base.classes;
+package com.insubria.it.server.base.classes;
 
 
 import java.sql.DriverManager;
@@ -7,7 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import server.base.abstracts.Database;
+import com.insubria.it.server.base.abstracts.Database;
 
 
 public class DatabaseController extends Database {
