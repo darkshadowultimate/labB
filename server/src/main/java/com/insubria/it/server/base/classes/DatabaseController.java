@@ -21,6 +21,8 @@ public class DatabaseController extends Database {
     this.password = password;
   }
 
+  public String getDbName () { return this.DB_NAME; }
+
   public Connection getDatabaseConnection () throws SQLException {
     return DriverManager.getConnection(this.host, this.username, this.password);
   }

@@ -9,6 +9,7 @@ import java.sql.SQLException;
 
 import com.insubria.it.server.base.abstracts.Access;
 import com.insubria.it.server.base.abstracts.Database;
+import com.insubria.it.server.base.constants.DBCreation;
 
 
 public class AccessController extends Access {
@@ -37,6 +38,26 @@ public class AccessController extends Access {
     return credentials;
   }
 
+  protected void createDatabase() {
+    Connection dbConnection = null;
+    try {
+      dbConnection = this.db.getDatabaseConnection();
+    } catch (SQLException exc) {
+      System.err.println("Error while establishing the connection with the DB " + exc);
+      System.exit(1);
+    }
+
+    System.out.println("Creating the postgres db...");
+    try {
+      PreparedStatement pst = dbConnection.prepareStatement(DBCreation.sqlInitialize);
+      this.db.performChangeState(pst);
+    } catch (SQLException exc) {
+      System.err.println("Error while performing SQL operations " + exc);
+      System.exit(1);
+    }
+    System.out.println("Successfully created the Database");
+  }
+
   protected String[] askAdministratorCredentials() {
     String[] credentials = new String[2];
 
@@ -60,7 +81,7 @@ public class AccessController extends Access {
       System.exit(1);
     }
 
-    String sqlQuery = "SELECT * FROM administrator";
+    String sqlQuery = "USE " + this.db.getDbName() + "; SELECT * FROM administrator";
     try {
       PreparedStatement pst = dbConnection.prepareStatement(sqlQuery);
       ResultSet result = this.db.performQuery(pst);
@@ -98,7 +119,7 @@ public class AccessController extends Access {
       System.exit(1);
     }
 
-    String sqlInsert = "INSERT INTO administrator(uid, password) VALUES(?, ?)";
+    String sqlInsert = "USE " + this.db.getDbName() + "; INSERT INTO administrator(uid, password) VALUES(?, ?)";
     try {
       PreparedStatement pst = dbConnection.prepareStatement(sqlInsert);
       pst.setString(1, credentials[0]);
@@ -122,6 +143,7 @@ public class AccessController extends Access {
     credentials = this.askForCredentials();
 
     this.db = new DatabaseController(credentials[0], credentials[1], credentials[2]);
+    this.createDatabase();
     if (!this.checkAdminProfile()) {
       this.createAdminProfile();
     }
