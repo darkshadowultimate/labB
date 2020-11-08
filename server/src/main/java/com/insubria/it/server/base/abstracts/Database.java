@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public abstract class Database {
   protected final String DB_NAME = "postgres";
@@ -12,6 +13,8 @@ public abstract class Database {
   public abstract String getDbName ();
 
   public abstract Connection getDatabaseConnection () throws SQLException;
+
+  public abstract ResultSet performSimpleQuery (String query) throws SQLException;
 
   public abstract ResultSet performQuery (PreparedStatement query) throws SQLException;
 
