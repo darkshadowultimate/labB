@@ -343,6 +343,7 @@ public class PlayerThread extends Player implements Runnable {
                         this.player.errorPlayerRegistration("Error while sending the email " + exc);
                     } catch (RemoteException e) {}
                 }
+                break;
             }
             case "confirm": {
                 try {
@@ -358,6 +359,7 @@ public class PlayerThread extends Player implements Runnable {
                         this.player.errorCodeConfirmation("Error while performing DB operations " + exc);
                     } catch (RemoteException e) {}
                 }
+                break;
             }
             case "login": {
                 try {
@@ -373,6 +375,7 @@ public class PlayerThread extends Player implements Runnable {
                         this.player.errorLoginPlayerAccount("Error while performing DB operations " + exc);
                     } catch (RemoteException e) {}
                 }
+                break;
             }
             case "reset": {
                 try {
@@ -393,6 +396,7 @@ public class PlayerThread extends Player implements Runnable {
                         this.player.errorResetPlayerPassword("Error while sending the email " + exc);
                     } catch (RemoteException e) {}
                 }
+                break;
             }
             case "change": {
                 try {
@@ -413,6 +417,7 @@ public class PlayerThread extends Player implements Runnable {
                         this.player.errorChangePlayerData("Error while sending the email " + exc);
                     } catch (RemoteException e) {}
                 }
+                break;
             }
         }
     }
