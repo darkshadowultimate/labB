@@ -11,4 +11,6 @@ public abstract class Monitor {
     protected abstract void moreSessionsPlayed () throws RemoteException, SQLException;
 
     protected abstract void moreProposedDuplicatedWords () throws RemoteException, SQLException;
+
+    protected abstract void moreInvalidProposedWords () throws RemoteException, SQLException;
 }

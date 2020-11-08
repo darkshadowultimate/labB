@@ -67,6 +67,25 @@ public class MonitorThread extends Monitor implements Runnable {
         result.close();
     }
 
+    protected void moreInvalidProposedWords () throws RemoteException, SQLException {
+        System.out.println("Reaching the user that proposed the highest number of invalid words...");
+        String sqlQuery = "SELECT email_user, username_user, COUNT(*) as number " +
+                          "FROM discover " +
+                          "WHERE is_valid = FALSE " +
+                          "GROUP BY email_user, username_user " +
+                          "ORDER BY number DESC;";
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            String returnString = result.getString("email_user") + " " + result.getString("username_user") + " " + result.getInt("number");
+            this.monitorClient.confirmMoreInvalidProposedWords(returnString);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorMoreInvalidProposedWords("No sessions played yet");
+        }
+        result.close();
+    }
+
     public void run () {
         switch (this.action) {
             case "moreSessionsPlayed": {
@@ -95,6 +114,21 @@ public class MonitorThread extends Monitor implements Runnable {
                 } catch (SQLException exc) {
                     try {
                         this.monitorClient.errorMoreProposedDuplicatedWords("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "moreInvalidWords": {
+                try {
+                    this.moreInvalidProposedWords();
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorMoreInvalidProposedWords("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorMoreInvalidProposedWords("Error while performing DB operations " + exc);
                     } catch (RemoteException e) {}
                 }
                 break;

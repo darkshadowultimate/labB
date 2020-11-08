@@ -10,6 +10,8 @@ import com.insubria.it.server.base.classes.AccessController;
 
 import com.insubria.it.server.threads.playerThread.PlayerThread;
 import com.insubria.it.server.threads.playerThread.interfaces.PlayerCredentials;
+import com.insubria.it.server.threads.monitorThread.MonitorThread;
+import com.insubria.it.server.threads.monitorThread.interfaces.MonitorClient;
 
 
 public class ServerImpl extends UnicastRemoteObject implements Server {
@@ -72,6 +74,24 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
       "change"
     );
     Thread thread = new Thread(playerThread);
+    thread.start();
+  }
+
+  public void moreSessionsPlayed (MonitorClient monitorClient) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreSessionsPlayed");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
+  public void moreProposedDuplicatedWords (MonitorClient monitorClient) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreProposedDuplicatedWords");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
+  public void moreInvalidProposedWords (MonitorClient monitorClient) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreInvalidWords");
+    Thread thread = new Thread(monitorThread);
     thread.start();
   }
 

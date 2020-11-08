@@ -13,4 +13,8 @@ public interface MonitorClient extends Remote {
     void confirmMoreProposedDuplicatedWords (String result) throws RemoteException;
 
     void errorMoreProposedDuplicatedWords (String error) throws RemoteException;
+
+    void confirmMoreInvalidProposedWords (String result) throws RemoteException;
+
+    void errorMoreInvalidProposedWords (String error) throws RemoteException;
 }
