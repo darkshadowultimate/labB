@@ -95,6 +95,42 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     thread.start();
   }
 
+  public void validWordsOccurrences (MonitorClient monitorClient, int page) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "validWordsOccurrences");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
+  public void wordHighestScore (MonitorClient monitorClient, int page) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "wordHighestScore");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
+  public void averageRounds (MonitorClient monitorClient) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "averageRounds");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
+  public void minMaxRounds (MonitorClient monitorClient) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "minMaxRounds");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
+  public void definitionRequest (MonitorClient monitorClient, int page) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "definitionRequest");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
+  public void gameDefinitionRequest (MonitorClient monitorClient, int page) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "gameDefinitionRequest");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
   public static void main (String[] args) throws RemoteException {
     /*if (System.getSecurityManager() == null) {
       System.setSecurityManager(new RMISecurityManager());

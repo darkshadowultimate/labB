@@ -43,4 +43,16 @@ public interface Server extends Remote {
     void moreProposedDuplicatedWords (MonitorClient monitorClient) throws RemoteException;
 
     void moreInvalidProposedWords (MonitorClient monitorClient) throws RemoteException;
+
+    void validWordsOccurrences (MonitorClient monitorClient, int page) throws RemoteException;
+
+    void wordHighestScore (MonitorClient monitorClient, int page) throws RemoteException;
+
+    void averageRounds (MonitorClient monitorClient) throws RemoteException;
+
+    void minMaxRounds (MonitorClient monitorClient) throws RemoteException;
+
+    void definitionRequest (MonitorClient monitorClient, int page) throws RemoteException;
+
+    void gameDefinitionRequest (MonitorClient monitorClient, int page) throws RemoteException;
 }

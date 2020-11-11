@@ -17,12 +17,19 @@ import java.sql.SQLException;
 
 public class MonitorThread extends Monitor implements Runnable {
     private final MonitorClient monitorClient;
+    private int page;
 
     private Database db;
     private final String action;
 
     public MonitorThread (MonitorClient monitorClient, String action) {
         this.monitorClient = monitorClient;
+        this.action = action;
+    }
+
+    public MonitorThread (MonitorClient monitorClient, int page, String action) {
+        this.monitorClient = monitorClient;
+        this.page = page;
         this.action = action;
     }
 
@@ -86,6 +93,132 @@ public class MonitorThread extends Monitor implements Runnable {
         result.close();
     }
 
+    private String[] transformString (ResultSet result, int lenght) throws SQLException {
+        String[] returnArray = new String[10];
+        String tmp = "";
+        int i = 0;
+        while (result.next()) {
+            for (int index = 0; index < lenght; index++) {
+                tmp += (String) result.getObject(index + 1) + " ";
+            }
+            returnArray[i++] = tmp;
+            tmp = "";
+        }
+        return returnArray;
+    }
+
+    protected void validWordsOccurrences (int page) throws RemoteException, SQLException {
+        System.out.println("Reaching the valid word occurrences list...");
+        String sqlQuery = "SELECT word, COUNT(*) as occurrences " +
+                          "FROM discover " +
+                          "WHERE is_valid = True " +
+                          "GROUP BY word " +
+                          "ORDER BY occurrences DESC " +
+                          "LIMIT 10 OFFSET " + (page - 1) * 10 + ";";
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            String[] clientResult = this.transformString(result, 2);
+            this.monitorClient.confirmValidWordsOccurrences(clientResult);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorValidWordsOccurrences("No sessions played yet");
+        }
+        result.close();
+    }
+
+    protected void wordHighestScore (int page) throws RemoteException, SQLException {
+        System.out.println("Reaching the highest score valid words...");
+        String sqlQuery = "SELECT DISTINCT word, id_game, score " +
+                          "FROM discover " +
+                          "WHERE is_valid = True " +
+                          "ORDER BY score DESC;";
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            String[] clientResult = this.transformString(result, 3);
+            this.monitorClient.confirmWordHighestScore(clientResult);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorWordHighestScore("No sessions played yet");
+        }
+        result.close();
+    }
+
+    protected void averageRounds () throws RemoteException, SQLException {
+        System.out.println("Reaching the average rounds for games...");
+        String sqlQuery = "SELECT max_players, AVG(n_rounds) as average_rounds " +
+                          "FROM game " +
+                          "WHERE status = 'closed' " +
+                          "GROUP BY max_players;";
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            String[] clientResult = this.transformString(result, 2);
+            this.monitorClient.confirmAverageRounds(clientResult);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorAverageRounds("No sessions played yet");
+        }
+        result.close();
+    }
+
+    protected void minMaxRounds () throws RemoteException, SQLException {
+        System.out.println("Reaching the min/max rounds for games...");
+        String sqlQuery = "SELECT max_players, MAX(n_rounds) as max_round, MIN(n_rounds) as min_round " +
+                          "FROM game " +
+                          "WHERE status = 'closed' " +
+                          "GROUP BY max_players;";
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            String[] clientResult = this.transformString(result, 3);
+            this.monitorClient.confirmMinMaxRounds(clientResult);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorMinMaxRounds("No sessions played yet");
+        }
+        result.close();
+    }
+
+    protected void definitionRequest (int page) throws RemoteException, SQLException {
+        System.out.println("Reaching the words users required the definition...");
+        String sqlQuery = "SELECT word, AVG(n_requests) as avg_requests " +
+                          "FROM discover " +
+                          "WHERE n_requests > 0 " +
+                          "GROUP BY word " +
+                          "ORDER BY AVG(n_requests) DESC " +
+                          "LIMIT 10 OFFSET " + (page - 1) * 10 + ";";
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            String[] clientResult = this.transformString(result, 2);
+            this.monitorClient.confirmDefinitionRequest(clientResult);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorDefinitionRequest("No sessions played yet");
+        }
+        result.close();
+    }
+
+    protected void gameDefinitionRequest (int page) throws RemoteException, SQLException {
+        System.out.println("Reaching the games where users required the definition...");
+        String sqlQuery = "SELECT DISTINCT id_game " +
+                          "FROM discover " +
+                          "WHERE n_requests > 0 " +
+                          "LIMIT 10 OFFSET " + (page - 1) * 10 + ";";
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            String[] clientResult = this.transformString(result, 1);
+            this.monitorClient.confirmGameDefinitionRequest(clientResult);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorGameDefinitionRequest("No sessions played yet");
+        }
+        result.close();
+    }
+
     public void run () {
         switch (this.action) {
             case "moreSessionsPlayed": {
@@ -129,6 +262,96 @@ public class MonitorThread extends Monitor implements Runnable {
                 } catch (SQLException exc) {
                     try {
                         this.monitorClient.errorMoreInvalidProposedWords("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "validWordsOccurrences": {
+                try {
+                    this.validWordsOccurrences(this.page);
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorValidWordsOccurrences("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorValidWordsOccurrences("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "wordHighestScore": {
+                try {
+                    this.wordHighestScore(this.page);
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorWordHighestScore("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorWordHighestScore("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "averageRounds": {
+                try {
+                    this.averageRounds();
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorAverageRounds("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorAverageRounds("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "minMaxRounds": {
+                try {
+                    this.minMaxRounds();
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorMinMaxRounds("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorMinMaxRounds("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "definitionRequest": {
+                try {
+                    this.definitionRequest(this.page);
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorDefinitionRequest("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorDefinitionRequest("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "gameDefinitionRequest": {
+                try {
+                    this.gameDefinitionRequest(this.page);
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorGameDefinitionRequest("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorGameDefinitionRequest("Error while performing DB operations " + exc);
                     } catch (RemoteException e) {}
                 }
                 break;

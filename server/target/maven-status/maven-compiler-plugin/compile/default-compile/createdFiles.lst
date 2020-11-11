@@ -1,7 +1,10 @@
 com/insubria/it/server/ServerImpl.class
+com/insubria/it/server/threads/monitorThread/abstracts/Monitor.class
+com/insubria/it/server/threads/monitorThread/interfaces/MonitorClient.class
 com/insubria/it/server/threads/playerThread/PlayerThread.class
 com/insubria/it/server/base/interfaces/JavaMail.class
 com/insubria/it/server/threads/playerThread/abstracts/Player.class
+com/insubria/it/server/threads/monitorThread/MonitorThread.class
 com/insubria/it/server/base/abstracts/Database.class
 com/insubria/it/server/base/classes/AccessController.class
 com/insubria/it/server/base/classes/JavaMailController.class

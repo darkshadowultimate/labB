@@ -13,4 +13,16 @@ public abstract class Monitor {
     protected abstract void moreProposedDuplicatedWords () throws RemoteException, SQLException;
 
     protected abstract void moreInvalidProposedWords () throws RemoteException, SQLException;
+
+    protected abstract void validWordsOccurrences (int page) throws RemoteException, SQLException;
+
+    protected abstract void wordHighestScore (int page) throws RemoteException, SQLException;
+
+    protected abstract void averageRounds () throws RemoteException, SQLException;
+
+    protected abstract void minMaxRounds () throws RemoteException, SQLException;
+
+    protected abstract void definitionRequest (int page) throws RemoteException, SQLException;
+
+    protected abstract void gameDefinitionRequest (int page) throws RemoteException, SQLException;
 }
