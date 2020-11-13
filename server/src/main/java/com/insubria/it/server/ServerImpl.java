@@ -77,8 +77,20 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     thread.start();
   }
 
+  public void moreScoreGameAndSession (MonitorClient monitorClient)) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreScoreGameAndSession");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+  
   public void moreSessionsPlayed (MonitorClient monitorClient) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, "moreSessionsPlayed");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
+  public void moreAvgScoreGameAndSession (MonitorClient monitorClient)) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreAvgScoreGameAndSession");
     Thread thread = new Thread(monitorThread);
     thread.start();
   }

@@ -284,6 +284,21 @@ public class MonitorThread extends Monitor implements Runnable {
 
     public void run () {
         switch (this.action) {
+            case "moreScoreGameAndSession": {
+                try {
+                    this.moreScoreGameAndSession();
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorMoreScoreGameAndSession("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorMoreScoreGameAndSession("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
             case "moreSessionsPlayed": {
                 try {
                     this.moreSessionsPlayed();
@@ -295,6 +310,21 @@ public class MonitorThread extends Monitor implements Runnable {
                 } catch (SQLException exc) {
                     try {
                         this.monitorClient.errorMoreSessionsPlayed("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "moreAvgScoreGameAndSession": {
+                try {
+                    this.moreAvgScoreGameAndSession();
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorMoreAvgScoreGameAndSession("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorMoreAvgScoreGameAndSession("Error while performing DB operations " + exc);
                     } catch (RemoteException e) {}
                 }
                 break;

@@ -38,7 +38,11 @@ public interface Server extends Remote {
         PlayerCredentials player
     ) throws RemoteException;
 
+    void moreScoreGameAndSession (MonitorClient monitorClient)) throws RemoteException;
+    
     void moreSessionsPlayed (MonitorClient monitorClient) throws RemoteException;
+
+    void moreAvgScoreGameAndSession (MonitorClient monitorClient)) throws RemoteException;
 
     void moreProposedDuplicatedWords (MonitorClient monitorClient) throws RemoteException;
 
