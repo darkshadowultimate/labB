@@ -33,6 +33,36 @@ public class MonitorThread extends Monitor implements Runnable {
         this.action = action;
     }
 
+    protected void moreScoreGameAndSession () throws RemoteException, SQLException {
+        System.out.println("Reaching the user with maximum score per game and per session...");
+        String sqlQuery1 = "SELECT id_game, username_user, email_user, SUM(score) as score " +
+                           "FROM discover " +
+                           "WHERE is_valid = True " +
+                           "GROUP BY id_game, username_user, email_user " +
+                           "ORDER BY SUM(score) DESC " +
+                           "LIMIT 1;";
+        String sqlQuery2 = "SELECT id_game, session_number_enter, username_user, email_user, SUM(score) as score " +
+                           "FROM discover " +
+                           "WHERE is_valid = True " +
+                           "GROUP BY id_game, session_number_enter, username_user, email_user " +
+                           "ORDER BY SUM(score) DESC " +
+                           "LIMIT 1;";
+        ResultSet result1 = this.db.performSimpleQuery(sqlQuery1), result2 = this.db.performSimpleQuery(sqlQuery2);
+        if (result1.isBeforeFirst() && result2.isBeforeFirst()) {
+            result1.next(); result2.next();
+            System.out.println("Successfully performed the query");
+            String[] returnArray = new String[2];
+            returnArray[0] = result1.getString("id_game") + " " + result1.getString("username_user") + " " + result1.getString("email_user") + " " + result1.getInt("score");
+            returnArray[1] = result2.getString("id_game") + " " + result2.getInt("session_number") + " " + result2.getString("username_user") + " " + result2.getString("email_user") + " " + result2.getInt("score");
+            this.monitorClient.confirmMoreScoreGameAndSession(returnString);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorMoreScoreGameAndSession("No sessions played yet");
+        }
+        result1.close();
+        result2.close();
+    }
+
     protected void moreSessionsPlayed () throws RemoteException, SQLException {
         System.out.println("Reaching the user with the maximum number of sessions played...");
         String sqlQuery = "SELECT u.email, u.username, COUNT(*) as number " +
@@ -41,6 +71,7 @@ public class MonitorThread extends Monitor implements Runnable {
                           "ORDER BY number DESC;";
         ResultSet result = this.db.performSimpleQuery(sqlQuery);
         if (result.isBeforeFirst()) {
+            result.next();
             System.out.println("Successfully performed the query");
             String returnString = result.getString("email") + " " + result.getString("username") + " " + result.getInt("number");
             this.monitorClient.confirmMoreSessionsPlayed(returnString);
@@ -49,6 +80,36 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorMoreSessionsPlayed("No sessions played yet");
         }
         result.close();
+    }
+
+    protected void moreAvgScoreGameAndSession () throws RemoteException, SQLException {
+        System.out.println("Reaching the user with maximum avg score per game and per session...");
+        String sqlQuery1 = "SELECT id_game, username_user, email_user, AVG(score) as score " +
+                           "FROM discover " +
+                           "WHERE is_valid = True " +
+                           "GROUP BY id_game, username_user, email_user " +
+                           "ORDER BY AVG(score) DESC " +
+                           "LIMIT 1;";
+        String sqlQuery2 = "SELECT id_game, session_number_enter, username_user, email_user, AVG(score) as score " +
+                           "FROM discover " +
+                           "WHERE is_valid = True " +
+                           "GROUP BY id_game, session_number_enter, username_user, email_user " +
+                           "ORDER BY AVG(score) DESC " +
+                           "LIMIT 1;";
+        ResultSet result1 = this.db.performSimpleQuery(sqlQuery1), result2 = this.db.performSimpleQuery(sqlQuery2);
+        if (result1.isBeforeFirst() && result2.isBeforeFirst()) {
+            result1.next(); result2.next();
+            System.out.println("Successfully performed the query");
+            String[] returnArray = new String[2];
+            returnArray[0] = result1.getString("id_game") + " " + result1.getString("username_user") + " " + result1.getString("email_user") + " " + result1.getInt("score");
+            returnArray[1] = result2.getString("id_game") + " " + result2.getInt("session_number") + " " + result2.getString("username_user") + " " + result2.getString("email_user") + " " + result2.getInt("score");
+            this.monitorClient.confirmMoreAvgScoreGameAndSession(returnString);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorMoreAvgScoreGameAndSession("No sessions played yet");
+        }
+        result1.close();
+        result2.close();
     }
 
     protected void moreProposedDuplicatedWords () throws RemoteException, SQLException {
@@ -64,6 +125,7 @@ public class MonitorThread extends Monitor implements Runnable {
                           "ORDER BY number DESC;";
         ResultSet result = this.db.performSimpleQuery(sqlQuery);
         if (result.isBeforeFirst()) {
+            result.next();
             System.out.println("Successfully performed the query");
             String returnString = result.getString("email_user") + " " + result.getString("username_user") + " " + result.getInt("number");
             this.monitorClient.confirmMoreProposedDuplicatedWords(returnString);
@@ -83,6 +145,7 @@ public class MonitorThread extends Monitor implements Runnable {
                           "ORDER BY number DESC;";
         ResultSet result = this.db.performSimpleQuery(sqlQuery);
         if (result.isBeforeFirst()) {
+            result.next();
             System.out.println("Successfully performed the query");
             String returnString = result.getString("email_user") + " " + result.getString("username_user") + " " + result.getInt("number");
             this.monitorClient.confirmMoreInvalidProposedWords(returnString);

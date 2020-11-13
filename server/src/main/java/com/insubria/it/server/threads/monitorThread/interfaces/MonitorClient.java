@@ -6,17 +6,25 @@ import java.rmi.RemoteException;
 
 
 public interface MonitorClient extends Remote {
+    void confirmMoreScoreGameAndSession (String[] result) throws RemoteException;
+
+    void errorMoreScoreGameAndSession (String reason) throws RemoteException;
+
     void confirmMoreSessionsPlayed (String result) throws RemoteException;
 
-    void errorMoreSessionsPlayed (String error) throws RemoteException;
+    void errorMoreSessionsPlayed (String reason) throws RemoteException;
+
+    void confirmMoreAvgScoreGameAndSession (String[] result) throws RemoteException;
+
+    void errorMoreAvgScoreGameAndSession (String reason) throws RemoteException;
 
     void confirmMoreProposedDuplicatedWords (String result) throws RemoteException;
 
-    void errorMoreProposedDuplicatedWords (String error) throws RemoteException;
+    void errorMoreProposedDuplicatedWords (String reason) throws RemoteException;
 
     void confirmMoreInvalidProposedWords (String result) throws RemoteException;
 
-    void errorMoreInvalidProposedWords (String error) throws RemoteException;
+    void errorMoreInvalidProposedWords (String reason) throws RemoteException;
 
     void confirmValidWordsOccurrences (String[] result) throws RemoteException;
 
