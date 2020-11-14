@@ -56,7 +56,7 @@ public class MonitorThread extends Monitor implements Runnable {
             String[] returnArray = new String[2];
             returnArray[0] = result1.getString("id_game") + " " + result1.getString("username_user") + " " + result1.getString("email_user") + " " + result1.getInt("score");
             returnArray[1] = result2.getString("id_game") + " " + result2.getInt("session_number") + " " + result2.getString("username_user") + " " + result2.getString("email_user") + " " + result2.getInt("score");
-            this.monitorClient.confirmMoreScoreGameAndSession(returnString);
+            this.monitorClient.confirmMoreScoreGameAndSession(returnArray);
         } else {
             System.out.println("No sessions played yet");
             this.monitorClient.errorMoreScoreGameAndSession("No sessions played yet");
@@ -105,7 +105,7 @@ public class MonitorThread extends Monitor implements Runnable {
             String[] returnArray = new String[2];
             returnArray[0] = result1.getString("id_game") + " " + result1.getString("username_user") + " " + result1.getString("email_user") + " " + result1.getInt("score");
             returnArray[1] = result2.getString("id_game") + " " + result2.getInt("session_number") + " " + result2.getString("username_user") + " " + result2.getString("email_user") + " " + result2.getInt("score");
-            this.monitorClient.confirmMoreAvgScoreGameAndSession(returnString);
+            this.monitorClient.confirmMoreAvgScoreGameAndSession(returnArray);
         } else {
             System.out.println("No sessions played yet");
             this.monitorClient.errorMoreAvgScoreGameAndSession("No sessions played yet");
@@ -247,7 +247,7 @@ public class MonitorThread extends Monitor implements Runnable {
     }
 
     private void calculateAvgForEachItemInHashMap (HashMap<Character, Double> hashMap, int nRows) {
-        for (Map.entry<Character, Double> item : hashMap.entrySet()) {
+        for (Map.Entry<Character, Double> item : hashMap.entrySet()) {
             hashMap.replace(item.getKey(), item.getValue() / nRows);
         }
     }

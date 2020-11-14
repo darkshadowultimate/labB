@@ -160,7 +160,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     try {
       ServerImpl server = new ServerImpl();
       Registry registry = LocateRegistry.createRegistry(1099);
-      registry.rebind("com/insubria/it/server", server);
+      registry.rebind("server", server);
       System.out.println("Server is listening...");
     } catch (Exception e) {
       System.err.println("Error while starting the com.insubria.it.server");
