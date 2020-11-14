@@ -56,6 +56,8 @@ public interface Server extends Remote {
 
     void minMaxRounds (MonitorClient monitorClient) throws RemoteException;
 
+    void charactersAvgOccurrence (MonitorClient monitorClient) throws RemoteException;
+
     void definitionRequest (MonitorClient monitorClient, int page) throws RemoteException;
 
     void gameDefinitionRequest (MonitorClient monitorClient, int page) throws RemoteException;

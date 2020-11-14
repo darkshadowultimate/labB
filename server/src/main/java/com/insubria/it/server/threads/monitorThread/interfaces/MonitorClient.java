@@ -3,6 +3,7 @@ package com.insubria.it.server.threads.monitorThread.interfaces;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.HashMap;
 
 
 public interface MonitorClient extends Remote {
@@ -41,6 +42,10 @@ public interface MonitorClient extends Remote {
     void confirmMinMaxRounds (String[] result) throws RemoteException;
 
     void errorMinMaxRounds (String reason) throws RemoteException;
+
+    void confirmCharactersAvgOccurrence (HashMap<Character, Double> result) throws RemoteException;
+
+    void errorCharactersAvgOccurrence (String reason) throws RemoteException;
 
     void confirmDefinitionRequest (String[] result) throws RemoteException;
 

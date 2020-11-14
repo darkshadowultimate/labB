@@ -131,6 +131,12 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     thread.start();
   }
 
+  public void charactersAvgOccurrence (MonitorClient monitorClient) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "charactersAvgOccurrence");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
   public void definitionRequest (MonitorClient monitorClient, int page) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, page, "definitionRequest");
     Thread thread = new Thread(monitorThread);

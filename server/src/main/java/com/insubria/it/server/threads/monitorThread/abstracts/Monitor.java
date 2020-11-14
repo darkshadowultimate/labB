@@ -26,6 +26,8 @@ public abstract class Monitor {
 
     protected abstract void minMaxRounds () throws RemoteException, SQLException;
 
+    protected abstract void charactersAvgOccurrence () throws RemoteException, SQLException;
+
     protected abstract void definitionRequest (int page) throws RemoteException, SQLException;
 
     protected abstract void gameDefinitionRequest (int page) throws RemoteException, SQLException;

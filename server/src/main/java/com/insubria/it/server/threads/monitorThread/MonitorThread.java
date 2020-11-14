@@ -2,6 +2,8 @@ package com.insubria.it.server.threads.monitorThread;
 
 
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.insubria.it.server.base.abstracts.Database;
 
@@ -244,6 +246,49 @@ public class MonitorThread extends Monitor implements Runnable {
         result.close();
     }
 
+    private void calculateAvgForEachItemInHashMap (HashMap<Character, Double> hashMap, int nRows) {
+        for (Map.entry<Character, Double> item : hashMap.entrySet()) {
+            hashMap.replace(item.getKey(), item.getValue() / nRows);
+        }
+    }
+
+    private HashMap<Character, Double> mapAvgOccurrence (ResultSet result) throws SQLException {
+        HashMap<Character, Double> hashMap = new HashMap<Character, Double>();
+        String charsInMatrix = "";
+        char singleChar = 0;
+        int nRows = 0;
+        while (result.next()) {
+            charsInMatrix = result.getString("characters");
+            for (int i = 0; i < charsInMatrix.length(); i++) {
+                singleChar = charsInMatrix.charAt(i);
+                if (hashMap.containsKey(singleChar)) {
+                    hashMap.replace(singleChar, hashMap.get(singleChar) + 1.0);
+                } else {
+                    hashMap.put(singleChar, 1.0);
+                }
+            }
+            nRows++;
+        }
+        this.calculateAvgForEachItemInHashMap(hashMap, nRows);
+        return hashMap;
+    }
+
+    protected void charactersAvgOccurrence () throws RemoteException, SQLException {
+        System.out.println("Reaching the characters average occurrence...");
+        String sqlQuery = "SELECT characters " +
+                          "FROM enter;";
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            HashMap<Character, Double> hashMap = this.mapAvgOccurrence(result);
+            this.monitorClient.confirmCharactersAvgOccurrence(hashMap);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorCharactersAvgOccurrence("No sessions played yet");
+        }
+        result.close();
+    }
+
     protected void definitionRequest (int page) throws RemoteException, SQLException {
         System.out.println("Reaching the words users required the definition...");
         String sqlQuery = "SELECT word, AVG(n_requests) as avg_requests " +
@@ -415,6 +460,21 @@ public class MonitorThread extends Monitor implements Runnable {
                 } catch (SQLException exc) {
                     try {
                         this.monitorClient.errorMinMaxRounds("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "charactersAvgOccurrence": {
+                try {
+                    this.charactersAvgOccurrence();
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorCharactersAvgOccurrence("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorCharactersAvgOccurrence("Error while performing DB operations " + exc);
                     } catch (RemoteException e) {}
                 }
                 break;
