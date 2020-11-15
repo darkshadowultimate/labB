@@ -61,4 +61,6 @@ public interface Server extends Remote {
     void definitionRequest (MonitorClient monitorClient, int page) throws RemoteException;
 
     void gameDefinitionRequest (MonitorClient monitorClient, int page) throws RemoteException;
+
+    void createNewGame (String name, int maxPlayers, GameClient gameCreator) throws RemoteException;
 }

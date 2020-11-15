@@ -13,6 +13,8 @@ import com.insubria.it.server.threads.playerThread.PlayerThread;
 import com.insubria.it.server.threads.playerThread.interfaces.PlayerCredentials;
 import com.insubria.it.server.threads.monitorThread.MonitorThread;
 import com.insubria.it.server.threads.monitorThread.interfaces.MonitorClient;
+import com.insubria.it.server.threads.gameThread.GameThread;
+import com.insubria.it.server.threads.gameThread.interfaces.GameClient;
 
 
 public class ServerImpl extends UnicastRemoteObject implements Server {
@@ -153,6 +155,12 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 
   public void gameDefinitionRequest (MonitorClient monitorClient, int page) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, page, "gameDefinitionRequest", this.db);
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
+  public void createNewGame (String name, int maxPlayers, GameClient gameCreator) throws RemoteException {
+    GameThread gameThread = new GameThread(gameCreator, name, maxPlayers, this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
