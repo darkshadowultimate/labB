@@ -24,15 +24,17 @@ public class MonitorThread extends Monitor implements Runnable {
     private Database db;
     private final String action;
 
-    public MonitorThread (MonitorClient monitorClient, String action) {
+    public MonitorThread (MonitorClient monitorClient, String action, Database db) {
         this.monitorClient = monitorClient;
         this.action = action;
+        this.db = db;
     }
 
-    public MonitorThread (MonitorClient monitorClient, int page, String action) {
+    public MonitorThread (MonitorClient monitorClient, int page, String action, Database db) {
         this.monitorClient = monitorClient;
         this.page = page;
         this.action = action;
+        this.db = db;
     }
 
     protected void moreScoreGameAndSession () throws RemoteException, SQLException {

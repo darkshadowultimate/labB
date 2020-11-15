@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import com.insubria.it.server.ServerImpl;
 import com.insubria.it.server.base.abstracts.Access;
 import com.insubria.it.server.base.abstracts.Database;
 import com.insubria.it.server.base.constants.DBCreation;
@@ -136,7 +137,7 @@ public class AccessController extends Access {
     System.out.println("Logging with " + credentials[0] + " profile...");
   }
 
-  public void handleAccessProcess () {
+  public void handleAccessProcess (ServerImpl server) {
     String[] credentials;
 
     System.out.println("Asking the DB credentials...");
@@ -147,5 +148,7 @@ public class AccessController extends Access {
     if (!this.checkAdminProfile()) {
       this.createAdminProfile();
     }
+
+    server.setDbReference(this.db);
   }
 }

@@ -6,6 +6,7 @@ import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 
 import com.insubria.it.server.base.interfaces.Server;
+import com.insubria.it.server.base.abstracts.Database;
 import com.insubria.it.server.base.classes.AccessController;
 
 import com.insubria.it.server.threads.playerThread.PlayerThread;
@@ -15,8 +16,14 @@ import com.insubria.it.server.threads.monitorThread.interfaces.MonitorClient;
 
 
 public class ServerImpl extends UnicastRemoteObject implements Server {
+  private Database db;
+
   public ServerImpl () throws RemoteException {
     super();
+  }
+
+  public void setDbReference (Database db) {
+    this.db = db;
   }
 
   public void createPlayerAccount (
@@ -27,13 +34,13 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     String password,
     PlayerCredentials player
   ) throws RemoteException {
-    PlayerThread playerThread = new PlayerThread(name, surname, username, email, password, player, "create");
+    PlayerThread playerThread = new PlayerThread(name, surname, username, email, password, player, "create", this.db);
     Thread thread = new Thread(playerThread);
     thread.start();
   }
 
   public void confirmPlayerAccount (String confirmationCode, PlayerCredentials player) throws RemoteException {
-    PlayerThread playerThread = new PlayerThread(confirmationCode, player, "confirm");
+    PlayerThread playerThread = new PlayerThread(confirmationCode, player, "confirm", this.db);
     Thread thread = new Thread(playerThread);
     thread.start();
   }
@@ -43,13 +50,13 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     String password,
     PlayerCredentials player
   ) throws RemoteException {
-    PlayerThread playerThread = new PlayerThread(email, password, player, "login");
+    PlayerThread playerThread = new PlayerThread(email, password, player, "login", this.db);
     Thread thread = new Thread(playerThread);
     thread.start();
   }
 
   public void resetPlayerPassword (String email, PlayerCredentials player) throws RemoteException {
-    PlayerThread playerThread = new PlayerThread(player, email, "reset");
+    PlayerThread playerThread = new PlayerThread(player, email, "reset", this.db);
     Thread thread = new Thread(playerThread);
     thread.start();
   }
@@ -71,80 +78,81 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
       password,
       oldPassword,
       player,
-      "change"
+      "change",
+      this.db
     );
     Thread thread = new Thread(playerThread);
     thread.start();
   }
 
   public void moreScoreGameAndSession (MonitorClient monitorClient) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreScoreGameAndSession");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreScoreGameAndSession", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
   
   public void moreSessionsPlayed (MonitorClient monitorClient) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreSessionsPlayed");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreSessionsPlayed", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
   public void moreAvgScoreGameAndSession (MonitorClient monitorClient) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreAvgScoreGameAndSession");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreAvgScoreGameAndSession", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
   public void moreProposedDuplicatedWords (MonitorClient monitorClient) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreProposedDuplicatedWords");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreProposedDuplicatedWords", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
   public void moreInvalidProposedWords (MonitorClient monitorClient) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreInvalidWords");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "moreInvalidWords", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
   public void validWordsOccurrences (MonitorClient monitorClient, int page) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "validWordsOccurrences");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "validWordsOccurrences", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
   public void wordHighestScore (MonitorClient monitorClient, int page) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "wordHighestScore");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "wordHighestScore", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
   public void averageRounds (MonitorClient monitorClient) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, "averageRounds");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "averageRounds", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
   public void minMaxRounds (MonitorClient monitorClient) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, "minMaxRounds");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "minMaxRounds", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
   public void charactersAvgOccurrence (MonitorClient monitorClient) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, "charactersAvgOccurrence");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "charactersAvgOccurrence", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
   public void definitionRequest (MonitorClient monitorClient, int page) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "definitionRequest");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "definitionRequest", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
   public void gameDefinitionRequest (MonitorClient monitorClient, int page) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "gameDefinitionRequest");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "gameDefinitionRequest", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
@@ -153,12 +161,12 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     /*if (System.getSecurityManager() == null) {
       System.setSecurityManager(new RMISecurityManager());
     }*/
+    ServerImpl server = new ServerImpl();
 
     AccessController accessController = new AccessController();
-    accessController.handleAccessProcess();
+    accessController.handleAccessProcess(server);
 
     try {
-      ServerImpl server = new ServerImpl();
       Registry registry = LocateRegistry.createRegistry(1099);
       registry.rebind("server", server);
       System.out.println("Server is listening...");

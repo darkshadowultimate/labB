@@ -39,7 +39,8 @@ public class PlayerThread extends Player implements Runnable {
         String email,
         String password,
         PlayerCredentials player,
-        String action
+        String action,
+        Database db
     ) {
         this.player = player;
         this.name = name;
@@ -48,25 +49,29 @@ public class PlayerThread extends Player implements Runnable {
         this.email = email;
         this.password = password;
         this.action = action;
+        this.db = db;
     }
 
-    public PlayerThread (String confirmationCode, PlayerCredentials player, String action) {
+    public PlayerThread (String confirmationCode, PlayerCredentials player, String action, Database db) {
         this.confirmationCode = confirmationCode;
         this.player = player;
         this.action = action;
+        this.db = db;
     }
 
-    public PlayerThread (String email, String password, PlayerCredentials player, String action) {
+    public PlayerThread (String email, String password, PlayerCredentials player, String action, Database db) {
         this.email = email;
         this.password = password;
         this.player = player;
         this.action = action;
+        this.db = db;
     }
 
-    public PlayerThread (PlayerCredentials player, String email, String action) {
+    public PlayerThread (PlayerCredentials player, String email, String action, Database db) {
         this.email = email;
         this.player = player;
         this.action = action;
+        this.db = db;
     }
 
     public PlayerThread (
@@ -77,7 +82,8 @@ public class PlayerThread extends Player implements Runnable {
         String password,
         String oldPassword,
         PlayerCredentials player,
-        String action
+        String action,
+        Database db
     ) {
         this.email = email;
         this.name = name;
@@ -87,6 +93,7 @@ public class PlayerThread extends Player implements Runnable {
         this.oldPassword = oldPassword;
         this.player = player;
         this.action = action;
+        this.db = db;
     }
 
     private boolean checkProfileExists (String email, String username, Connection dbConnection) throws SQLException {
