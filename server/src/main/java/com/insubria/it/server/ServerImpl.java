@@ -165,6 +165,18 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     thread.start();
   }
 
+  public void getListOfGames (MonitorClient monitorClient, String status) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, status, "getListOfGames", this.db);
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
+  public void getListOfPlayersForGame (MonitorClient monitorClient, int id) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, id, this.db, "getListOfGames");
+    Thread thread = new Thread(monitorThread);
+    thread.start();
+  }
+
   public static void main (String[] args) throws RemoteException {
     /*if (System.getSecurityManager() == null) {
       System.setSecurityManager(new RMISecurityManager());

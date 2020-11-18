@@ -20,6 +20,8 @@ import java.sql.SQLException;
 public class MonitorThread extends Monitor implements Runnable {
     private final MonitorClient monitorClient;
     private int page;
+    private String status;
+    private int id;
 
     private Database db;
     private final String action;
@@ -33,6 +35,20 @@ public class MonitorThread extends Monitor implements Runnable {
     public MonitorThread (MonitorClient monitorClient, int page, String action, Database db) {
         this.monitorClient = monitorClient;
         this.page = page;
+        this.action = action;
+        this.db = db;
+    }
+
+    public MonitorThread (MonitorClient monitorClient, int id, Database db, String action) {
+        this.monitorClient = monitorClient;
+        this.id = id;
+        this.action = action;
+        this.db = db;
+    }
+
+    public MonitorThread (MonitorClient monitorClient, String status, String action, Database db) {
+        this.monitorClient = monitorClient;
+        this.status = status;
         this.action = action;
         this.db = db;
     }
@@ -329,6 +345,41 @@ public class MonitorThread extends Monitor implements Runnable {
         result.close();
     }
 
+    protected void getListOfGames (String status) throws RemoteException, SQLException {
+        System.out.println("Reaching the games with info...");
+        String sqlQuery = "SELECT g.id, g.date, g.max_players, COUNT(DISTINCT email_user) as actual_players " +
+                          "FROM game as g INNER JOIN enter as e on g.id = e.id_game " +
+                          "WHERE g.status = " + status + " " +
+                          "GROUP BY g.id, g.date, g.max_players;";
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            String[] clientResult = this.transformString(result, 4);
+            this.monitorClient.confirmGetListOfGames(clientResult);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorGetListOfGames("No sessions played yet");
+        }
+        result.close();
+    }
+
+    protected void getListOfPlayersForGame (int id) throws RemoteException, SQLException {
+        System.out.println("Reaching the players for a game...");
+        String sqlQuery = "SELECT DISTINCT username_user " +
+                          "FROM enter " +
+                          "WHERE id_game = " + id + ";";
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            String[] clientResult = this.transformString(result, 1);
+            this.monitorClient.confirmGetListOfPlayersForGame(clientResult);
+        } else {
+            System.out.println("No sessions played yet");
+            this.monitorClient.errorGetListOfPlayersForGame("No sessions played yet");
+        }
+        result.close();
+    }
+
     public void run () {
         switch (this.action) {
             case "moreScoreGameAndSession": {
@@ -507,6 +558,36 @@ public class MonitorThread extends Monitor implements Runnable {
                 } catch (SQLException exc) {
                     try {
                         this.monitorClient.errorGameDefinitionRequest("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "getListOfGames": {
+                try {
+                    this.getListOfGames(this.status);
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorGetListOfGames("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorGetListOfGames("Error while performing DB operations " + exc);
+                    } catch (RemoteException e) {}
+                }
+                break;
+            }
+            case "getListOfPlayersForGame": {
+                try {
+                    this.getListOfPlayersForGame(this.id);
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                    try {
+                        this.monitorClient.errorGetListOfPlayersForGame("Error while contacting the client " + exc);
+                    } catch (RemoteException e) {}
+                } catch (SQLException exc) {
+                    try {
+                        this.monitorClient.errorGetListOfPlayersForGame("Error while performing DB operations " + exc);
                     } catch (RemoteException e) {}
                 }
                 break;

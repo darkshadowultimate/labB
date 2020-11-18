@@ -38,6 +38,7 @@ public interface Server extends Remote {
         PlayerCredentials player
     ) throws RemoteException;
 
+
     void moreScoreGameAndSession (MonitorClient monitorClient) throws RemoteException;
     
     void moreSessionsPlayed (MonitorClient monitorClient) throws RemoteException;
@@ -62,5 +63,11 @@ public interface Server extends Remote {
 
     void gameDefinitionRequest (MonitorClient monitorClient, int page) throws RemoteException;
 
+
     void createNewGame (String name, int maxPlayers, GameClient gameCreator) throws RemoteException;
+
+
+    void getListOfGames (MonitorClient monitorClient, String status) throws RemoteException;
+
+    void getListOfPlayersForGame (MonitorClient monitorClient, int id) throws RemoteException;
 }

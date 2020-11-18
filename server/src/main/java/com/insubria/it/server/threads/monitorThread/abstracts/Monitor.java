@@ -31,4 +31,9 @@ public abstract class Monitor {
     protected abstract void definitionRequest (int page) throws RemoteException, SQLException;
 
     protected abstract void gameDefinitionRequest (int page) throws RemoteException, SQLException;
+
+    
+    protected abstract void getListOfGames (String status) throws RemoteException, SQLException;
+
+    protected abstract void getListOfPlayersForGame (int id) throws RemoteException, SQLException;
 }

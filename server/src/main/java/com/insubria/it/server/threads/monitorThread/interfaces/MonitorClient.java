@@ -54,4 +54,13 @@ public interface MonitorClient extends Remote {
     void confirmGameDefinitionRequest (String[] result) throws RemoteException;
 
     void errorGameDefinitionRequest (String reason) throws RemoteException;
+
+
+    void confirmGetListOfGames (String[] result) throws RemoteException;
+
+    void errorGetListOfGames (String reason) throws RemoteException;
+
+    void confirmGetListOfPlayersForGame (String[] result) throws RemoteException;
+
+    void errorGetListOfPlayersForGame (String reason) throws RemoteException;
 }
