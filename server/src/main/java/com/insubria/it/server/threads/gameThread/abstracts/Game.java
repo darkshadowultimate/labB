@@ -18,4 +18,6 @@ public abstract class Game extends UnicastRemoteObject implements Remote {
     protected abstract void createNewGame () throws SQLException, RemoteException;
 
     protected abstract void addNewPlayer (GameClient player) throws RemoteException;
+
+    protected abstract void removePlayerNotStartedGame (GameClient player) throws RemoteException;
 }

@@ -20,5 +20,9 @@ public interface GameClient extends Remote {
 
     void confirmAddNewPlayer () throws RemoteException;
 
-    void errorAddNewPlayer () throws RemoteException;
+    void errorAddNewPlayer (String reason) throws RemoteException;
+
+    void confirmRemovePlayerNotStartedGame () throws RemoteException;
+
+    void errorRemovePlayerNotStartedGame (String reason) throws RemoteException;
 }
