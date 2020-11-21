@@ -23,8 +23,8 @@ public class AccessController extends Access {
   protected String[] askForCredentials () {
     String[] credentials = new String[3];
 
-    System.out.print("Insert the DB host: ");
-    credentials[0] = this.scanner.nextLine();
+    System.out.print("Insert the DB host and port (e.g. => localhost:5432): ");
+    credentials[0] = String.format("jdbc:postgresql://%s/", this.scanner.nextLine());
     System.out.println("");
 
     System.out.println("Insert the DB username: ");
