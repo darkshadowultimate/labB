@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.insubria.it.server.base.abstracts.Database;
@@ -35,6 +36,44 @@ public class GameThread extends Game implements Runnable {
 
         this.maxPlayers = maxPlayers;
         this.db = db;
+    }
+
+    private void removeThread () throws Exception {
+        System.out.println("Removing the thread");
+        Registry registry = LocateRegistry.getRegistry(1099);
+        registry.unbind(Integer.toString(this.idGame));
+        Thread.currentThread().interrupt();
+    }
+
+    private void removeGame () throws SQLException, Exception {
+        String sqlDelete = "DELETE FROM game WHERE id = ?";
+        PreparedStatement pst = this.dbConnection.prepareStatement(sqlDelete);
+        pst.setInt(1, this.idGame);
+        this.db.performChangeState(pst);
+        System.out.println("Gamed removed");
+
+        this.removeThread();
+
+        pst.close();
+    }
+
+    private void handleTimer (int seconds) {
+        while (seconds > 0) {
+            System.out.println("Seconds to wait until game will start: " + seconds);
+            try {
+                for (GameClient singleClient : this.gameClientObservers) {
+                    singleClient.synchronizePreStartGameTimer(seconds);
+                }
+                seconds--;
+                Thread.sleep(1000);
+            } catch (RemoteException exc) {
+                System.err.println("Error while contacting the client " + exc);
+            } catch (InterruptedException exc) {
+                System.err.println("Error while sleeping " + exc);
+            }
+        }
+
+        //@TODO Implement the start of the game
     }
 
     protected void createNewGame () throws SQLException, RemoteException {
@@ -70,14 +109,21 @@ public class GameThread extends Game implements Runnable {
         try {
             this.dbConnection = this.db.getDatabaseConnection();
 
-            this.gameClientObservers.add(player);
+            if (this.gameClientObservers.size() < this.maxPlayers) {
+                this.gameClientObservers.add(player);
     
-            String sqlInsert = "INSERT INTO enter (id_game, email_user, username_user) VALUES (?, ?, ?)";
-            PreparedStatement pst = this.dbConnection.prepareStatement(sqlInsert);
-            pst.setInt(1, this.idGame);
-            pst.setString(2, player.getEmail());
-            pst.setString(3, player.getUsername());
-            this.db.performChangeState(pst);
+                String sqlInsert = "INSERT INTO enter (id_game, email_user, username_user) VALUES (?, ?, ?)";
+                PreparedStatement pst = this.dbConnection.prepareStatement(sqlInsert);
+                pst.setInt(1, this.idGame);
+                pst.setString(2, player.getEmail());
+                pst.setString(3, player.getUsername());
+                this.db.performChangeState(pst);
+                pst.close();
+            } else {
+                flag = false;
+                System.err.println("The game reached the maximum number of players");
+                player.errorAddNewPlayer("The game reached the maximum number of players");
+            }
         } catch (SQLException exc) {
             flag = false;
             System.err.println("Error while performing DB operations " + exc);
@@ -86,27 +132,14 @@ public class GameThread extends Game implements Runnable {
         
         if (flag) {
             player.confirmAddNewPlayer();
+
+            if (this.gameClientObservers.size() == this.maxPlayers) {
+                System.out.println("The game is starting...");
+                CompletableFuture.runAsync(() -> {
+                    this.handleTimer(30);
+                });
+            }
         }
-        pst.close();
-    }
-
-    private void removeThread () throws Exception {
-        System.out.println("Removing the thread");
-        Registry registry = LocateRegistry.getRegistry(1099);
-        registry.unbind(Integer.toString(this.idGame));
-        Thread.currentThread().interrupt();
-    }
-
-    private void removeGame () throws SQLException, Exception {
-        String sqlDelete = "DELETE FROM game WHERE id = ?";
-        PreparedStatement pst = this.dbConnection.prepareStatement(sqlDelete);
-        pst.setInt(1, this.idGame);
-        this.db.performChangeState(pst);
-        System.out.println("Gamed removed");
-
-        this.removeThread();
-
-        pst.close();
     }
 
     protected synchronized void removePlayerNotStartedGame (GameClient player) throws RemoteException {

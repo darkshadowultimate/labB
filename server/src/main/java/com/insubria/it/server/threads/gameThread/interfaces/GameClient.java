@@ -25,4 +25,6 @@ public interface GameClient extends Remote {
     void confirmRemovePlayerNotStartedGame () throws RemoteException;
 
     void errorRemovePlayerNotStartedGame (String reason) throws RemoteException;
+
+    void synchronizePreStartGameTimer (int seconds) throws RemoteException;
 }
