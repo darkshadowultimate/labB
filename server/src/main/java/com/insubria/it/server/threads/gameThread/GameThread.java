@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -15,15 +16,20 @@ import com.insubria.it.server.base.abstracts.Database;
 
 import com.insubria.it.server.threads.gameThread.abstracts.Game;
 import com.insubria.it.server.threads.gameThread.interfaces.GameClient;
+import com.insubria.it.server.threads.gameThread.utils.GameThreadUtils;
+import com.insubria.it.server.threads.gameThread.random.Matrix;
 
 
 public class GameThread extends Game implements Runnable {
     private int idGame;
     private String name;
     private int maxPlayers;
+    private int sessionNumber;
 
     private GameClient gameCreator;
     private ArrayList<GameClient> gameClientObservers;
+    private GameThreadUtils gameUtil;
+    private TimerThread timerThread;
 
     private Database db;
     private Connection dbConnection;
@@ -33,9 +39,52 @@ public class GameThread extends Game implements Runnable {
         this.gameClientObservers = new ArrayList<GameClient>();
 
         this.name = name;
+        this.sessionNumber = 1;
 
         this.maxPlayers = maxPlayers;
         this.db = db;
+
+        this.gameUtil = new GameThreadUtils(db);
+    }
+
+    private void handleStartNewSession () {
+        System.out.println("Starting the game session " + this.sessionNumber);
+        String[][] randomMatrix = new Matrix().getRandomMatrix();
+        String stringMatrix = this.gameUtil.setMatrixToString(randomMatrix);
+
+        HashMap<String, Integer> playerScore = null;
+
+        if (this.sessionNumber == 1) {
+            try {
+                // The enter sessions in the DB already exists. We only need to populate the characters field and we don't need to reach the gamer score because it's 0
+                playerScore = this.gameUtil.calculateCurrentPlayerScore(this.sessionNumber, this.gameClientObservers);
+                this.dbConnection = this.db.getDatabaseConnection();
+                String sqlUpdate = "UPDATE enter SET characters = ? WHERE email_user = ? AND session_number = ?";
+                PreparedStatement pst = null;
+
+                for (GameClient item : this.gameClientObservers) {
+                    pst = this.dbConnection.prepareStatement(sqlInsert);
+                    pst.setString(1, stringMatrix);
+                    pst.setString(2, item.getEmail());
+                    pst.setInt(3, this.sessionNumber);
+                    this.db.performChangeState(pst);
+                }
+                pst.close();
+            } catch (SQLException exc) {
+                System.err.println("Error while contacting the db " + exc);
+            }
+        } else {
+            // @TODO complete this part
+        }
+
+        for (GameClient item : this.gameClientObservers) {
+            try {
+                item.confirmGameSession(this.name, this.sessionNumber, randomMatrix, playerScore);
+            } catch (RemoteException exc) {
+                System.err.println("Error while contacting the " + item.getEmail() + "player");
+            }
+        }
+        this.timerThread = new TimerThread("isPlaying", this, this.gameClientObservers);
     }
 
     private void removeThread () throws Exception {
@@ -73,7 +122,9 @@ public class GameThread extends Game implements Runnable {
             }
         }
 
-        //@TODO Implement the start of the game
+        CompletableFuture.runAsync(() -> {
+            this.handleStartNewSession();
+        });
     }
 
     protected void createNewGame () throws SQLException, RemoteException {
