@@ -40,7 +40,13 @@ public class TimerThread extends Thread {
         try {
             this.performCountdown(180);
 
-            //@TODO Implement the async call to the gameResponsible to trigger the end of game or new game session
+            if (this.scope.equals("isPlaying")) {
+                CompletableFuture.runAsync(() -> {
+                    this.gameResponsible.triggerEndOfSessionGameClient();
+                });
+            } else {
+                // @TODO Implement logic to trigger when the check timer ends (so new session needs to be provided in nobody reached 50 score)
+            }
         } catch (RemoteException exc) {
             System.err.println("Error while contacting the client " + exc);
         } catch (InterruptedException exc) {
