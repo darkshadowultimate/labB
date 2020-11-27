@@ -6,6 +6,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,9 @@ import com.insubria.it.server.threads.gameThread.interfaces.GameClient;
 import com.insubria.it.server.threads.gameThread.utils.GameThreadUtils;
 import com.insubria.it.server.threads.gameThread.random.Matrix;
 
+import com.insubria.it.server.threads.gameThread.dictionary.Dictionary;
+import com.insubria.it.server.threads.gameThread.dictionary.Loader;
+
 
 public class GameThread extends Game implements Runnable {
     private int idGame;
@@ -31,6 +35,9 @@ public class GameThread extends Game implements Runnable {
     private GameThreadUtils gameUtil;
     private TimerThread timerThread;
 
+    private int triggerNextStep;
+
+    private Dictionary dictionary;
     private Database db;
     private Connection dbConnection;
 
@@ -40,11 +47,13 @@ public class GameThread extends Game implements Runnable {
 
         this.name = name;
         this.sessionNumber = 1;
+        this.triggerNextStep = 0;
 
         this.maxPlayers = maxPlayers;
         this.db = db;
 
         this.gameUtil = new GameThreadUtils(db);
+        this.dictionary = new Loader().loadDictionaryFromFile(new File("dict-it.oxt"));
     }
 
     private void handleStartNewSession () {
@@ -63,13 +72,19 @@ public class GameThread extends Game implements Runnable {
                 PreparedStatement pst = null;
 
                 for (GameClient item : this.gameClientObservers) {
-                    pst = this.dbConnection.prepareStatement(sqlInsert);
+                    pst = this.dbConnection.prepareStatement(sqlUpdate);
                     pst.setString(1, stringMatrix);
                     pst.setString(2, item.getEmail());
                     pst.setInt(3, this.sessionNumber);
                     this.db.performChangeState(pst);
                 }
+                sqlUpdate = "UPDATE game SET status = ? WHERE id = ?";
+                pst.setString(1, "playing");
+                pst.setInt(2, this.idGame);
+                this.db.performChangeState(pst);
+
                 pst.close();
+                this.dbConnection.close();
             } catch (SQLException exc) {
                 System.err.println("Error while contacting the db " + exc);
             }
@@ -96,14 +111,14 @@ public class GameThread extends Game implements Runnable {
 
     private void removeGame () throws SQLException, Exception {
         String sqlDelete = "DELETE FROM game WHERE id = ?";
+        this.dbConnection = this.db.getDatabaseConnection();
+        
         PreparedStatement pst = this.dbConnection.prepareStatement(sqlDelete);
         pst.setInt(1, this.idGame);
         this.db.performChangeState(pst);
         System.out.println("Gamed removed");
 
         this.removeThread();
-
-        pst.close();
     }
 
     private void handleTimer (int seconds) {
@@ -125,6 +140,17 @@ public class GameThread extends Game implements Runnable {
         CompletableFuture.runAsync(() -> {
             this.handleStartNewSession();
         });
+    }
+
+    public void triggerEndOfSessionGameClient () {
+        System.out.println("Triggering the end of game on clients...");
+        for (GameClient singlePlayer : this.gameClientObservers) {
+            try {
+                singlePlayer.triggerEndOfSession();
+            } catch (RemoteException exc) {
+                System.err.println("Error while contacting the client " + exc);
+            }
+        }
     }
 
     protected void createNewGame () throws SQLException, RemoteException {
@@ -150,7 +176,9 @@ public class GameThread extends Game implements Runnable {
 
         this.gameCreator.confirmCreateNewGame(this);
         System.out.println("Created the game and added the creator to it");
+
         pst.close();
+        this.dbConnection.close();
     }
 
     protected synchronized void addNewPlayer (GameClient player) throws RemoteException {
@@ -175,6 +203,8 @@ public class GameThread extends Game implements Runnable {
                 System.err.println("The game reached the maximum number of players");
                 player.errorAddNewPlayer("The game reached the maximum number of players");
             }
+
+            this.dbConnection.close();
         } catch (SQLException exc) {
             flag = false;
             System.err.println("Error while performing DB operations " + exc);
@@ -208,6 +238,7 @@ public class GameThread extends Game implements Runnable {
 
                 if (this.gameClientObservers.isEmpty()) {
                     System.out.println("Removing the game...");
+                    player.confirmRemovePlayerNotStartedGame();
                     this.removeGame();
                 }
                 player.confirmRemovePlayerNotStartedGame();
@@ -216,12 +247,97 @@ public class GameThread extends Game implements Runnable {
                 System.err.println("Error while removing the player from the game");
                 player.errorRemovePlayerNotStartedGame("Error while removing the player from the game");
             }
+
+            this.dbConnection.close();
         } catch (SQLException exc) {
             System.err.println("Error while performing DB operations " + exc);
             player.errorRemovePlayerNotStartedGame("Error while performing DB operations " + exc);
         } catch (Exception exc) {
             System.err.println("Error while removing thread " + exc);
             player.errorRemovePlayerNotStartedGame("Error while removing thread " + exc);
+        }
+    }
+
+    protected synchronized void removePlayerInGame (GameClient player) throws RemoteException {
+        System.out.println("Removing a user to started game...");
+
+        try {
+            this.dbConnection = this.db.getDatabaseConnection();
+            System.out.println("Removing the whole game, sessions and words discovered...");
+
+            for (GameClient singlePlayer : this.gameClientObservers) {
+                singlePlayer.gameHasBeenRemoved("Player " + player.getUsername() + " left the game");
+            }
+
+            System.out.println("Removing the game...");
+            this.removeGame();
+        } catch (SQLException exc) {
+            System.err.println("Error while performing DB operations " + exc);
+            player.errorRemovePlayerNotStartedGame("Error while performing DB operations " + exc);
+        } catch (Exception exc) {
+            System.err.println("Error while removing thread " + exc);
+            player.errorRemovePlayerNotStartedGame("Error while removing thread " + exc);
+        }
+    }
+
+    protected synchronized void checkPlayerWords (GameClient player, ArrayList<String> wordsList) throws RemoteException {
+        System.out.println("Checking words reached by player " + player.getUsername());
+
+        try {
+            String sqlInsert = "INSERT INTO discover (word, id_game, email_user, username_user, session_number_enter, score, is_valid, reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            this.dbConnection = this.db.getDatabaseConnection();
+            PreparedStatement pst;
+
+            for (String singleWord : wordsList) {
+                pst = this.dbConnection.prepareStatement(sqlInsert);
+                pst.setString(1, singleWord);
+                pst.setInt(2, this.idGame);
+                pst.setString(3, player.getEmail());
+                pst.setString(4, player.getUsername());
+                pst.setInt(5, this.sessionNumber);
+
+                // Check the word exists in the dictionary
+                if (this.dictionary.exists(singleWord)) {
+                    // @TODO: Check the word exists in the matrix
+                    if (/* Check the word exists in the matrix */true) {
+                        if (singleWord.length() >= 3) {
+                            String sqlQuery = "SELECT * FROM discover WHERE word = " + singleWord + " AND id_game = " + this.idGame + " AND session_number_enter = " + this.sessionNumber;
+                            ResultSet result = this.db.performSimpleQuery(sqlQuery);
+
+                            if (result.isBeforeFirst()) {
+                                // This word already exists
+                                pst.setInt(6, 0);
+                                pst.setBoolean(7, false);
+                                pst.setString(8, "Already proposed by another user");
+
+                                this.gameUtil.invalidateOtherPlayersSameWords(singleWord, this.idGame, this.sessionNumber);
+                            } else {
+                                pst.setInt(6, this.gameUtil.getCurrentWordScore(singleWord));
+                                pst.setBoolean(7, true);
+                                pst.setString(8, "");
+                            }
+                        } else {
+                            pst.setInt(6, 0);
+                            pst.setBoolean(7, false);
+                            pst.setString(8, "Word is less than 3 chars");
+                        }
+                    } else {
+                        pst.setInt(6, 0);
+                        pst.setBoolean(7, false);
+                        pst.setString(8, "Word does not exist in the matrix"); 
+                    }
+                } else {
+                    pst.setInt(6, 0);
+                    pst.setBoolean(7, false);
+                    pst.setString(8, "Word does not exist in the dictionary");
+                }
+
+                this.db.performChangeState(pst);
+                pst.close();
+            }
+            this.dbConnection.close();
+        } catch (SQLException exc) {
+            System.err.println("Error while performing DB operations " + exc);
         }
     }
 

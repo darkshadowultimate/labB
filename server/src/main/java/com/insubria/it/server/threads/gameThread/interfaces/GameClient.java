@@ -26,6 +26,8 @@ public interface GameClient extends Remote {
 
     void errorRemovePlayerNotStartedGame (String reason) throws RemoteException;
 
+    void gameHasBeenRemoved (String reason) throws RemoteException;
+
     void synchronizePreStartGameTimer (int seconds) throws RemoteException;
 
     void synchronizeInGameTimer (int seconds) throws RemoteException;
@@ -33,4 +35,6 @@ public interface GameClient extends Remote {
     void synchronizeInWaitTimer (int seconds) throws RemoteException;
 
     void confirmGameSession (String name, int sessionNumber, String[][] matrix, HashMap<String, Integer> playerScore) throws RemoteException;
+
+    void triggerEndOfSession () throws RemoteException;
 }
