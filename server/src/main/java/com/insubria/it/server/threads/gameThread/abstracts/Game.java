@@ -17,13 +17,15 @@ public abstract class Game extends UnicastRemoteObject implements Remote {
 
     public abstract void triggerEndOfSessionGameClient ();
 
-    protected abstract void createNewGame () throws SQLException, RemoteException;
+    public abstract void createNewGame () throws SQLException, RemoteException;
 
-    protected abstract void addNewPlayer (GameClient player) throws RemoteException;
+    public abstract void addNewPlayer (GameClient player) throws RemoteException;
 
-    protected abstract void removePlayerNotStartedGame (GameClient player) throws RemoteException;
+    public abstract void removePlayerNotStartedGame (GameClient player) throws RemoteException;
 
-    protected abstract void removePlayerInGame (GameClient player) throws RemoteException;
+    public abstract void removePlayerInGame (GameClient player) throws RemoteException;
 
-    protected abstract void checkPlayerWords (GameClient player, ArrayList<String> wordsList) throws RemoteException;
+    public abstract void checkPlayerWords (GameClient player, ArrayList<String> wordsList) throws RemoteException;
+
+    public abstract void askForWordDefinition (GameClient player, String word) throws RemoteException;
 }

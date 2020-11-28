@@ -20,8 +20,11 @@ import com.insubria.it.server.threads.gameThread.interfaces.GameClient;
 import com.insubria.it.server.threads.gameThread.utils.GameThreadUtils;
 import com.insubria.it.server.threads.gameThread.random.Matrix;
 
+import com.insubria.it.server.threads.gameThread.utils.WordRecord;
+
 import com.insubria.it.server.threads.gameThread.dictionary.Dictionary;
 import com.insubria.it.server.threads.gameThread.dictionary.Loader;
+import com.insubria.it.server.threads.gameThread.dictionary.InvalidKey;
 
 
 public class GameThread extends Game implements Runnable {
@@ -102,6 +105,41 @@ public class GameThread extends Game implements Runnable {
         this.timerThread = new TimerThread("isPlaying", this, this.gameClientObservers);
     }
 
+    private void retrieveGameSessionWords () {
+        System.out.println("Retrieving the words proposed in this session...");
+        ArrayList<WordRecord> acceptedArray = new ArrayList<WordRecord>(), refusedArray = new ArrayList<WordRecord>();
+
+        try {
+            ResultSet accepted = this.gameUtil.getAcceptedWordForGameSession(this.idGame, this.sessionNumber), refused = this.gameUtil.getRefusedWordForGameSession(this.idGame, this.sessionNumber);
+
+            // Populating the ArrayList of accepted words
+            while (accepted.next()) {
+                acceptedArray.add(new WordRecord(
+                    accepted.getString("word"),
+                    accepted.getString("username_user"),
+                    accepted.getInt("score")
+                ));
+            }
+            // Populating the ArrayList of refused words
+            while (refused.next()) {
+                refusedArray.add(new WordRecord(
+                    refused.getString("word"),
+                    refused.getString("username_user"),
+                    refused.getInt("score"),
+                    refused.getString("reason")
+                ));
+            }
+
+            for (GameClient singlePlayer : this.gameClientObservers) {
+                singlePlayer.sendWordsDiscoveredInSession(acceptedArray, refusedArray);
+            }
+        } catch (SQLException exc) {
+            System.err.println("Error while performing DB operations " + exc);
+        }
+
+        this.timerThread = new TimerThread("isReviewing", this, this.gameClientObservers);
+    }
+
     private void removeThread () throws Exception {
         System.out.println("Removing the thread");
         Registry registry = LocateRegistry.getRegistry(1099);
@@ -153,7 +191,7 @@ public class GameThread extends Game implements Runnable {
         }
     }
 
-    protected void createNewGame () throws SQLException, RemoteException {
+    public void createNewGame () throws SQLException, RemoteException {
         System.out.println("Creating a new game and adding the user to it...");
         this.dbConnection = this.db.getDatabaseConnection();
         
@@ -181,7 +219,7 @@ public class GameThread extends Game implements Runnable {
         this.dbConnection.close();
     }
 
-    protected synchronized void addNewPlayer (GameClient player) throws RemoteException {
+    public synchronized void addNewPlayer (GameClient player) throws RemoteException {
         System.out.println("Adding a user to the game...");
         boolean flag = true;
 
@@ -223,7 +261,7 @@ public class GameThread extends Game implements Runnable {
         }
     }
 
-    protected synchronized void removePlayerNotStartedGame (GameClient player) throws RemoteException {
+    public synchronized void removePlayerNotStartedGame (GameClient player) throws RemoteException {
         System.out.println("Removing a user to not started game...");
 
         try {
@@ -258,7 +296,7 @@ public class GameThread extends Game implements Runnable {
         }
     }
 
-    protected synchronized void removePlayerInGame (GameClient player) throws RemoteException {
+    public synchronized void removePlayerInGame (GameClient player) throws RemoteException {
         System.out.println("Removing a user to started game...");
 
         try {
@@ -280,7 +318,7 @@ public class GameThread extends Game implements Runnable {
         }
     }
 
-    protected synchronized void checkPlayerWords (GameClient player, ArrayList<String> wordsList) throws RemoteException {
+    public synchronized void checkPlayerWords (GameClient player, ArrayList<String> wordsList) throws RemoteException {
         System.out.println("Checking words reached by player " + player.getUsername());
 
         try {
@@ -338,6 +376,29 @@ public class GameThread extends Game implements Runnable {
             this.dbConnection.close();
         } catch (SQLException exc) {
             System.err.println("Error while performing DB operations " + exc);
+        }
+
+        this.triggerNextStep++;
+        if (this.triggerNextStep == this.maxPlayers) {
+            CompletableFuture.runAsync(() -> {
+                this.retrieveGameSessionWords();
+            });
+        }
+    }
+
+    public void askForWordDefinition (GameClient player, String word) throws RemoteException {
+        System.out.println("Getting the definitions for the " + word);
+
+        try {
+            // Increasing the requests number for this word
+            this.gameUtil.increaseNumberOfDefinitionRequests(this.idGame, this.sessionNumber, word);
+            player.confirmWordDefinitions(this.dictionary.getTerm(word).toString());
+        } catch (SQLException exc) {
+            System.err.println("Error while performing DB operations " + exc);
+            player.errorWordDefinitions("Error while performing DB operations " + exc);
+        } catch (InvalidKey exc) {
+            System.err.println("Word not found " + exc);
+            player.errorWordDefinitions("Word not found " + exc);
         }
     }
 

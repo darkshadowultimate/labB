@@ -2,6 +2,7 @@ package com.insubria.it.server.threads.gameThread.utils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,6 +72,35 @@ public class GameThreadUtils {
         pst.setString(2, word);
         pst.setInt(3, idGame);
         pst.setInt(4, sessionNumber);
+        this.db.performChangeState(pst);
+
+        pst.close();
+        this.dbConnection.close();
+    }
+
+    public ResultSet getAcceptedWordForGameSession (int idGame, int sessionNumber) throws SQLException {
+        String sqlQuery = "SELECT word, username_user, score " +
+                          "FROM discover " +
+                          "WHERE id_game = " + idGame + " AND session_number_enter = " + sessionNumber + " AND score > 0 " +
+                          "ORDER BY score DESC";
+        return this.db.performSimpleQuery(sqlQuery);
+    }
+
+    public ResultSet getRefusedWordForGameSession (int idGame, int sessionNumber) throws SQLException {
+        String sqlQuery = "SELECT word, username_user, score, reason " +
+                          "FROM discover " +
+                          "WHERE id_game = " + idGame + " AND session_number_enter = " + sessionNumber + " AND score = 0";
+        return this.db.performSimpleQuery(sqlQuery);
+    }
+
+    public void increaseNumberOfDefinitionRequests (int idGame, int sessionNumber, String word) throws SQLException {
+        this.dbConnection = this.db.getDatabaseConnection();
+
+        String sqlUpdate = "UPDATE discover SET n_requests = n_requests + 1 WHERE word = ? AND id_game = ? AND session_number_enter = ?";
+        PreparedStatement pst = this.dbConnection.prepareStatement(sqlUpdate);
+        pst.setString(1, word);
+        pst.setInt(2, idGame);
+        pst.setInt(3, sessionNumber);
         this.db.performChangeState(pst);
 
         pst.close();

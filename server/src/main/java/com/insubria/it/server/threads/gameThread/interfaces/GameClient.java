@@ -37,4 +37,10 @@ public interface GameClient extends Remote {
     void confirmGameSession (String name, int sessionNumber, String[][] matrix, HashMap<String, Integer> playerScore) throws RemoteException;
 
     void triggerEndOfSession () throws RemoteException;
+
+    void sendWordsDiscoveredInSession (ArrayList<WordRecord> acceptedArray, ArrayList<WordRecord> refusedArray) throws RemoteException;
+
+    void confirmWordDefinitions (String wordDefinitions) throws RemoteException;
+
+    void errorWordDefinitions (String reason) throws RemoteException;
 }
