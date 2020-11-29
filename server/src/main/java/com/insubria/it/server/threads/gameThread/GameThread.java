@@ -59,7 +59,7 @@ public class GameThread extends Game implements Runnable {
         this.dictionary = new Loader().loadDictionaryFromFile(new File("dict-it.oxt"));
     }
 
-    private void handleStartNewSession () {
+    public void handleStartNewSession () {
         System.out.println("Starting the game session " + this.sessionNumber);
         String[][] randomMatrix = new Matrix().getRandomMatrix();
         String stringMatrix = this.gameUtil.setMatrixToString(randomMatrix);
@@ -69,7 +69,7 @@ public class GameThread extends Game implements Runnable {
         if (this.sessionNumber == 1) {
             try {
                 // The enter sessions in the DB already exists. We only need to populate the characters field and we don't need to reach the gamer score because it's 0
-                playerScore = this.gameUtil.calculateCurrentPlayerScore(this.sessionNumber, this.gameClientObservers);
+                playerScore = this.gameUtil.calculateCurrentPlayerScore(this.sessionNumber, this.idGame, this.gameClientObservers);
                 this.dbConnection = this.db.getDatabaseConnection();
                 String sqlUpdate = "UPDATE enter SET characters = ? WHERE email_user = ? AND session_number = ?";
                 PreparedStatement pst = null;
@@ -82,6 +82,7 @@ public class GameThread extends Game implements Runnable {
                     this.db.performChangeState(pst);
                 }
                 sqlUpdate = "UPDATE game SET status = ? WHERE id = ?";
+                pst = this.dbConnection.prepareStatement(sqlUpdate);
                 pst.setString(1, "playing");
                 pst.setInt(2, this.idGame);
                 this.db.performChangeState(pst);
@@ -92,12 +93,45 @@ public class GameThread extends Game implements Runnable {
                 System.err.println("Error while contacting the db " + exc);
             }
         } else {
-            // @TODO complete this part
+            try {
+                ResultSet result = this.gameUtil.checkReached50Score(this.idGame);
+                if (result.isBeforeFirst()) {
+                    // A user won
+                    result.next();
+                    for (GameClient singlePlayer : this.gameClientObservers) {
+                        try {
+                            singlePlayer.gameWonByUser(result.getString("username_user"));
+                        } catch (RemoteException exc) {
+                            System.err.println("Error while contacting the " + singlePlayer.getEmail() + "player");
+                        }
+                    }
+
+                    this.dbConnection = this.db.getDatabaseConnection();
+                    sqlUpdate = "UPDATE game SET status = ? WHERE id = ?";
+                    PreparedStatement pst = this.dbConnection.prepareStatement(sqlUpdate);
+                    pst.setString(1, "closed");
+                    pst.setInt(2, this.idGame);
+                    this.db.performChangeState(pst);
+
+                    pst.close();
+                    this.dbConnection.close();
+
+                    this.removeGame();
+                } else {
+                    // New session needs to be triggered
+                    this.gameUtil.createNewEnterForNewSession(this.idGame, this.sessionNumber, stringMatrix, this.gameClientObservers);
+                    playerScore = this.gameUtil.calculateCurrentPlayerScore(this.sessionNumber, this.idGame, this.gameClientObservers);
+                }
+            } catch (SQLException exc) {
+                System.err.println("Error while contacting the db " + exc);
+            } catch (Exception exc) {
+                System.err.println("Error in the current thread" + exc);
+            }
         }
 
         for (GameClient item : this.gameClientObservers) {
             try {
-                item.confirmGameSession(this.name, this.sessionNumber, randomMatrix, playerScore);
+                item.confirmGameSession(this.name, this.sessionNumber, randomMatrix, playerScore.get(item.getUsername()));
             } catch (RemoteException exc) {
                 System.err.println("Error while contacting the " + item.getEmail() + "player");
             }
@@ -129,12 +163,16 @@ public class GameThread extends Game implements Runnable {
                     refused.getString("reason")
                 ));
             }
-
-            for (GameClient singlePlayer : this.gameClientObservers) {
-                singlePlayer.sendWordsDiscoveredInSession(acceptedArray, refusedArray);
-            }
         } catch (SQLException exc) {
             System.err.println("Error while performing DB operations " + exc);
+        }
+
+        for (GameClient singlePlayer : this.gameClientObservers) {
+            try {
+                singlePlayer.sendWordsDiscoveredInSession(acceptedArray, refusedArray);
+            } catch (RemoteException exc) {
+                System.err.println("Error while contacting the " + item.getEmail() + "player");
+            }
         }
 
         this.timerThread = new TimerThread("isReviewing", this, this.gameClientObservers);
@@ -379,6 +417,7 @@ public class GameThread extends Game implements Runnable {
         }
 
         this.triggerNextStep++;
+        
         if (this.triggerNextStep == this.maxPlayers) {
             CompletableFuture.runAsync(() -> {
                 this.retrieveGameSessionWords();
@@ -400,6 +439,11 @@ public class GameThread extends Game implements Runnable {
             System.err.println("Word not found " + exc);
             player.errorWordDefinitions("Word not found " + exc);
         }
+    }
+
+    // Service method invoked by the timer
+    public void increaseSessionNumber () {
+        this.sessionNumber++;
     }
 
     public void run () {

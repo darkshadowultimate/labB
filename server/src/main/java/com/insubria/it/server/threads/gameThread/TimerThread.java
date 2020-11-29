@@ -46,6 +46,10 @@ public class TimerThread extends Thread {
                 });
             } else {
                 // @TODO Implement logic to trigger when the check timer ends (so new session needs to be provided in nobody reached 50 score)
+                this.gameResponsible.increaseSessionNumber();
+                CompletableFuture.runAsync(() -> {
+                    this.gameResponsible.handleStartNewSession();
+                });
             }
         } catch (RemoteException exc) {
             System.err.println("Error while contacting the client " + exc);
