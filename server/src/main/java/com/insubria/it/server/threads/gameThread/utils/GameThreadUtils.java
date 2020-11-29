@@ -20,14 +20,30 @@ public class GameThreadUtils {
         this.db = db;
     }
 
-    public HashMap<String, Integer> calculateCurrentPlayerScore (int sessionNumber, ArrayList<GameClient> gameClientObservers) {
+    public HashMap<String, Integer> calculateCurrentPlayerScore (int sessionNumber, int idGame, ArrayList<GameClient> gameClientObservers) {
         HashMap<String, Integer> returnValue = new HashMap<String, Integer>();
+
         if (sessionNumber == 1) {
             for (GameClient item : gameClientObservers) {
                 returnValue.put(item.getUsername(), 0);
             }
         } else {
-            // @TODO Perform queries to reach the current score of the user
+            ResultSet result;
+            String sqlQuery;
+            for (GameClient item : gameClientObservers) {
+                sqlQuery = "SELECT SUM(score) as total_score " +
+                           "FROM discover " +
+                           "WHERE email_user = " + item.getEmail() + " AND id_game = " + idGame;
+                try {
+                    result = this.db.performSimpleQuery(sqlQuery);
+                    if (result.isBeforeFirst()) {
+                        result.next();
+                        returnValue.put(item.getUsername(), result.getInt("total_score"));
+                    }
+                } catch (SQLException exc) {
+                    System.err.println("Error while contacting the db " + exc);
+                }
+            }
         }
         return returnValue;
     }
@@ -102,6 +118,36 @@ public class GameThreadUtils {
         pst.setInt(2, idGame);
         pst.setInt(3, sessionNumber);
         this.db.performChangeState(pst);
+
+        pst.close();
+        this.dbConnection.close();
+    }
+
+    public ResultSet checkReached50Score (int idGame) throws SQLException {
+        String sqlQuery = "SELECT username_user " +
+                          "FROM discover " +
+                          "WHERE id_game = " + idGame + " " +
+                          "GROUP BY username_user " +
+                          "HAVING SUM(score) >= 50";
+        return this.db.performSimpleQuery(sqlQuery);
+    }
+
+    public void createNewEnterForNewSession (int idGame, int sessionNumber, String stringMatrix, ArrayList<GameClient> players) throws SQLException {
+        this.dbConnection = this.db.getDatabaseConnection();
+
+        String sqlInsert = "INSERT INTO enter (id_game, email_user, username_user, session_number, characters) VALUES (?, ?, ?, ?, ?)";
+        PreparedStatement pst = null;
+
+        for (GameClient single : players) {
+            pst = this.dbConnection.prepareStatement(sqlInsert);
+
+            pst.setInt(1, idGame);
+            pst.setString(2, single.getEmail());
+            pst.setString(3, single.getUsername());
+            pst.setInt(4, sessionNumber);
+            pst.setString(5, stringMatrix);
+            this.db.performChangeState(pst);
+        }
 
         pst.close();
         this.dbConnection.close();

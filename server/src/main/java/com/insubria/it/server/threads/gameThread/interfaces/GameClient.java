@@ -34,7 +34,7 @@ public interface GameClient extends Remote {
 
     void synchronizeInWaitTimer (int seconds) throws RemoteException;
 
-    void confirmGameSession (String name, int sessionNumber, String[][] matrix, HashMap<String, Integer> playerScore) throws RemoteException;
+    void confirmGameSession (String name, int sessionNumber, String[][] matrix, int playerScore) throws RemoteException;
 
     void triggerEndOfSession () throws RemoteException;
 
@@ -43,4 +43,6 @@ public interface GameClient extends Remote {
     void confirmWordDefinitions (String wordDefinitions) throws RemoteException;
 
     void errorWordDefinitions (String reason) throws RemoteException;
+
+    void gameWonByUser (String username) throws RemoteException;
 }
