@@ -152,4 +152,15 @@ public class GameThreadUtils {
         pst.close();
         this.dbConnection.close();
     }
+
+    public void increaseNumberOfRounds (int idGame) {
+        this.dbConnection = this.db.getDatabaseConnection();
+
+        String sqlUpdate = "UPDATE game SET n_rounds = n_rounds + 1 WHERE id = " + idGame;
+        PreparedStatement pst = this.dbConnection.prepareStatement(sqlUpdate);
+        this.db.performChangeState(pst);
+
+        pst.close();
+        this.dbConnection.close();
+    }
 }

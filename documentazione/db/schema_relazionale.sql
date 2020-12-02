@@ -78,3 +78,5 @@ create table if not exists discover
 	constraint discover_id_game_fkey
 		foreign key (id_game, email_user, username_user, session_number_enter) references enter on delete cascade
 );
+
+

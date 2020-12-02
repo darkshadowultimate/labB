@@ -444,6 +444,7 @@ public class GameThread extends Game implements Runnable {
     // Service method invoked by the timer
     public void increaseSessionNumber () {
         this.sessionNumber++;
+        this.gameUtil.increaseNumberOfRounds(this.idGame);
     }
 
     public void run () {
