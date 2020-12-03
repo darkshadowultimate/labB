@@ -5,7 +5,10 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 
+import java.util.ArrayList;
+
 import com.insubria.it.server.threads.gameThread.abstracts.Game;
+import com.insubria.it.server.threads.gameThread.utils.WordRecord;
 
 
 public interface GameClient extends Remote {

@@ -10,7 +10,7 @@ public class WordRecord implements Serializable {
      */
     private static final long serialVersionUID = 1L;
 
-    private Sring word;
+    private String word;
     private String username;
     private int score;
 

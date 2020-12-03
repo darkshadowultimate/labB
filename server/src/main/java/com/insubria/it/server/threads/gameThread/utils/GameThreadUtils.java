@@ -1,5 +1,6 @@
 package com.insubria.it.server.threads.gameThread.utils;
 
+import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,27 +24,31 @@ public class GameThreadUtils {
     public HashMap<String, Integer> calculateCurrentPlayerScore (int sessionNumber, int idGame, ArrayList<GameClient> gameClientObservers) {
         HashMap<String, Integer> returnValue = new HashMap<String, Integer>();
 
-        if (sessionNumber == 1) {
-            for (GameClient item : gameClientObservers) {
-                returnValue.put(item.getUsername(), 0);
-            }
-        } else {
-            ResultSet result;
-            String sqlQuery;
-            for (GameClient item : gameClientObservers) {
-                sqlQuery = "SELECT SUM(score) as total_score " +
-                           "FROM discover " +
-                           "WHERE email_user = " + item.getEmail() + " AND id_game = " + idGame;
-                try {
-                    result = this.db.performSimpleQuery(sqlQuery);
-                    if (result.isBeforeFirst()) {
-                        result.next();
-                        returnValue.put(item.getUsername(), result.getInt("total_score"));
+        try {
+            if (sessionNumber == 1) {
+                for (GameClient item : gameClientObservers) {
+                    returnValue.put(item.getUsername(), 0);
+                }
+            } else {
+                ResultSet result;
+                String sqlQuery;
+                for (GameClient item : gameClientObservers) {
+                    sqlQuery = "SELECT SUM(score) as total_score " +
+                               "FROM discover " +
+                               "WHERE email_user = " + item.getEmail() + " AND id_game = " + idGame;
+                    try {
+                        result = this.db.performSimpleQuery(sqlQuery);
+                        if (result.isBeforeFirst()) {
+                            result.next();
+                            returnValue.put(item.getUsername(), result.getInt("total_score"));
+                        }
+                    } catch (SQLException exc) {
+                        System.err.println("Error while contacting the db " + exc);
                     }
-                } catch (SQLException exc) {
-                    System.err.println("Error while contacting the db " + exc);
                 }
             }
+        } catch (RemoteException exc) {
+            System.err.println("Error while contacting the player");
         }
         return returnValue;
     }
@@ -138,22 +143,26 @@ public class GameThreadUtils {
         String sqlInsert = "INSERT INTO enter (id_game, email_user, username_user, session_number, characters) VALUES (?, ?, ?, ?, ?)";
         PreparedStatement pst = null;
 
-        for (GameClient single : players) {
-            pst = this.dbConnection.prepareStatement(sqlInsert);
-
-            pst.setInt(1, idGame);
-            pst.setString(2, single.getEmail());
-            pst.setString(3, single.getUsername());
-            pst.setInt(4, sessionNumber);
-            pst.setString(5, stringMatrix);
-            this.db.performChangeState(pst);
+        try {
+            for (GameClient single : players) {
+                pst = this.dbConnection.prepareStatement(sqlInsert);
+    
+                pst.setInt(1, idGame);
+                pst.setString(2, single.getEmail());
+                pst.setString(3, single.getUsername());
+                pst.setInt(4, sessionNumber);
+                pst.setString(5, stringMatrix);
+                this.db.performChangeState(pst);
+            }
+        } catch (RemoteException exc) {
+            System.err.println("Error while contacting the player");
         }
 
         pst.close();
         this.dbConnection.close();
     }
 
-    public void increaseNumberOfRounds (int idGame) {
+    public void increaseNumberOfRounds (int idGame) throws SQLException {
         this.dbConnection = this.db.getDatabaseConnection();
 
         String sqlUpdate = "UPDATE game SET n_rounds = n_rounds + 1 WHERE id = " + idGame;

@@ -1,5 +1,6 @@
 package com.insubria.it.server;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.registry.Registry;
@@ -159,9 +160,9 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     thread.start();
   }
 
-  public void createNewGame (String name, int maxPlayers, GameClient gameCreator) throws RemoteException {
+  public void createNewGame (String name, int maxPlayers, GameClient gameCreator) throws RemoteException, IOException {
     GameThread gameThread = new GameThread(gameCreator, name, maxPlayers, this.db);
-    Thread thread = new Thread(monitorThread);
+    Thread thread = new Thread(gameThread);
     thread.start();
   }
 

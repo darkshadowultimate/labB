@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
+import java.io.File;
+import java.io.IOException;
 
 import com.insubria.it.server.base.abstracts.Database;
 
@@ -44,7 +46,7 @@ public class GameThread extends Game implements Runnable {
     private Database db;
     private Connection dbConnection;
 
-    public GameThread (GameClient gameCreator, String name, int maxPlayers, Database db) {
+    public GameThread (GameClient gameCreator, String name, int maxPlayers, Database db) throws RemoteException, IOException {
         this.gameCreator = gameCreator;
         this.gameClientObservers = new ArrayList<GameClient>();
 
@@ -91,6 +93,8 @@ public class GameThread extends Game implements Runnable {
                 this.dbConnection.close();
             } catch (SQLException exc) {
                 System.err.println("Error while contacting the db " + exc);
+            } catch (RemoteException exc) {
+                System.err.println("Error while contacting the client " + exc);
             }
         } else {
             try {
@@ -107,7 +111,7 @@ public class GameThread extends Game implements Runnable {
                     }
 
                     this.dbConnection = this.db.getDatabaseConnection();
-                    sqlUpdate = "UPDATE game SET status = ? WHERE id = ?";
+                    String sqlUpdate = "UPDATE game SET status = ? WHERE id = ?";
                     PreparedStatement pst = this.dbConnection.prepareStatement(sqlUpdate);
                     pst.setString(1, "closed");
                     pst.setInt(2, this.idGame);
@@ -133,7 +137,7 @@ public class GameThread extends Game implements Runnable {
             try {
                 item.confirmGameSession(this.name, this.sessionNumber, randomMatrix, playerScore.get(item.getUsername()));
             } catch (RemoteException exc) {
-                System.err.println("Error while contacting the " + item.getEmail() + "player");
+                System.err.println("Error while contacting the player");
             }
         }
         this.timerThread = new TimerThread("isPlaying", this, this.gameClientObservers);
@@ -171,7 +175,7 @@ public class GameThread extends Game implements Runnable {
             try {
                 singlePlayer.sendWordsDiscoveredInSession(acceptedArray, refusedArray);
             } catch (RemoteException exc) {
-                System.err.println("Error while contacting the " + item.getEmail() + "player");
+                System.err.println("Error while contacting the player");
             }
         }
 
@@ -442,7 +446,7 @@ public class GameThread extends Game implements Runnable {
     }
 
     // Service method invoked by the timer
-    public void increaseSessionNumber () {
+    public void increaseSessionNumber () throws SQLException {
         this.sessionNumber++;
         this.gameUtil.increaseNumberOfRounds(this.idGame);
     }

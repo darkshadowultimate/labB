@@ -2,7 +2,9 @@ package com.insubria.it.server.threads.gameThread;
 
 
 import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 import com.insubria.it.server.threads.gameThread.GameThread;
 import com.insubria.it.server.threads.gameThread.interfaces.GameClient;
@@ -51,6 +53,8 @@ public class TimerThread extends Thread {
                     this.gameResponsible.handleStartNewSession();
                 });
             }
+        } catch (SQLException exc) {
+            System.err.println("Error while contacting the db " + exc);
         } catch (RemoteException exc) {
             System.err.println("Error while contacting the client " + exc);
         } catch (InterruptedException exc) {

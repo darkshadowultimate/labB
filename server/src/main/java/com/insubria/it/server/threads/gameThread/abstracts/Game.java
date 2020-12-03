@@ -6,6 +6,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 
+import java.util.ArrayList;
+
 import com.insubria.it.server.threads.gameThread.interfaces.GameClient;
 
 
@@ -14,6 +16,8 @@ public abstract class Game extends UnicastRemoteObject implements Remote {
      *
      */
     private static final long serialVersionUID = 1L;
+
+    public Game () throws RemoteException {}
 
     public abstract void triggerEndOfSessionGameClient ();
 

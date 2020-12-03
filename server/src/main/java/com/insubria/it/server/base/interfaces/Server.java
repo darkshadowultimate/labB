@@ -3,7 +3,9 @@ package com.insubria.it.server.base.interfaces;
 
 import com.insubria.it.server.threads.playerThread.interfaces.PlayerCredentials;
 import com.insubria.it.server.threads.monitorThread.interfaces.MonitorClient;
+import com.insubria.it.server.threads.gameThread.interfaces.GameClient;
 
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -64,7 +66,7 @@ public interface Server extends Remote {
     void gameDefinitionRequest (MonitorClient monitorClient, int page) throws RemoteException;
 
 
-    void createNewGame (String name, int maxPlayers, GameClient gameCreator) throws RemoteException;
+    void createNewGame (String name, int maxPlayers, GameClient gameCreator) throws RemoteException, IOException;
 
 
     void getListOfGames (MonitorClient monitorClient, String status) throws RemoteException;
