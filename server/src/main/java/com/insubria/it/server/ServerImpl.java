@@ -18,13 +18,33 @@ import com.insubria.it.server.threads.gameThread.GameThread;
 import com.insubria.it.server.threads.gameThread.interfaces.GameClient;
 
 
+/**
+ * The ServerImpl class implements the Server class and extends the UnicasRemoteObject class.
+ * This class represents the server that is in listening mode and waits all the clients requests (both related to account management, monitoring, and game).
+ * The main method first check for the existence of an administrator account, then register the ServerImpl object in the Registry that will be used from clients to retrieve the reference of the server.
+ * So, the ServerImpl class implements remote object pattern.
+ */
 public class ServerImpl extends UnicastRemoteObject implements Server {
+  /**
+   * Attribute of type Database that contains the reference of the DatabaseController object
+   */
   private Database db;
 
+  /**
+   * Constructor explicitly defined to call the super method.
+   * 
+   * @throws RemoteException - In case of something goes wrong while the 
+   */
   public ServerImpl () throws RemoteException {
     super();
   }
 
+  /**
+   * This method is called when the DatabaseController object is created (DatabaseController is subclass of Database)
+   * 
+   * @param db - The reference to the DatabaseController object
+   * @see AccessController#handleAccessProcess()
+   */
   public void setDbReference (Database db) {
     this.db = db;
   }
@@ -178,6 +198,14 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     thread.start();
   }
 
+  /**
+   * This main method starts when the server is started. As first thing it will set the RMI security manager (it will allow any kind of operations)
+   * Then the server will use the AccessController class and its methods to check that an administrator user exists. If it exists, the server will impersonate that user; if not, the server will create a new one asking the user for uid and password.
+   * After that, the method will create a new RMI registry and it will register the ServerImpl object to let the clients look at the registry, retrieve the object, and then make remote calls.
+   * 
+   * @param args - args passed while starting the server
+   * @throws RemoteException - thrown in case of something goes wrong while the creation of the registry 
+   */
   public static void main (String[] args) throws RemoteException {
     /*if (System.getSecurityManager() == null) {
       System.setSecurityManager(new RMISecurityManager());

@@ -97,21 +97,16 @@ public class PlayerThread extends Player implements Runnable {
     }
 
     private boolean checkProfileExists (String email, String username, Connection dbConnection) throws SQLException {
-        String sqlQueryEmail = "SELECT * FROM users WHERE email = ?", sqlQueryUsername = "SELECT * FROM users WHERE username = ?";
-        PreparedStatement pst1 = dbConnection.prepareStatement(sqlQueryEmail), pst2 = dbConnection.prepareStatement(sqlQueryUsername);
-        ResultSet result1 = this.db.performQuery(pst1), result2 = this.db.performQuery(pst2);
+        String sqlQueryEmail = "SELECT * FROM users WHERE email = " + email, sqlQueryUsername = "SELECT * FROM users WHERE username = " + username;
+        ResultSet result1 = this.db.performSimpleQuery(sqlQueryEmail), result2 = this.db.performSimpleQuery(sqlQueryUsername);
 
         if (result1.isBeforeFirst() || result2.isBeforeFirst()) {
             System.err.println("A user with the following email/username already exists");
-            pst1.close();
-            pst2.close();
             result1.close();
             result2.close();
 
             return true;
         } else {
-            pst1.close();
-            pst2.close();
             result1.close();
             result2.close();
 
@@ -120,13 +115,10 @@ public class PlayerThread extends Player implements Runnable {
     }
 
     private boolean checkHasConfirmedAccount (String email, Connection dbConnection) throws SQLException {
-        String sqlQuery = "SELECT * FROM users WHERE email = ?";
-        PreparedStatement pst = dbConnection.prepareStatement(sqlQuery);
-        pst.setString(1, email);
-        ResultSet result = this.db.performQuery(pst);
+        String sqlQuery = "SELECT * FROM users WHERE email = " + email;
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
         boolean booleanResult = result.getBoolean("is_confirmed");
 
-        pst.close();
         result.close();
         return booleanResult;
     }
@@ -208,11 +200,9 @@ public class PlayerThread extends Player implements Runnable {
     ) throws RemoteException, SQLException {
         System.out.println("Logging in the player...");
         Connection dbConnection = this.db.getDatabaseConnection();
-        String sqlQuery = "SELECT name, surname, username, password FROM users WHERE email = ?";
-        PreparedStatement pst = dbConnection.prepareStatement(sqlQuery);
-        pst.setString(1, email);
+        String sqlQuery = "SELECT name, surname, username, password FROM users WHERE email = " + email;
 
-        ResultSet result = this.db.performQuery(pst);
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
         if (result.isBeforeFirst()) {
             result.next();
             if (BCrypt.checkpw(password, result.getString("password"))) {
@@ -231,7 +221,6 @@ public class PlayerThread extends Player implements Runnable {
             player.errorLoginPlayerAccount("No player account found with the given email");
         }
         result.close();
-        pst.close();
         dbConnection.close();
     }
 
@@ -260,22 +249,18 @@ public class PlayerThread extends Player implements Runnable {
     }
 
     private boolean checkOldPassword (String password, String email, Connection dbConnection) throws SQLException {
-        String sqlQuery = "SELECT password FROM users WHERE email = ?";
-        PreparedStatement pst = dbConnection.prepareStatement(sqlQuery);
-        pst.setString(1, email);
-        ResultSet result = this.db.performQuery(pst);
+        String sqlQuery = "SELECT password FROM users WHERE email = " + email;
+        ResultSet result = this.db.performSimpleQuery(sqlQuery);
 
         if (BCrypt.checkpw(password, result.getString("password"))) {
             System.out.println("Passord matches");
 
             result.close();
-            pst.close();
             return true;
         } else {
             System.out.println("Passord doesn't match");
 
             result.close();
-            pst.close();
             return false;
         }
     }
