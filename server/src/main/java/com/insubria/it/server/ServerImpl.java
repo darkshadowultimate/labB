@@ -49,6 +49,19 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     this.db = db;
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to create a new user.
+   * This method will create a PlayerThread thread and pass the "create" value to the action attribute
+   * 
+   * @param name - The name of the new user
+   * @param surname - The surname of the new user
+   * @param username - The username of the new user
+   * @param email - The email of the new user
+   * @param password - The password of the new user
+   * @param player - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void createPlayerAccount (
     String name,
     String surname,
@@ -62,12 +75,31 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to confirm the new user.
+   * This method will create a PlayerThread thread and pass the "confirm" value to the action attribute
+   * 
+   * @param confirmationCode - The random code to identify the user and confirm his registration
+   * @param player - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void confirmPlayerAccount (String confirmationCode, PlayerCredentials player) throws RemoteException {
     PlayerThread playerThread = new PlayerThread(confirmationCode, player, "confirm", this.db);
     Thread thread = new Thread(playerThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to login.
+   * This method will create a PlayerThread thread and pass the "login" value to the action attribute
+   * 
+   * @param email - The email of the user
+   * @param password - The password of the user
+   * @param player - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void loginPlayerAccount (
     String email,
     String password,
@@ -78,12 +110,35 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to reset the password.
+   * This method will create a PlayerThread thread and pass the "reset" value to the action attribute
+   * 
+   * @param email - The email of the user
+   * @param player - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void resetPlayerPassword (String email, PlayerCredentials player) throws RemoteException {
     PlayerThread playerThread = new PlayerThread(player, email, "reset", this.db);
     Thread thread = new Thread(playerThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to change the user's data.
+   * This method will create a PlayerThread thread and pass the "change" value to the action attribute
+   * 
+   * @param name - The name of the user
+   * @param surname - The surname of the user
+   * @param username - The username of the user
+   * @param email - The email of the user
+   * @param password - The new password of the user
+   * @param oldPassword - The old password of the user
+   * @param player - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void changePlayerData (
     String email,
     String name,
