@@ -163,72 +163,172 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the user that has more score for each game and session.
+   * This method will create a MonitorThread thread and pass the "moreScoreGameAndSession" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void moreScoreGameAndSession (MonitorClient monitorClient) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, "moreScoreGameAndSession", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
   
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the user that has played highest number of sessions
+   * This method will create a MonitorThread thread and pass the "moreSessionsPlayed" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void moreSessionsPlayed (MonitorClient monitorClient) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, "moreSessionsPlayed", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the user that has highest average of score for each game and session
+   * This method will create a MonitorThread thread and pass the "moreAvgScoreGameAndSession" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void moreAvgScoreGameAndSession (MonitorClient monitorClient) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, "moreAvgScoreGameAndSession", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the user that proposed the highest number of duplicated wordrs
+   * This method will create a MonitorThread thread and pass the "moreProposedDuplicatedWords" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void moreProposedDuplicatedWords (MonitorClient monitorClient) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, "moreProposedDuplicatedWords", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the user that proposed the highest number of invalid wordrs
+   * This method will create a MonitorThread thread and pass the "moreInvalidWords" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void moreInvalidProposedWords (MonitorClient monitorClient) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, "moreInvalidWords", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the occurrence of the valid words
+   * This method will create a MonitorThread thread and pass the "validWordsOccurrences" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * @param page - The number of page to retrieve from the DB
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void validWordsOccurrences (MonitorClient monitorClient, int page) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, page, "validWordsOccurrences", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the list of words that gave more scores
+   * This method will create a MonitorThread thread and pass the "wordHighestScore" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * @param page - The number of page to retrieve from the DB
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void wordHighestScore (MonitorClient monitorClient, int page) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, page, "wordHighestScore", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the average of sessions played (2, 3, 4, 5, 6 players)
+   * This method will create a MonitorThread thread and pass the "averageRounds" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void averageRounds (MonitorClient monitorClient) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, "averageRounds", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the min/max of sessions played (2, 3, 4, 5, 6 players)
+   * This method will create a MonitorThread thread and pass the "minMaxRounds" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void minMaxRounds (MonitorClient monitorClient) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, "minMaxRounds", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the avg of the chars appeared in the matrixes
+   * This method will create a MonitorThread thread and pass the "charactersAvgOccurrence" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void charactersAvgOccurrence (MonitorClient monitorClient) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, "charactersAvgOccurrence", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the words that have the highest number of definition requests
+   * This method will create a MonitorThread thread and pass the "definitionRequest" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * @param page - The number of page to retrieve from the DB
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void definitionRequest (MonitorClient monitorClient, int page) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, page, "definitionRequest", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the games that have the highest number of definition requests (for words)
+   * This method will create a MonitorThread thread and pass the "gameDefinitionRequest" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * @param page - The number of page to retrieve from the DB
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void gameDefinitionRequest (MonitorClient monitorClient, int page) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, page, "gameDefinitionRequest", this.db);
     Thread thread = new Thread(monitorThread);
@@ -241,14 +341,32 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the list of games (with date, max players and actual players) for both "open" and "playing" statuses
+   * This method will create a MonitorThread thread and pass the "getListOfGames" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * @param status - The status of the games to retrieve
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void getListOfGames (MonitorClient monitorClient, String status) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, status, "getListOfGames", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to retrieve the list of players for a specific game
+   * This method will create a MonitorThread thread and pass the "getListOfPlayersForGame" value to the action attribute
+   * 
+   * @param monitorClient - The reference to the remote object that represents the client (user) that made the request
+   * @param id - The id of the game
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   */
   public void getListOfPlayersForGame (MonitorClient monitorClient, int id) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, id, this.db, "getListOfGames");
+    MonitorThread monitorThread = new MonitorThread(monitorClient, id, this.db, "getListOfPlayersForGame");
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
