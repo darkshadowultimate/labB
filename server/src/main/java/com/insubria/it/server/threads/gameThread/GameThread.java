@@ -29,23 +29,86 @@ import com.insubria.it.server.threads.gameThread.dictionary.Loader;
 import com.insubria.it.server.threads.gameThread.dictionary.InvalidKey;
 
 
+/**
+ * The GameThread class represents the thread that will be created when a user creates a new game. The reference to this thread will be stored in the RMI registry so it will be able to players that enter the specific game.
+ * This class follows the observable/observer pattwern. This thread is the observable object and the clients that plays the game this thread represents are the observers.
+ * This class extends the Game abstract class that contains the signatures of the methods.
+ * This class implements the Runnable interface to let the instances of this class to be threads.
+ */
 public class GameThread extends Game implements Runnable {
+    /**
+     * It represents the id of the game
+     */
     private int idGame;
+
+    /**
+     * It represents the name of the game
+     */
     private String name;
+
+    /**
+     * It represents the max players allowed in the game
+     */
     private int maxPlayers;
+
+    /**
+     * It represents the session number reached in the game
+     */
     private int sessionNumber;
 
+    /**
+     * It represents the reference to the client that created the game
+     */
     private GameClient gameCreator;
+
+    /**
+     * It represents the ArrayList that contains the references to the clients that are in the game
+     */
     private ArrayList<GameClient> gameClientObservers;
+
+    /**
+     * It represents the reference to the instance that serves different utils to the GameThread thread
+     */
     private GameThreadUtils gameUtil;
+
+
+    /**
+     * It represents the reference to the instance that acts as the timer while the game and the review part of the game
+     */
     private TimerThread timerThread;
 
+    /**
+     * It is used as a counter to understand if the last client sent the list of words. If so, the thread will retrieve the list of words proposed in the session and will send them to the clients
+     */
     private int triggerNextStep;
 
+
+    /**
+     * It represents the reference of the Dictionary object used to check if words are eligible
+     */
     private Dictionary dictionary;
+
+    /**
+     * It represents the reference to the DatabaseController object
+     */
     private Database db;
+
+    /**
+     * It represents the reference to the Connection object used to interact with the DB
+     */
     private Connection dbConnection;
 
+    /**
+     * Constructor called by the ServerImpl when a user wants to create a new game
+     * 
+     * @param gameCreator - The reference to the client that crated the game
+     * @param name - The name of the game
+     * @param maxPlayers - The max players number of the game
+     * @param db - The reference to the DatabaseController object
+     * 
+     * @throws RemoteException - If there is an error while the client contact, it throws RemoteException
+     * @throws IOException - If there is an error while the loading of the dictionary with the "dict-it.oxt" file, it throws IOException
+     */
     public GameThread (GameClient gameCreator, String name, int maxPlayers, Database db) throws RemoteException, IOException {
         this.gameCreator = gameCreator;
         this.gameClientObservers = new ArrayList<GameClient>();
@@ -61,6 +124,9 @@ public class GameThread extends Game implements Runnable {
         this.dictionary = new Loader().loadDictionaryFromFile(new File("dict-it.oxt"));
     }
 
+    /**
+     * Method invoked when a new session needs to be started (if this is not the first session, it will check if someone reached the 50 score. If so, the game will be end, if not a new session will be triggered).
+     */
     public void handleStartNewSession () {
         System.out.println("Starting the game session " + this.sessionNumber);
         String[][] randomMatrix = new Matrix().getRandomMatrix();
@@ -143,6 +209,9 @@ public class GameThread extends Game implements Runnable {
         this.timerThread = new TimerThread("isPlaying", this, this.gameClientObservers);
     }
 
+    /**
+     * This method is called when all the players sent the discovered words for the specific session and the thread needs to retrieve them all and sent to the players for review.
+     */
     private void retrieveGameSessionWords () {
         System.out.println("Retrieving the words proposed in this session...");
         ArrayList<WordRecord> acceptedArray = new ArrayList<WordRecord>(), refusedArray = new ArrayList<WordRecord>();
@@ -182,6 +251,11 @@ public class GameThread extends Game implements Runnable {
         this.timerThread = new TimerThread("isReviewing", this, this.gameClientObservers);
     }
 
+    /**
+     * Service method invoked when the thread needs to be terminated
+     * 
+     * @throws Exception - If any other exception occurs (while the thread interruption and unbind of the object), it throws Exception
+     */
     private void removeThread () throws Exception {
         System.out.println("Removing the thread");
         Registry registry = LocateRegistry.getRegistry(1099);
@@ -189,6 +263,12 @@ public class GameThread extends Game implements Runnable {
         Thread.currentThread().interrupt();
     }
 
+    /**
+     * Service method invoked when the game needs to be removed from the DB and the thread removed
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it throws SQLException
+     * @throws Exception - If any other exception occurs (while the thread interruption and unbind of the object), it throws Exception
+     */
     private void removeGame () throws SQLException, Exception {
         String sqlDelete = "DELETE FROM game WHERE id = ?";
         this.dbConnection = this.db.getDatabaseConnection();
@@ -201,6 +281,11 @@ public class GameThread extends Game implements Runnable {
         this.removeThread();
     }
 
+    /**
+     * Service method that is triggered before the first session of the game is started. It will count 30 seconds and then trigger the first session.
+     * 
+     * @param seconds - Seconds left before the first session will be triggered
+     */
     private void handleTimer (int seconds) {
         while (seconds > 0) {
             System.out.println("Seconds to wait until game will start: " + seconds);
@@ -222,6 +307,9 @@ public class GameThread extends Game implements Runnable {
         });
     }
 
+    /**
+     * Service method triggered by the timer instance to let the players know the session is ended
+     */
     public void triggerEndOfSessionGameClient () {
         System.out.println("Triggering the end of game on clients...");
         for (GameClient singlePlayer : this.gameClientObservers) {
@@ -233,6 +321,13 @@ public class GameThread extends Game implements Runnable {
         }
     }
 
+    /**
+     * This method will create a new game record in the DB and will register to the game the user that started the game (adding an "enter" record in the DB)
+     * It will add the creator to the gameClientObservers array because the client is now an observer of the observable thread
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it throws SQLException
+     * @throws RemoteException - If there is an error while the client contact, it throws RemoteException
+     */
     public void createNewGame () throws SQLException, RemoteException {
         System.out.println("Creating a new game and adding the user to it...");
         this.dbConnection = this.db.getDatabaseConnection();
@@ -261,6 +356,15 @@ public class GameThread extends Game implements Runnable {
         this.dbConnection.close();
     }
 
+    /**
+     * This method will add the player client as a new observer and will register the player to the game adding a new record in the "enter" table
+     * This operation is only allowed whether the max player of the game is not reached yet
+     * If the max player number is reached after having added the user, the timer for the start of the game will be triggered
+     * 
+     * @param player - The reference of the client to be added
+     * 
+     * @throws RemoteException - If there is an error while the client contact, it throws RemoteException
+     */
     public synchronized void addNewPlayer (GameClient player) throws RemoteException {
         System.out.println("Adding a user to the game...");
         boolean flag = true;
@@ -303,6 +407,14 @@ public class GameThread extends Game implements Runnable {
         }
     }
 
+    /**
+     * This method will delete the player that made the request when the game has not started yet.
+     * If there are no more players left in the game, this will be deleted and the thread terminated
+     * 
+     * @param player - The reference of the player to delete from the game
+     * 
+     * @throws RemoteException - If there is an error while the client contact, it throws RemoteException
+     */
     public synchronized void removePlayerNotStartedGame (GameClient player) throws RemoteException {
         System.out.println("Removing a user to not started game...");
 
@@ -338,6 +450,13 @@ public class GameThread extends Game implements Runnable {
         }
     }
 
+    /**
+     * This method is called when a player leaves the game while this has started. Because of this action, the whole game will be removed and the thread terminated
+     * 
+     * @param player - The reference of the player that left the game
+     * 
+     * @throws RemoteException - If there is an error while the client contact, it throws RemoteException
+     */
     public synchronized void removePlayerInGame (GameClient player) throws RemoteException {
         System.out.println("Removing a user to started game...");
 
@@ -360,6 +479,16 @@ public class GameThread extends Game implements Runnable {
         }
     }
 
+    /**
+     * This method is called from each player when the session is end and the thread needs to check the words discovered by the players.
+     * If the word is valid (both length, matrix, and dictionary) it will be registered with the score; if not, it will be registered with score 0 and with the reason.
+     * If all users have sent the list of words, the thread will progress and retrieve the list of words to each player
+     * 
+     * @param player - The reference of the player that sent the list of words
+     * @param wordsList - The list of words discovered by the player in the game session
+     * 
+     * @throws RemoteException - If there is an error while the client contact, it throws RemoteException
+     */
     public synchronized void checkPlayerWords (GameClient player, ArrayList<String> wordsList) throws RemoteException {
         System.out.println("Checking words reached by player " + player.getUsername());
 
@@ -423,12 +552,23 @@ public class GameThread extends Game implements Runnable {
         this.triggerNextStep++;
         
         if (this.triggerNextStep == this.maxPlayers) {
+            this.triggerNextStep = 0;
             CompletableFuture.runAsync(() -> {
                 this.retrieveGameSessionWords();
             });
         }
     }
 
+    /**
+     * This method is called from the players that want to retrieve the definition of a specific word.
+     * The method first increment the number of requests for the word (it increases a counter field in the DB), then it returns the definition to the client.
+     * It interacts with the Dictionary to retrieve the definition
+     * 
+     * @param player - The reference of the player that made the definition request
+     * @param word - The word the user made the definition request for
+     * 
+     * @throws RemoteException - If there is an error while the client contact, it throws RemoteException
+     */
     public void askForWordDefinition (GameClient player, String word) throws RemoteException {
         System.out.println("Getting the definitions for the " + word);
 
@@ -445,12 +585,20 @@ public class GameThread extends Game implements Runnable {
         }
     }
 
-    // Service method invoked by the timer
+    /**
+     * This is a service method invoked by the timer instance to let the game knows a new session will be done
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it throws SQLException
+     */
     public void increaseSessionNumber () throws SQLException {
         this.sessionNumber++;
         this.gameUtil.increaseNumberOfRounds(this.idGame);
     }
 
+    /**
+     * Method started when the GameThread is started. It will call the createNewGame() method to create a new game in DB and registering the user that created the game to the game (creating an "enter" record in the DB).
+     * If the creation is fine, the thread reference is registered in the RMI registry to be found by other users
+     */
     public void run () {
         boolean flag = true;
         this.idGame = ThreadLocalRandom.current().nextInt(1, Integer.MAX_VALUE);
