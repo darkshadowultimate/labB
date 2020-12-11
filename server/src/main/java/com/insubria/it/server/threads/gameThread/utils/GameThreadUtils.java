@@ -13,14 +13,38 @@ import com.insubria.it.server.base.abstracts.Database;
 import com.insubria.it.server.threads.gameThread.interfaces.GameClient;
 
 
+/**
+ * This class is used by the GameThread because it offers some utils (implemented here to avoid code duplications) such as DB queries
+ */
 public class GameThreadUtils {
+    /**
+     * The reference to the DatabaseController object
+     */
     private Database db;
+
+    /**
+     * The reference to the DB Connection object
+     */
     private Connection dbConnection;
 
+    /**
+     * Constructor to initialize instances of this class
+     * 
+     * @param db - The reference to the DatabaseController object
+     */
     public GameThreadUtils (Database db) {
         this.db = db;
     }
 
+    /**
+     * This method calculates the current score for each player and returns an HashMap where each key is the username of the user and the value its score.
+     * If the session is the first one, everybode will have a zero score, otherwise the method will perform DB queries to reach the actual score.
+     * 
+     * @return - The HasMap with the usernames and scores
+     * @param sessionNumber - The number of the session the game reached
+     * @param idGame - The id of the game
+     * @param gameClientObservers - The list of players (observers) that are playing the game
+     */
     public HashMap<String, Integer> calculateCurrentPlayerScore (int sessionNumber, int idGame, ArrayList<GameClient> gameClientObservers) {
         HashMap<String, Integer> returnValue = new HashMap<String, Integer>();
 
@@ -53,6 +77,12 @@ public class GameThreadUtils {
         return returnValue;
     }
 
+    /**
+     * This method transforms a String matrix in a single string. The different rows are interlocked as a single row
+     * 
+     * @return - The string that represents the matrix
+     * @param matrix - The matrix to work on
+     */
     public String setMatrixToString (String[][] matrix) {
         String returnValue = "";
         for (int i = 0; i < 4; i++) {
@@ -63,6 +93,12 @@ public class GameThreadUtils {
         return returnValue;
     }
 
+    /**
+     * This method returns the score associated to a word depending on its length
+     * 
+     * @return - The score associated to the word
+     * @param word - The word
+     */
     public int getCurrentWordScore (String word) {
         switch (word.length()) {
             case 3:
@@ -84,6 +120,15 @@ public class GameThreadUtils {
         }
     }
 
+    /**
+     * This method set the score of particular words to 0 because they have been proposed multiple times in a single session of a game
+     * 
+     * @param word - The word to invalidate
+     * @param idGame - The idGame the word has been proposed
+     * @param sessionNumber - The session number the word has been proposed
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it throws SQLException
+     */
     public void invalidateOtherPlayersSameWords (String word, int idGame, int sessionNumber) throws SQLException {
         this.dbConnection = this.db.getDatabaseConnection();
 
@@ -99,6 +144,16 @@ public class GameThreadUtils {
         this.dbConnection.close();
     }
 
+    /**
+     * This method will query all the words proposed in a single session of a specific game
+     * 
+     * @param idGame - The id of the game
+     * @param sessionNumber - The session number the query will be associated to
+     * 
+     * @return - The ResultSet object that contains the words discovered
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it throws SQLException
+     */
     public ResultSet getAcceptedWordForGameSession (int idGame, int sessionNumber) throws SQLException {
         String sqlQuery = "SELECT word, username_user, score " +
                           "FROM discover " +
@@ -107,6 +162,16 @@ public class GameThreadUtils {
         return this.db.performSimpleQuery(sqlQuery);
     }
 
+    /**
+     * This method will query all the refused words proposed in a single session of a specific game
+     * 
+     * @param idGame - The id of the game
+     * @param sessionNumber - The session number the query will be associated to
+     * 
+     * @return - The ResultSet object that contains the refused words discovered
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it throws SQLException
+     */
     public ResultSet getRefusedWordForGameSession (int idGame, int sessionNumber) throws SQLException {
         String sqlQuery = "SELECT word, username_user, score, reason " +
                           "FROM discover " +
@@ -114,6 +179,15 @@ public class GameThreadUtils {
         return this.db.performSimpleQuery(sqlQuery);
     }
 
+    /**
+     * This method will increase the n_requests params for the specific word discovered in a session of the game (because a user required its definition)
+     * 
+     * @param idGame - The id of the game
+     * @param sessionNumber - The session number
+     * @param word - The word to increment the n_request
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it throws SQLException
+     */
     public void increaseNumberOfDefinitionRequests (int idGame, int sessionNumber, String word) throws SQLException {
         this.dbConnection = this.db.getDatabaseConnection();
 
@@ -128,6 +202,15 @@ public class GameThreadUtils {
         this.dbConnection.close();
     }
 
+    /**
+     * This method will perform a query to reach the users that reached 50 score or more (if anyone did)
+     * 
+     * @return - The ResultSet object with the users that reached 50 score
+     * 
+     * @param idGame - The id of the game to check for
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it throws SQLException
+     */
     public ResultSet checkReached50Score (int idGame) throws SQLException {
         String sqlQuery = "SELECT username_user " +
                           "FROM discover " +
@@ -137,6 +220,16 @@ public class GameThreadUtils {
         return this.db.performSimpleQuery(sqlQuery);
     }
 
+    /**
+     * This method will create a new session partecipation (enter table record) to a game for each player
+     * 
+     * @param idGame - The id of the game
+     * @param sessionNumber - The session number
+     * @param stringMatrix - The matrix for the specified game session
+     * @param players - The list of players to register to the new game session
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it throws SQLException
+     */
     public void createNewEnterForNewSession (int idGame, int sessionNumber, String stringMatrix, ArrayList<GameClient> players) throws SQLException {
         this.dbConnection = this.db.getDatabaseConnection();
 
@@ -162,6 +255,13 @@ public class GameThreadUtils {
         this.dbConnection.close();
     }
 
+    /**
+     * This method increase the n_rounds field for the game record in the DB
+     * 
+     * @param idGame - The id of the game
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it throws SQLException
+     */
     public void increaseNumberOfRounds (int idGame) throws SQLException {
         this.dbConnection = this.db.getDatabaseConnection();
 
