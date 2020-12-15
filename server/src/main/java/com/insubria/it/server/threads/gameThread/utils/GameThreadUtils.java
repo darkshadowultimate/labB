@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -56,12 +57,21 @@ public class GameThreadUtils {
             } else {
                 ResultSet result;
                 String sqlQuery;
+
+                Statement stm = null;
+                try {
+                    this.dbConnection = this.db.getDatabaseConnection();
+                    stm = this.dbConnection.createStatement();
+                } catch (SQLException exc) {
+                    System.err.println("Error while establishing the connection with the DB " + exc);
+                }
+
                 for (GameClient item : gameClientObservers) {
                     sqlQuery = "SELECT SUM(score) as total_score " +
                                "FROM discover " +
                                "WHERE email_user = " + item.getEmail() + " AND id_game = " + idGame;
                     try {
-                        result = this.db.performSimpleQuery(sqlQuery);
+                        result = this.db.performSimpleQuery(sqlQuery, stm);
                         if (result.isBeforeFirst()) {
                             result.next();
                             returnValue.put(item.getUsername(), result.getInt("total_score"));
@@ -70,9 +80,14 @@ public class GameThreadUtils {
                         System.err.println("Error while contacting the db " + exc);
                     }
                 }
+
+                stm.close();
+                this.dbConnection.close();
             }
         } catch (RemoteException exc) {
             System.err.println("Error while contacting the player");
+        } catch (SQLException exc) {
+            System.err.println("Error while closing the connection with the DB " + exc);
         }
         return returnValue;
     }
@@ -159,7 +174,14 @@ public class GameThreadUtils {
                           "FROM discover " +
                           "WHERE id_game = " + idGame + " AND session_number_enter = " + sessionNumber + " AND score > 0 " +
                           "ORDER BY score DESC";
-        return this.db.performSimpleQuery(sqlQuery);
+        Statement stm = null;
+        try {
+            this.dbConnection = this.db.getDatabaseConnection();
+            stm = this.dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+        return this.db.performSimpleQuery(sqlQuery, stm);
     }
 
     /**
@@ -176,7 +198,14 @@ public class GameThreadUtils {
         String sqlQuery = "SELECT word, username_user, score, reason " +
                           "FROM discover " +
                           "WHERE id_game = " + idGame + " AND session_number_enter = " + sessionNumber + " AND score = 0";
-        return this.db.performSimpleQuery(sqlQuery);
+        Statement stm = null;
+        try {
+            this.dbConnection = this.db.getDatabaseConnection();
+            stm = this.dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+        return this.db.performSimpleQuery(sqlQuery, stm);
     }
 
     /**
@@ -217,7 +246,15 @@ public class GameThreadUtils {
                           "WHERE id_game = " + idGame + " " +
                           "GROUP BY username_user " +
                           "HAVING SUM(score) >= 50";
-        return this.db.performSimpleQuery(sqlQuery);
+        Statement stm = null;
+        try {
+            this.dbConnection = this.db.getDatabaseConnection();
+            stm = this.dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        return this.db.performSimpleQuery(sqlQuery, stm);
     }
 
     /**

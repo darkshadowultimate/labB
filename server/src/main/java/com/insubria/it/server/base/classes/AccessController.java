@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import com.insubria.it.server.ServerImpl;
 import com.insubria.it.server.base.abstracts.Access;
@@ -45,7 +46,8 @@ public class AccessController extends Access {
     String[] credentials = new String[3];
 
     System.out.print("Insert the DB host and port (e.g. => localhost:5432): ");
-    credentials[0] = String.format("jdbc:postgresql://%s/", this.scanner.nextLine());
+    String midString = this.scanner.nextLine();
+    credentials[0] = "jdbc:postgresql://" + midString + "/";
     System.out.println("");
 
     System.out.println("Insert the DB username: ");
@@ -79,8 +81,7 @@ public class AccessController extends Access {
       PreparedStatement pst = dbConnection.prepareStatement(DBCreation.sqlInitialize);
       this.db.performChangeState(pst);
     } catch (SQLException exc) {
-      System.err.println("Error while performing SQL operations " + exc);
-      System.exit(1);
+      System.err.println("DB already exists");
     }
 
     System.out.println("Successfully created the Database");
@@ -113,29 +114,34 @@ public class AccessController extends Access {
    * @return true if the administrator exists, false otherwise
    */
   protected boolean checkAdminProfile () {
+    String sqlQuery = "SELECT * FROM administrator";
     Connection dbConnection = null;
+    Statement stm = null;
+
     try {
       dbConnection = this.db.getDatabaseConnection();
+      stm = dbConnection.createStatement();
     } catch (SQLException exc) {
       System.err.println("Error while establishing the connection with the DB " + exc);
       System.exit(1);
     }
 
-    String sqlQuery = "SELECT * FROM administrator";
     try {
-      ResultSet result = this.db.performSimpleQuery(sqlQuery);
+      ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
       if (result.isBeforeFirst()) {
         result.next();
         System.out.println("Logging with " + result.getString(1) + " profile...");
-        dbConnection.close();
+        
         result.close();
-
+        stm.close();
+        dbConnection.close();
         return true;
       } else {
         System.out.println("No administrator profile found. Creating new one...");
-        dbConnection.close();
-        result.close();
 
+        result.close();
+        stm.close();
+        dbConnection.close();
         return false;
       }
     } catch (SQLException exc) {

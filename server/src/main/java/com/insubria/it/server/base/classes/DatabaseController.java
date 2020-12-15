@@ -72,13 +72,8 @@ public class DatabaseController extends Database {
    * @param query - The SQL query as a String
    * @throws SQLException - If a SQLException occurs while the query execution, this will be thrown to the caller
    */
-  public ResultSet performSimpleQuery (String query) throws SQLException {
-    Connection dbConnection = this.getDatabaseConnection();
-    Statement stm = dbConnection.createStatement();
-    ResultSet rs = stm.executeQuery(query);
-    stm.close();
-    dbConnection.close();
-    return rs;
+  public ResultSet performSimpleQuery (String query, Statement stm) throws SQLException {
+    return stm.executeQuery(query);
   }
 
   /**

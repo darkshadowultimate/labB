@@ -34,7 +34,7 @@ public abstract class Database {
    * The signature of the performSimpleQuery method.
    * This method is defined in the DatabaseController class
    */
-  public abstract ResultSet performSimpleQuery (String query) throws SQLException;
+  public abstract ResultSet performSimpleQuery (String query, Statement stm) throws SQLException;
 
   /**
    * The signature of the performChangeState method.

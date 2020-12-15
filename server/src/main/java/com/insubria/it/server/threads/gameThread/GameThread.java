@@ -6,6 +6,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -511,7 +512,15 @@ public class GameThread extends Game implements Runnable {
                     if (/* Check the word exists in the matrix */true) {
                         if (singleWord.length() >= 3) {
                             String sqlQuery = "SELECT * FROM discover WHERE word = " + singleWord + " AND id_game = " + this.idGame + " AND session_number_enter = " + this.sessionNumber;
-                            ResultSet result = this.db.performSimpleQuery(sqlQuery);
+                            Statement stm = null;
+                            try {
+                                stm = this.dbConnection.createStatement();
+                            } catch (SQLException exc) {
+                                System.err.println("Error while establishing the connection with the DB " + exc);
+                                System.exit(1);
+                            }
+
+                            ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
 
                             if (result.isBeforeFirst()) {
                                 // This word already exists
@@ -525,6 +534,9 @@ public class GameThread extends Game implements Runnable {
                                 pst.setBoolean(7, true);
                                 pst.setString(8, "");
                             }
+
+                            result.close();
+                            stm.close();
                         } else {
                             pst.setInt(6, 0);
                             pst.setBoolean(7, false);

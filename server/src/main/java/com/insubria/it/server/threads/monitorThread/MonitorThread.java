@@ -1,7 +1,6 @@
 package com.insubria.it.server.threads.monitorThread;
 
 
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -102,7 +101,16 @@ public class MonitorThread extends Monitor implements Runnable {
                            "GROUP BY id_game, session_number_enter, username_user, email_user " +
                            "ORDER BY SUM(score) DESC " +
                            "LIMIT 1;";
-        ResultSet result1 = this.db.performSimpleQuery(sqlQuery1), result2 = this.db.performSimpleQuery(sqlQuery2);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result1 = this.db.performSimpleQuery(sqlQuery1, stm), result2 = this.db.performSimpleQuery(sqlQuery2, stm);
         if (result1.isBeforeFirst() && result2.isBeforeFirst()) {
             result1.next(); result2.next();
             System.out.println("Successfully performed the query");
@@ -116,6 +124,8 @@ public class MonitorThread extends Monitor implements Runnable {
         }
         result1.close();
         result2.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -130,7 +140,16 @@ public class MonitorThread extends Monitor implements Runnable {
                           "FROM users as u INNER JOIN enter as e ON u.email = e.email_user and u.username = e.username_user " +
                           "GROUP BY u.email, u.username " +
                           "ORDER BY number DESC;";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             result.next();
             System.out.println("Successfully performed the query");
@@ -141,6 +160,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorMoreSessionsPlayed("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -163,7 +184,16 @@ public class MonitorThread extends Monitor implements Runnable {
                            "GROUP BY id_game, session_number_enter, username_user, email_user " +
                            "ORDER BY AVG(score) DESC " +
                            "LIMIT 1;";
-        ResultSet result1 = this.db.performSimpleQuery(sqlQuery1), result2 = this.db.performSimpleQuery(sqlQuery2);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result1 = this.db.performSimpleQuery(sqlQuery1, stm), result2 = this.db.performSimpleQuery(sqlQuery2, stm);
         if (result1.isBeforeFirst() && result2.isBeforeFirst()) {
             result1.next(); result2.next();
             System.out.println("Successfully performed the query");
@@ -177,6 +207,8 @@ public class MonitorThread extends Monitor implements Runnable {
         }
         result1.close();
         result2.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -196,7 +228,16 @@ public class MonitorThread extends Monitor implements Runnable {
                           ") " +
                           "GROUP BY email_user, username_user " +
                           "ORDER BY number DESC;";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             result.next();
             System.out.println("Successfully performed the query");
@@ -207,6 +248,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorMoreProposedDuplicatedWords("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -222,7 +265,16 @@ public class MonitorThread extends Monitor implements Runnable {
                           "WHERE is_valid = FALSE " +
                           "GROUP BY email_user, username_user " +
                           "ORDER BY number DESC;";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             result.next();
             System.out.println("Successfully performed the query");
@@ -233,6 +285,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorMoreInvalidProposedWords("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -274,7 +328,16 @@ public class MonitorThread extends Monitor implements Runnable {
                           "GROUP BY word " +
                           "ORDER BY occurrences DESC " +
                           "LIMIT 10 OFFSET " + (page - 1) * 10 + ";";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
             String[] clientResult = this.transformString(result, 2);
@@ -284,6 +347,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorValidWordsOccurrences("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -300,7 +365,16 @@ public class MonitorThread extends Monitor implements Runnable {
                           "FROM discover " +
                           "WHERE is_valid = True " +
                           "ORDER BY score DESC;";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
             String[] clientResult = this.transformString(result, 3);
@@ -310,6 +384,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorWordHighestScore("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -324,7 +400,16 @@ public class MonitorThread extends Monitor implements Runnable {
                           "FROM game " +
                           "WHERE status = 'closed' " +
                           "GROUP BY max_players;";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
             String[] clientResult = this.transformString(result, 2);
@@ -334,6 +419,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorAverageRounds("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
 
@@ -349,7 +436,16 @@ public class MonitorThread extends Monitor implements Runnable {
                           "FROM game " +
                           "WHERE status = 'closed' " +
                           "GROUP BY max_players;";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
             String[] clientResult = this.transformString(result, 3);
@@ -359,6 +455,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorMinMaxRounds("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -412,7 +510,16 @@ public class MonitorThread extends Monitor implements Runnable {
         System.out.println("Reaching the characters average occurrence...");
         String sqlQuery = "SELECT characters " +
                           "FROM enter;";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
             HashMap<Character, Double> hashMap = this.mapAvgOccurrence(result);
@@ -422,6 +529,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorCharactersAvgOccurrence("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -440,7 +549,16 @@ public class MonitorThread extends Monitor implements Runnable {
                           "GROUP BY word " +
                           "ORDER BY AVG(n_requests) DESC " +
                           "LIMIT 10 OFFSET " + (page - 1) * 10 + ";";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
             String[] clientResult = this.transformString(result, 2);
@@ -450,6 +568,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorDefinitionRequest("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -466,7 +586,16 @@ public class MonitorThread extends Monitor implements Runnable {
                           "FROM discover " +
                           "WHERE n_requests > 0 " +
                           "LIMIT 10 OFFSET " + (page - 1) * 10 + ";";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
             String[] clientResult = this.transformString(result, 1);
@@ -476,6 +605,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorGameDefinitionRequest("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -492,7 +623,16 @@ public class MonitorThread extends Monitor implements Runnable {
                           "FROM game as g INNER JOIN enter as e on g.id = e.id_game " +
                           "WHERE g.status = " + status + " " +
                           "GROUP BY g.id, g.date, g.max_players;";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
             String[] clientResult = this.transformString(result, 4);
@@ -502,6 +642,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorGetListOfGames("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
@@ -517,7 +659,16 @@ public class MonitorThread extends Monitor implements Runnable {
         String sqlQuery = "SELECT DISTINCT username_user " +
                           "FROM enter " +
                           "WHERE id_game = " + id + ";";
-        ResultSet result = this.db.performSimpleQuery(sqlQuery);
+        Connection dbConnection = null;
+        Statement stm = null;
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            stm = dbConnection.createStatement();
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
             String[] clientResult = this.transformString(result, 1);
@@ -527,6 +678,8 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorGetListOfPlayersForGame("No sessions played yet");
         }
         result.close();
+        stm.close();
+        dbConnection.close();
     }
 
     /**
