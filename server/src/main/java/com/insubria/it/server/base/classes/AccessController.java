@@ -168,7 +168,7 @@ public class AccessController extends Access {
       System.exit(1);
     }
 
-    String sqlInsert = "USE " + this.db.getDbName() + "; INSERT INTO administrator(uid, password) VALUES(?, ?)";
+    String sqlInsert = "INSERT INTO administrator(uid, password) VALUES(?, ?)";
     try {
       PreparedStatement pst = dbConnection.prepareStatement(sqlInsert);
       pst.setString(1, credentials[0]);
