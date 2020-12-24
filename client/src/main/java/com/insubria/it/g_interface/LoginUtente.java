@@ -1,13 +1,13 @@
 package com.insubria.it.g_interface;
 
 import java.awt.event.*;
+import javax.swing.JOptionPane;
 import java.rmi.RemoteException;
 
 import com.insubria.it.helpers.Validation;
 import com.insubria.it.serverImplClasses.PlayerCredentialsImpl;
 import com.insubria.it.context.*;
 import com.insubria.it.g_components.*;
-import com.insubria.it.sharedserver.threads.playerThread.interfaces.PlayerCredentials;
 
 public class LoginUtente {
     private static final String TITLE_WINDOW = "Form login user";
@@ -62,7 +62,22 @@ public class LoginUtente {
                         .loginPlayerAccount(
                             emailValue,
                             passwordValue,
-                            new PlayerCredentialsImpl()
+                            new PlayerCredentialsImpl() {
+                                @Override
+                                public void confirmLoginPlayerAccount(String name, String surname, String username) throws RemoteException {
+                                    super.confirmLoginPlayerAccount(name, surname, username);
+
+                                    gridFrame.disposeFrame();
+                                    redirectToHomeFrame();
+                                }
+
+                                @Override
+                                public void errorLoginPlayerAccount(String reason) throws RemoteException {
+                                    super.errorLoginPlayerAccount(reason);
+
+                                    showError("There was a problem during the login...\nCheck your credentials");
+                                }
+                            }
                         );
                     } catch (RemoteException exec) {
                         exec.printStackTrace();
@@ -96,6 +111,10 @@ public class LoginUtente {
     private void redirectToHomeFrame() {
         Home home = new Home();
         gridFrame.disposeFrame();
+    }
+
+    private void showError(String errMessage) {
+        JOptionPane.showMessageDialog(null, errMessage);
     }
 
     private void redirectToRegistrationFrame() {

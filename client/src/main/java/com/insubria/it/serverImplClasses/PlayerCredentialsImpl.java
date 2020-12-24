@@ -13,72 +13,51 @@ public class PlayerCredentialsImpl extends UnicastRemoteObject implements Player
   public PlayerCredentialsImpl() throws RemoteException {
   }
 
-  public void confirmPlayerRegistration() throws RemoteException {
-    System.out.println("The registration was a SUCCESS");
-  }
+  public void confirmPlayerRegistration() throws RemoteException {}
 
-  public void errorPlayerRegistration(String reason) throws RemoteException {
-    System.out.println("The registration was a FAILURE => " + reason);
-    /* FrameTransitions.moveToNextFrame(nameClassFrame, gridFrame); */
-  }
+  public void errorPlayerRegistration(String reason) throws RemoteException {}
 
-  public void confirmCodeConfirmation() throws RemoteException {
-    System.out.println("The code confirmation was a SUCCESS");
-  }
+  public void confirmCodeConfirmation() throws RemoteException {}
 
   /**
    * The signature of the errorCodeConfirmation method Called when the
    * confirmation of a new user didn't go well It is implemented client side
    */
-  public void errorCodeConfirmation(String reason) throws RemoteException {
-    System.out.println("The code confirmation was a FAILURE => " + reason);
-  }
+  public void errorCodeConfirmation(String reason) throws RemoteException {}
 
   /**
    * The signature of the confirmLoginPlayerAccount method Called when the login
    * of a user is okay It is implemented client side
    */
-  public void confirmLoginPlayerAccount(String name, String surname, String username) throws RemoteException {
-    System.out.println("The login was a SUCCESS");
-  }
+  public void confirmLoginPlayerAccount(String name, String surname, String username) throws RemoteException {}
 
   /**
    * The signature of the errorLoginPlayerAccount method Called when the login of
    * a user didn't go well It is implemented client side
    */
-  public void errorLoginPlayerAccount(String reason) throws RemoteException {
-    System.out.println("The login was a FAILURE => " + reason);
-  }
+  public void errorLoginPlayerAccount(String reason) throws RemoteException {}
 
   /**
    * The signature of the confirmResetPlayerPassword method Called when the reset
    * of the password of a user is okay It is implemented client side
    */
-  public void confirmResetPlayerPassword() throws RemoteException {
-    System.out.println("The reset of the password was a SUCCESS");
-  }
+  public void confirmResetPlayerPassword() throws RemoteException {}
 
   /**
    * The signature of the errorResetPlayerPassword method Called when the reset of
    * the password of a user didn't go well It is implemented client side
    */
-  public void errorResetPlayerPassword(String reason) throws RemoteException {
-    System.out.println("The reset of the password was a FAILURE => " + reason);
-  }
+  public void errorResetPlayerPassword(String reason) throws RemoteException {}
 
   /**
    * The signature of the confirmChangePlayerData method Called when the reset of
    * the data of a user is okay It is implemented client side
    */
-  public void confirmChangePlayerData() throws RemoteException {
-    System.out.println("Data changes was a SUCCESS");
-  }
+  public void confirmChangePlayerData() throws RemoteException {}
 
   /**
    * The signature of the errorChangePlayerData method Called when the reset of
    * the data of a user didn't go well It is implemented client side
    */
-  public void errorChangePlayerData(String reason) throws RemoteException {
-    System.out.println("Data changes was a FAILURE => " + reason);
-  }
+  public void errorChangePlayerData(String reason) throws RemoteException {}
 }
