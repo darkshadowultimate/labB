@@ -190,41 +190,42 @@ public class PlayerThread extends Player implements Runnable {
      * 
      * @param email        - The email of the new user
      * @param username     - The username of the new user
-     * @param dbConnection - The reference to the Connection object
-     * 
+     *
      * @return - true if a user with email/username already exists, false otherwise
      * @throws SQLException - If something goes wrong with the DB operations
      *                      SQLException is thrown
      */
     private boolean checkProfileExists(String email, String username) throws SQLException {
-        String sqlQueryEmail = "SELECT * FROM users WHERE email = " + email,
-                sqlQueryUsername = "SELECT * FROM users WHERE username = " + username;
+        String sqlQueryEmail = "SELECT * FROM users WHERE email = '" + email + "'",
+                sqlQueryUsername = "SELECT * FROM users WHERE username = '" + username + "'";
         Connection dbConnection = null;
-        Statement stm = null;
+        Statement stm1 = null, stm2 = null;
+
         try {
             dbConnection = this.db.getDatabaseConnection();
-            stm = dbConnection.createStatement();
+            stm1 = dbConnection.createStatement();
+            stm2 = dbConnection.createStatement();
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
 
-        ResultSet result1 = this.db.performSimpleQuery(sqlQueryEmail, stm),
-                result2 = this.db.performSimpleQuery(sqlQueryUsername, stm);
 
-        if (result1.isBeforeFirst() || result2.isBeforeFirst()) {
+        ResultSet result1 = this.db.performSimpleQuery(sqlQueryEmail, stm1),
+                result2 = this.db.performSimpleQuery(sqlQueryUsername, stm2);
+
+        boolean doesUserAlreadyExists = result1.isBeforeFirst() || result2.isBeforeFirst();
+
+        result1.close();
+        result2.close();
+        stm1.close();
+        stm2.close();
+
+        dbConnection.close();
+
+        if (doesUserAlreadyExists) {
             System.err.println("A user with the following email/username already exists");
-            result1.close();
-            result2.close();
-            stm.close();
-            dbConnection.close();
-
             return true;
         } else {
-            result1.close();
-            result2.close();
-            stm.close();
-            dbConnection.close();
-
             return false;
         }
     }
@@ -234,8 +235,7 @@ public class PlayerThread extends Player implements Runnable {
      * not
      * 
      * @param email        - The email of the user
-     * @param dbConnection - The reference to the Connection object
-     * 
+     *
      * @return - true if the user confirmed the account, false otherwise
      * @throws SQLException - If something goes wrong with the DB operations
      *                      SQLException is thrown
@@ -300,11 +300,17 @@ public class PlayerThread extends Player implements Runnable {
      * @throws MessagingException   - If there is an error while the sending of the
      *                              email, it throws MessagingException
      */
-    protected void createPlayerAccount(String name, String surname, String username, String email, String password,
-            PlayerCredentials player) throws InterruptedException, RemoteException, SQLException, MessagingException {
-        Connection dbConnection = this.db.getDatabaseConnection();
+    protected void createPlayerAccount(
+        String name,
+        String surname,
+        String username,
+        String email,
+        String password,
+        PlayerCredentials player
+    ) throws InterruptedException, RemoteException, SQLException, MessagingException {
 
         if (!this.checkProfileExists(this.email, this.username)) {
+            Connection dbConnection = this.db.getDatabaseConnection();
             String token = UUID.randomUUID().toString();
             String sqlInsert = "INSERT INTO users(email, username, name, surname, password, code) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement pst = dbConnection.prepareStatement(sqlInsert);
@@ -331,11 +337,11 @@ public class PlayerThread extends Player implements Runnable {
             }
             System.out.println("Account creation flow completed correctly");
             pst.close();
+            dbConnection.close();
         } else {
             System.out.println("An account with the same email or username already exists");
             player.errorPlayerRegistration("An account with the same email or username already exists");
         }
-        dbConnection.close();
     }
 
     /**
@@ -457,8 +463,7 @@ public class PlayerThread extends Player implements Runnable {
      * 
      * @param password     - The password the user sent
      * @param email        - The email of the user
-     * @param dbConnection - The reference to the Connection object
-     * 
+     *
      * @return - True if the passwords match, false otherwise
      * 
      * @throws SQLException - If there is an error while the DB operations, it

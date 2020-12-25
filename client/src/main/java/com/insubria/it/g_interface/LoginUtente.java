@@ -66,15 +66,12 @@ public class LoginUtente {
                                 @Override
                                 public void confirmLoginPlayerAccount(String name, String surname, String username) throws RemoteException {
                                     super.confirmLoginPlayerAccount(name, surname, username);
-
-                                    gridFrame.disposeFrame();
                                     redirectToHomeFrame();
                                 }
 
                                 @Override
                                 public void errorLoginPlayerAccount(String reason) throws RemoteException {
                                     super.errorLoginPlayerAccount(reason);
-
                                     showError("There was a problem during the login...\nCheck your credentials");
                                 }
                             }
