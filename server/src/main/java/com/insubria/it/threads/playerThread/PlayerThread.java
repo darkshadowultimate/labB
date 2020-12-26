@@ -362,7 +362,7 @@ public class PlayerThread extends Player implements Runnable {
             throws RemoteException, SQLException {
         System.out.println("Confirming the player account...");
         Connection dbConnection = this.db.getDatabaseConnection();
-        String sqlUpdate = "UPDATE users SET is_confirmed = true AND code = NULL WHERE code = ?";
+        String sqlUpdate = "UPDATE users SET code = null AND is_confirmed = true WHERE code = ?";
         PreparedStatement pst = dbConnection.prepareStatement(sqlUpdate);
         pst.setString(1, confirmationCode);
 
@@ -391,7 +391,7 @@ public class PlayerThread extends Player implements Runnable {
     protected void loginPlayerAccount(String email, String password, PlayerCredentials player)
             throws RemoteException, SQLException {
         System.out.println("Logging in the player...");
-        String sqlQuery = "SELECT name, surname, username, password FROM users WHERE email = " + email;
+        String sqlQuery = "SELECT name, surname, username, password FROM users WHERE email = '" + email + "'";
         Connection dbConnection = null;
         Statement stm = null;
         try {

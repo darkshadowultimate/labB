@@ -5,7 +5,7 @@ import javax.mail.internet.InternetAddress;
 
 public class Validation {
 
-  public static boolean isFieldEmpty(String fieldValue) {
+  public static boolean isFieldFilled(String fieldValue) {
     return fieldValue.length() > 0;
   }
 
