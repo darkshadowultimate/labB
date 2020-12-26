@@ -15,11 +15,12 @@ public class LoginUtente {
     private static final String LABEL_EMAIL = "E-mail";
     private static final String LABEL_PSWD = "Password";
     private static final String BUTTON_SUBMIT_TEXT = "ACCEDI";
+    private static final String LINK_FORGOT_PASSWORD = "Reset Password";
     private static final String LINK_REGISTRATION = "Registrati";
     private static final int ROWS = 0;
     private static final int COLS = 1;
 
-    private Label credTitle, regLink;
+    private Label credTitle, regLink, pswdLink;
     private InputLabel email, password;
     private Button submitButton;
     private GridFrame gridFrame;
@@ -31,6 +32,7 @@ public class LoginUtente {
         email = new InputLabel(LABEL_EMAIL);
         password = new InputLabel(LABEL_PSWD);
         submitButton = new Button(BUTTON_SUBMIT_TEXT);
+        pswdLink = new Label(LINK_FORGOT_PASSWORD);
         regLink = new Label(LINK_REGISTRATION);
 
         this.addAllEventListeners(email, password);
@@ -41,6 +43,8 @@ public class LoginUtente {
         gridFrame.addToView(password);
         // Submit button
         gridFrame.addToView(submitButton);
+        // Forgot password link
+        gridFrame.addToView(pswdLink);
         // Registration link
         gridFrame.addToView(regLink);
 
@@ -66,6 +70,8 @@ public class LoginUtente {
                                 @Override
                                 public void confirmLoginPlayerAccount(String name, String surname, String username) throws RemoteException {
                                     super.confirmLoginPlayerAccount(name, surname, username);
+
+                                    PlayerContextProvider.setPlayerInfo(name, surname, username);
                                     redirectToHomeFrame();
                                 }
 
@@ -79,14 +85,14 @@ public class LoginUtente {
                     } catch (RemoteException exec) {
                         exec.printStackTrace();
                     }
-                    /*
-                     * try { RemoteObjectContextProvider.server.loginPlayerAccount(emailValue,
-                     * passwordValue, new PlayerCredentialsImpl()); } catch (RemoteException exec) {
-                     * exec.printStackTrace(); }
-                     */
                 } else {
                     System.out.println("Fields empty of invalid email!");
                 }
+            }
+        });
+        pswdLink.attachMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent me) {
+                redirectToResetPasswordFrame();
             }
         });
         regLink.attachMouseListener(new MouseAdapter() {
@@ -97,12 +103,7 @@ public class LoginUtente {
     }
 
     private boolean checkFormFields(String email, String password) {
-        return Validation.isFieldEmpty(email) && Validation.isFieldEmpty(password) && Validation.validateEmail(email);
-    }
-
-    // update the PlayerContextProvider fields value
-    private void updatePlayerInfo() {
-        PlayerContextProvider.setEmail(email.getValueTextField());
+        return Validation.isFieldFilled(email) && Validation.isFieldFilled(password) && Validation.validateEmail(email);
     }
 
     private void redirectToHomeFrame() {
@@ -110,12 +111,17 @@ public class LoginUtente {
         gridFrame.disposeFrame();
     }
 
-    private void showError(String errMessage) {
-        JOptionPane.showMessageDialog(null, errMessage);
+    private void redirectToResetPasswordFrame() {
+        ResetPassword resetPassword = new ResetPassword();
+        gridFrame.disposeFrame();
     }
 
     private void redirectToRegistrationFrame() {
         UserRegistration registration = new UserRegistration();
         gridFrame.disposeFrame();
+    }
+
+    private void showError(String errMessage) {
+        JOptionPane.showMessageDialog(null, errMessage);
     }
 }

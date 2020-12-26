@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.rmi.RemoteException;
 import javax.swing.JOptionPane;
 
+import com.insubria.it.context.PlayerContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
 import com.insubria.it.helpers.Validation;
@@ -67,19 +68,29 @@ public class UserRegistration {
       public void actionPerformed(ActionEvent e) {
         // this is until I create the integration with server side
         if(checkFormFields(inputLabels)) {
+          final String name = inputLabels[0].getValueTextField();
+          final String surname = inputLabels[1].getValueTextField();
+          final String username = inputLabels[2].getValueTextField();
+          String email = inputLabels[3].getValueTextField();
+          String password = inputLabels[4].getValueTextField();
+
+
           try {
             RemoteObjectContextProvider
             .server
             .createPlayerAccount(
-              inputLabels[0].getValueTextField(),
-              inputLabels[1].getValueTextField(),
-              inputLabels[2].getValueTextField(),
-              inputLabels[3].getValueTextField(),
-              inputLabels[4].getValueTextField(),
+              name,
+              surname,
+              username,
+              email,
+              password,
               new PlayerCredentialsImpl() {
                 @Override
                 public void confirmPlayerRegistration() throws RemoteException {
                   super.confirmPlayerRegistration();
+
+                  PlayerContextProvider.setPlayerInfo(name, surname, username);
+
                   redirectConfirmCodeFrame();
                 }
 
@@ -112,7 +123,7 @@ public class UserRegistration {
   private boolean checkFormFields(InputLabel[] inputFields) {
 
     for (int i = 0; i < LABELS_TEXTS.length; i++) {
-      if(!Validation.isFieldEmpty(inputFields[i].getValueTextField())) {
+      if(!Validation.isFieldFilled(inputFields[i].getValueTextField())) {
         return false;
       }
     }

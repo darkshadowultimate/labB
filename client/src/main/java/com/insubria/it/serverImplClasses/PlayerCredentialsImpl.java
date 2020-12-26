@@ -4,7 +4,6 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import com.insubria.it.g_components.GridFrame;
-import com.insubria.it.helpers.FrameTransitions;
 import com.insubria.it.sharedserver.threads.playerThread.interfaces.PlayerCredentials;
 
 
