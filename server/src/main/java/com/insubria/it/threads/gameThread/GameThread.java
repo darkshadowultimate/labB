@@ -375,7 +375,7 @@ public class GameThread extends Game implements Runnable {
         pst.setString(3, this.gameCreator.getUsername());
         this.db.performChangeState(pst);
 
-        this.gameCreator.confirmCreateNewGame(this);
+        this.gameCreator.confirmCreateNewGame(Integer.toString(this.idGame));
         System.out.println("Created the game and added the creator to it");
 
         pst.close();
