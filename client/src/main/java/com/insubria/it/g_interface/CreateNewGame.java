@@ -73,15 +73,10 @@ public class CreateNewGame {
                   public void confirmCreateNewGame(String gameThreadId) throws RemoteException {
                     super.confirmCreateNewGame(gameThreadId);
 
-                    System.out.println("gameThreadId => " + gameThreadId);
-
                     Game gameThread = RemoteObjectContextProvider.getGameThreadRemoteObect(gameThreadId);
-
-                    System.out.println("AFTER getGameThreadRemoteObect");
 
                     GameContextProvider.setGameReference(gameThread);
 
-                    System.out.println("AFTER setGameReference");
                     redirectToHomeFrame();
                   }
 
@@ -117,6 +112,6 @@ public class CreateNewGame {
 
   private void redirectToHomeFrame() {
     Home home = new Home();
-    gridFrame.disposeFrame();
+    //gridFrame.disposeFrame();
   }
 }

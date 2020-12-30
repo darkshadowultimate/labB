@@ -1,9 +1,6 @@
 package com.insubria.it.threads.gameThread;
 
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
-//import java.nio.file.Paths;
+import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -18,14 +15,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.io.File;
 import java.io.IOException;
-import java.util.zip.ZipInputStream;
 
 import com.insubria.it.base.abstracts.Database;
 
-import com.insubria.it.sharedserver.threads.gameThread.abstracts.Game;
 import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
-import com.insubria.it.threads.gameThread.TimerThread;
+import com.insubria.it.sharedserver.threads.gameThread.abstracts.Game;
 import com.insubria.it.threads.gameThread.utils.GameThreadUtils;
 import com.insubria.it.threads.gameThread.random.Matrix;
 
@@ -35,16 +30,15 @@ import com.insubria.it.threads.gameThread.dictionary.Loader;
 import com.insubria.it.threads.gameThread.dictionary.InvalidKey;
 
 /**
- * The GameThread class represents the thread that will be created when a user
- * creates a new game. The reference to this thread will be stored in the RMI
+ * The GameThread class represents the remote object that will be created when a user
+ * creates a new game. The reference to this object will be stored in the RMI
  * registry so it will be able to players that enter the specific game. This
- * class follows the observable/observer pattwern. This thread is the observable
- * object and the clients that plays the game this thread represents are the
- * observers. This class extends the Game abstract class that contains the
- * signatures of the methods. This class implements the Runnable interface to
- * let the instances of this class to be threads.
+ * class follows the observable/observer pattern. This RMI object is the observable
+ * object and the clients that plays the game are the
+ * observers. This class extends the Game interface that contains the
+ * signatures of the methods. This class extends the triggerEndOfSessionGameClient to let the instances be inserted in the RMI registry.
  */
-public class GameThread extends Game implements Runnable {
+public class GameThread extends UnicastRemoteObject implements Game {
     /**
      * It represents the id of the game
      */
@@ -123,7 +117,7 @@ public class GameThread extends Game implements Runnable {
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      * @throws IOException     - If there is an error while the loading of the
-     *                         dictionary with the "dict_it.oxt" file, it throws
+     *                         dictionary with the "dict-it.oxt" file, it throws
      *                         IOException
      */
     public GameThread(GameClient gameCreator, String name, int maxPlayers, Database db)
@@ -139,23 +133,7 @@ public class GameThread extends Game implements Runnable {
         this.db = db;
 
         this.gameUtil = new GameThreadUtils(db);
-
-        /*try {
-            URL urlDictionary = getClass().getResource("main/resources/dict_it.oxt");
-            File file = Paths.get(urlDictionary.toURI()).toFile();
-
-            this.dictionary = new Loader().loadDictionaryFromFile(file);
-        } catch(URISyntaxException exc) {
-            System.out.println("\nTHERE IS AN ERROR WITH URL FILE CONVERSION\n\n");
-            exc.printStackTrace();
-        }*/
-
-        //File file = new File(getClass().getClassLoader().getResource("dict_it.oxt").getFile());
-
-        /*ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("dict_it.oxt");
-
-        this.dictionary = new Loader().loadDictionaryFromFile(new ZipInputStream(inputStream));*/
+        //this.dictionary = new Loader().loadDictionaryFromFile(new File("dict-it.oxt"));
     }
 
     /**
@@ -289,21 +267,21 @@ public class GameThread extends Game implements Runnable {
     }
 
     /**
-     * Service method invoked when the thread needs to be terminated
+     * Service method invoked when the object needs to be removed
      * 
      * @throws Exception - If any other exception occurs (while the thread
      *                   interruption and unbind of the object), it throws Exception
      */
-    private void removeThread() throws Exception {
-        System.out.println("Removing the thread");
+    private void removeObject() throws Exception {
+        System.out.println("Removing the RMI object");
+
         Registry registry = LocateRegistry.getRegistry(1099);
         registry.unbind(Integer.toString(this.idGame));
-        Thread.currentThread().interrupt();
     }
 
     /**
      * Service method invoked when the game needs to be removed from the DB and the
-     * thread removed
+     * RMI object removed
      * 
      * @throws SQLException - If there is an error while the DB operations, it
      *                      throws SQLException
@@ -320,7 +298,7 @@ public class GameThread extends Game implements Runnable {
         this.db.performChangeState(pst);
         System.out.println("Gamed removed");
 
-        this.removeThread();
+        this.removeObject();
     }
 
     /**
@@ -388,7 +366,6 @@ public class GameThread extends Game implements Runnable {
         pst.setString(2, this.name);
         pst.setInt(3, this.maxPlayers);
         pst.setString(4, "open");
-
         this.db.performChangeState(pst);
 
         sqlInsert = "INSERT INTO enter (id_game, email_user, username_user) VALUES (?, ?, ?)";
@@ -396,7 +373,6 @@ public class GameThread extends Game implements Runnable {
         pst.setInt(1, this.idGame);
         pst.setString(2, this.gameCreator.getEmail());
         pst.setString(3, this.gameCreator.getUsername());
-
         this.db.performChangeState(pst);
 
         System.out.println("Created the game and added the creator to it");
@@ -675,7 +651,7 @@ public class GameThread extends Game implements Runnable {
     }
 
     /**
-     * Method started when the GameThread is started. It will call the
+     * Method started by the ServerImpl object when a new game needs to be created. It will call the
      * createNewGame() method to create a new game in DB and registering the user
      * that created the game to the game (creating an "enter" record in the DB). If
      * the creation is fine, the thread reference is registered in the RMI registry
@@ -706,12 +682,12 @@ public class GameThread extends Game implements Runnable {
         if (flag) {
             try {
                 Registry registry = LocateRegistry.getRegistry(1099);
-                registry.rebind(Integer.toString(this.idGame), (Game) this);
+                registry.rebind(Integer.toString(this.idGame), this);
                 this.gameCreator.confirmCreateNewGame(Integer.toString(this.idGame));
-                
+
                 System.out.println("Game thread " + this.idGame + " is listening...");
             } catch (Exception e) {
-                System.err.println("Error while registering " + this.idGame + " game thread: " + e);
+                System.err.println("Error while registering " + this.idGame + " game thread");
             }
         }
     }
