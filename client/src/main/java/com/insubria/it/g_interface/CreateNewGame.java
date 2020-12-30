@@ -11,7 +11,6 @@ import com.insubria.it.serverImplClasses.GameClientImpl;
 import com.insubria.it.sharedserver.threads.gameThread.abstracts.Game;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -78,7 +77,11 @@ public class CreateNewGame {
 
                     Game gameThread = RemoteObjectContextProvider.getGameThreadRemoteObect(gameThreadId);
 
+                    System.out.println("AFTER getGameThreadRemoteObect");
+
                     GameContextProvider.setGameReference(gameThread);
+
+                    System.out.println("AFTER setGameReference");
                     redirectToHomeFrame();
                   }
 

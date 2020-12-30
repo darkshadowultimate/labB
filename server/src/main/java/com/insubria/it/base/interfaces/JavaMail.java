@@ -20,7 +20,7 @@ public interface JavaMail {
   /**
    * The password of the email used to send the messages
    */
-  String passwordSender = "";
+  String passwordSender = "Ungiornofuturo1234.";
 
   /**
    * The signature of the sendEmail method. This method is defined in the

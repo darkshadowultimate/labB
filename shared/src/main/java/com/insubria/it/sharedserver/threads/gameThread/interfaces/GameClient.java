@@ -37,7 +37,7 @@ public interface GameClient extends Remote {
      * been created and the reference to the thread is returned to the client It is
      * implemented client side
      */
-    void confirmCreateNewGame(String gameThread) throws RemoteException;
+    void confirmCreateNewGame(String gameThreadId) throws RemoteException;
 
     /**
      * The signature of the errorCreateNewGame method Called when the game has not

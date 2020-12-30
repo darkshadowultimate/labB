@@ -37,8 +37,6 @@ public class RemoteObjectContextProvider {
   private static Object getRemoteObjectFromRegistry(String nameRemoteObject) {
     Object remoteObject = null;
 
-    System.out.println("nameRemoteObject => " + nameRemoteObject);
-
     try {
       remoteObject = registry.lookup(nameRemoteObject);
     } catch(RemoteException exc) {

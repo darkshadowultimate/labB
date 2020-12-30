@@ -38,7 +38,7 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * been created and the reference to the thread is returned to the client It is
      * implemented client side
      */
-    public void confirmCreateNewGame(String gameThread) throws RemoteException {}
+    public void confirmCreateNewGame(String gameThreadId) throws RemoteException {}
 
     /**
      * The signature of the errorCreateNewGame method Called when the game has not
