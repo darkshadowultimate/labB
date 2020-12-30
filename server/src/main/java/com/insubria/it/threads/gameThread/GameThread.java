@@ -151,10 +151,10 @@ public class GameThread extends Game implements Runnable {
 
         //File file = new File(getClass().getClassLoader().getResource("dict_it.oxt").getFile());
 
-        ClassLoader classLoader = getClass().getClassLoader();
+        /*ClassLoader classLoader = getClass().getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream("dict_it.oxt");
 
-        this.dictionary = new Loader().loadDictionaryFromFile(new ZipInputStream(inputStream));
+        this.dictionary = new Loader().loadDictionaryFromFile(new ZipInputStream(inputStream));*/
     }
 
     /**
@@ -397,10 +397,6 @@ public class GameThread extends Game implements Runnable {
         pst.setString(3, this.gameCreator.getUsername());
 
         this.db.performChangeState(pst);
-
-        this.gameCreator.confirmCreateNewGame(Integer.toString(this.idGame));
-
-        System.out.println("AFTER this.gameCreator.confirmCreateNewGame(this);");
 
         System.out.println("Created the game and added the creator to it");
 
@@ -709,7 +705,7 @@ public class GameThread extends Game implements Runnable {
         if (flag) {
             try {
                 Registry registry = LocateRegistry.getRegistry(1099);
-                registry.rebind(Integer.toString(this.idGame), this);
+                registry.rebind(Integer.toString(this.idGame), (Game) this);
                 this.gameCreator.confirmCreateNewGame(Integer.toString(this.idGame));
                 
                 System.out.println("Game thread " + this.idGame + " is listening...");
