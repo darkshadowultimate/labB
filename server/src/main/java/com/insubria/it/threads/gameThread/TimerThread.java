@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
-import com.insubria.it.threads.gameThread.GameThread;
 
 /**
  * The TimerThread class represents the thread that will handle the timers (game
