@@ -1,4 +1,4 @@
-package com.insubria.it.threads.gameThread.abstracts;
+package com.insubria.it.sharedserver.threads.gameThread.abstracts;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

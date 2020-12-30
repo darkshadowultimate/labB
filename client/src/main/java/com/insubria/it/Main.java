@@ -16,7 +16,7 @@ public class Main {
 				"Argento" };
 
 		public static void main(String[] args) {
-				RemoteObjectContextProvider.initializeRemoteServerObj(args);
+				RemoteObjectContextProvider.setServerRemoteObject(args);
 
 				LoginUtente loginUtente = new LoginUtente();
 				// UserRegistration registration = new UserRegistration();

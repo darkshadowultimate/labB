@@ -1,5 +1,9 @@
 package com.insubria.it.threads.gameThread;
 
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -14,12 +18,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.io.File;
 import java.io.IOException;
+import java.util.zip.ZipInputStream;
 
 import com.insubria.it.base.abstracts.Database;
 
+import com.insubria.it.sharedserver.threads.gameThread.abstracts.Game;
 import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
-import com.insubria.it.threads.gameThread.abstracts.Game;
 import com.insubria.it.threads.gameThread.utils.GameThreadUtils;
 import com.insubria.it.threads.gameThread.random.Matrix;
 
@@ -117,7 +122,7 @@ public class GameThread extends Game implements Runnable {
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      * @throws IOException     - If there is an error while the loading of the
-     *                         dictionary with the "dict-it.oxt" file, it throws
+     *                         dictionary with the "dict_it.oxt" file, it throws
      *                         IOException
      */
     public GameThread(GameClient gameCreator, String name, int maxPlayers, Database db)
@@ -133,7 +138,23 @@ public class GameThread extends Game implements Runnable {
         this.db = db;
 
         this.gameUtil = new GameThreadUtils(db);
-        this.dictionary = new Loader().loadDictionaryFromFile(new File("dict-it.oxt"));
+
+        /*try {
+            URL urlDictionary = getClass().getResource("main/resources/dict_it.oxt");
+            File file = Paths.get(urlDictionary.toURI()).toFile();
+
+            this.dictionary = new Loader().loadDictionaryFromFile(file);
+        } catch(URISyntaxException exc) {
+            System.out.println("\nTHERE IS AN ERROR WITH URL FILE CONVERSION\n\n");
+            exc.printStackTrace();
+        }*/
+
+        //File file = new File(getClass().getClassLoader().getResource("dict_it.oxt").getFile());
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream("dict_it.oxt");
+
+        this.dictionary = new Loader().loadDictionaryFromFile(new ZipInputStream(inputStream));
     }
 
     /**
@@ -366,6 +387,7 @@ public class GameThread extends Game implements Runnable {
         pst.setString(2, this.name);
         pst.setInt(3, this.maxPlayers);
         pst.setString(4, "open");
+
         this.db.performChangeState(pst);
 
         sqlInsert = "INSERT INTO enter (id_game, email_user, username_user) VALUES (?, ?, ?)";
@@ -373,7 +395,12 @@ public class GameThread extends Game implements Runnable {
         pst.setInt(1, this.idGame);
         pst.setString(2, this.gameCreator.getEmail());
         pst.setString(3, this.gameCreator.getUsername());
+
         this.db.performChangeState(pst);
+
+        this.gameCreator.confirmCreateNewGame(Integer.toString(this.idGame));
+
+        System.out.println("AFTER this.gameCreator.confirmCreateNewGame(this);");
 
         System.out.println("Created the game and added the creator to it");
 
