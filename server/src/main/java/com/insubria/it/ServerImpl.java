@@ -362,8 +362,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 
   public void createNewGame(String name, int maxPlayers, GameClient gameCreator) throws RemoteException, IOException {
     GameThread gameThread = new GameThread(gameCreator, name, maxPlayers, this.db);
-    Thread thread = new Thread(gameThread);
-    thread.start();
+    gameThread.run();
   }
 
   /**
