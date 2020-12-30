@@ -1,8 +1,7 @@
-package com.insubria.it.threads.gameThread.abstracts;
+package com.insubria.it.sharedserver.threads.gameThread.abstracts;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 
 import java.util.ArrayList;
@@ -10,64 +9,46 @@ import java.util.ArrayList;
 import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
 
 /**
- * The abstract class Game defines the signatures of the methods that will be
- * defined and available in the GameThread class. Used an abstract class instead
- * of an interface because of the UnicastRemoteObject extends (and to follow the
- * convention used for other parts) This class is serializable (it extends
- * UnicastRemoteObject).
+ * The interface Game defines the signatures of the methods that will be
+ * implemented and available in the GameThread class. It extends the Remote interface because all the
+ * methods are remote. This is the interface used by the
+ * client to communicate with the remote object that handles the game.
  */
-public abstract class Game extends UnicastRemoteObject implements Remote {
-    /**
-     * The version used for the serialization (shared with the client to avoid
-     * exceptions)
-     */
-    private static final long serialVersionUID = 1L;
+public interface Game extends Remote {
 
     /**
-     * Default constructor due to the extension of UnicastRemoteObject
-     */
-    public Game() throws RemoteException {
-    }
-
-    /**
-     * The signature of the triggerEndOfSessionGameClient method This method is
-     * defined in the GameThread class
-     */
-    public abstract void triggerEndOfSessionGameClient();
-
-    /**
-     * The signature of the createNewGame method This method is defined in the
+     * The signature of the createNewGame method This method is implemented in the
      * GameThread class
      */
-    public abstract void createNewGame() throws SQLException, RemoteException;
+    void createNewGame() throws SQLException, RemoteException;
 
     /**
-     * The signature of the addNewPlayer method This method is defined in the
+     * The signature of the addNewPlayer method This method is implemented in the
      * GameThread class
      */
-    public abstract void addNewPlayer(GameClient player) throws RemoteException;
+    void addNewPlayer(GameClient player) throws RemoteException;
 
     /**
-     * The signature of the removePlayerNotStartedGame method This method is defined
+     * The signature of the removePlayerNotStartedGame method This method is implemented
      * in the GameThread class
      */
-    public abstract void removePlayerNotStartedGame(GameClient player) throws RemoteException;
+    void removePlayerNotStartedGame(GameClient player) throws RemoteException;
 
     /**
-     * The signature of the removePlayerInGame method This method is defined in the
+     * The signature of the removePlayerInGame method This method is implemented in the
      * GameThread class
      */
-    public abstract void removePlayerInGame(GameClient player) throws RemoteException;
+    void removePlayerInGame(GameClient player) throws RemoteException;
 
     /**
-     * The signature of the checkPlayerWords method This method is defined in the
+     * The signature of the checkPlayerWords method This method is implemented in the
      * GameThread class
      */
-    public abstract void checkPlayerWords(GameClient player, ArrayList<String> wordsList) throws RemoteException;
+    void checkPlayerWords(GameClient player, ArrayList<String> wordsList) throws RemoteException;
 
     /**
-     * The signature of the askForWordDefinition method This method is defined in
+     * The signature of the askForWordDefinition method This method is implemented in
      * the GameThread class
      */
-    public abstract void askForWordDefinition(GameClient player, String word) throws RemoteException;
+    void askForWordDefinition(GameClient player, String word) throws RemoteException;
 }

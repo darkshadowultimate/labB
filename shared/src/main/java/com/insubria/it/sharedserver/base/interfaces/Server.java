@@ -123,7 +123,7 @@ public interface Server extends Remote {
    * The signature of the createNewGame method. This method is defined in the
    * ServerImpl class
    */
-  void createNewGame(String name, int maxPlayers, GameClient gameCreator) throws RemoteException, IOException;
+  void  createNewGame(String name, int maxPlayers, GameClient gameCreator) throws RemoteException, IOException;
 
   /**
    * The signature of the getListOfGames method. This method is defined in the

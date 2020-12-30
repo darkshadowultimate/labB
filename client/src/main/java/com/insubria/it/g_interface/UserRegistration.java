@@ -71,7 +71,7 @@ public class UserRegistration {
           final String name = inputLabels[0].getValueTextField();
           final String surname = inputLabels[1].getValueTextField();
           final String username = inputLabels[2].getValueTextField();
-          String email = inputLabels[3].getValueTextField();
+          final String email = inputLabels[3].getValueTextField();
           String password = inputLabels[4].getValueTextField();
 
 
@@ -89,7 +89,7 @@ public class UserRegistration {
                 public void confirmPlayerRegistration() throws RemoteException {
                   super.confirmPlayerRegistration();
 
-                  PlayerContextProvider.setPlayerInfo(name, surname, username);
+                  PlayerContextProvider.setPlayerInfo(name, surname, username, email);
 
                   redirectConfirmCodeFrame();
                 }

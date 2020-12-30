@@ -1,23 +1,45 @@
 package com.insubria.it.threads.gameThread.dictionary;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 public class Loader {
 
-	public Dictionary loadDictionaryFromFile(File file) throws IOException {
+	public Dictionary loadDictionaryFromFile(ZipInputStream dictionaryZipInputStream) throws IOException {
 		Dictionary dictionary = new Dictionary();
-		ZipFile zf = new ZipFile(file);
+		/*ZipFile zf = new ZipFile(file);*/
 
-		Enumeration<? extends ZipEntry> entries = zf.entries();
+		/*Enumeration<? extends ZipEntry> entries = zf.entries();*/
+
+		/*BufferedReader in = new BufferedReader(
+			new InputStreamReader(
+				zf.getInputStream(
+					zf.getEntry("dictionaries/th_it_IT_v2.dat")),
+					"ISO8859-15"
+			)
+		);*/
+
+		ZipEntry entry;
+
+		String entryName = "dictionaries/th_it_IT_v2.dat";
+
+		while ((entry = dictionaryZipInputStream.getNextEntry()) != null) {
+			if (entry.getName().equals(entryName)) {
+				// process your file
+				// stop looking for your file - you've already found it
+				break;
+			}
+		}
 
 		BufferedReader in = new BufferedReader(
-				new InputStreamReader(zf.getInputStream(zf.getEntry("dictionaries/th_it_IT_v2.dat")), "ISO8859-15"));
+			new InputStreamReader(
+				dictionaryZipInputStream,
+				"ISO8859-15"
+			)
+		);
 
 		String temp;
 		int numDefs = 0;
@@ -36,7 +58,7 @@ public class Loader {
 				dictionary.addTerm(lastTerm);
 			}
 		}
-		zf.close();
+		dictionaryZipInputStream.close();
 		in.close();
 		return dictionary;
 	}
@@ -76,12 +98,15 @@ public class Loader {
 
 	public static void main(String[] args) {
 		Loader loader = new Loader();
-		String file_dizionario = "dict-it.oxt";
-		File dizionario = new File(file_dizionario);
+		/*String file_dizionario = "dict_it.oxt";
+		File dizionario = new File(file_dizionario);*/
 
 		try {
 
-			Dictionary d = loader.loadDictionaryFromFile(dizionario);
+			ClassLoader classLoader = new Object() {}.getClass().getClassLoader();
+			InputStream inputStream = classLoader.getResourceAsStream("dict_it.oxt");
+
+			Dictionary d = loader.loadDictionaryFromFile(new ZipInputStream(inputStream));
 
 			/*
 			 * for(String key: d.getKeys()) { System.out.println(d.getTerm(key)); }

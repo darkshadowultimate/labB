@@ -2,6 +2,10 @@ package com.insubria.it.g_interface;
 
 import com.insubria.it.g_components.*;
 import com.insubria.it.context.*;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 public class Home {
   private static final String[] BUTTONS_TEXTS = {
     "Organizza Partita",
@@ -18,7 +22,7 @@ public class Home {
   private static final int ROWS = 0;
   private static final int COLS = 2;
 
-  private GraphicComponent createGameButton, viewGamesButton, editProfileButton, analyticsButton;
+  private Button createGameButton, viewGamesButton, editProfileButton, analyticsButton;
   private Label titlePage;
   private GridFrame gridButtonFrame, gridContainer;
 
@@ -33,6 +37,8 @@ public class Home {
     editProfileButton = new Button(BUTTONS_TEXTS[2]);
     analyticsButton = new Button(BUTTONS_TEXTS[3]);
 
+    addAllEventListeners();
+
     gridContainer.addToView(titlePage);
 
     gridButtonFrame.addToView(createGameButton);
@@ -43,5 +49,33 @@ public class Home {
     gridContainer.addToView(gridButtonFrame);
 
     gridContainer.showWindow();
+  }
+
+  private void addAllEventListeners() {
+    createGameButton.attachActionListenerToButton(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        redirectToCreateNewGameFrame();
+      }
+    });
+    viewGamesButton.attachActionListenerToButton(new ActionListener() {
+      public void actionPerformed(ActionEvent me) {
+        redirectToCreateNewGameFrame();
+      }
+    });
+    editProfileButton.attachActionListenerToButton(new ActionListener() {
+      public void actionPerformed(ActionEvent me) {
+        redirectToCreateNewGameFrame();
+      }
+    });
+    analyticsButton.attachActionListenerToButton(new ActionListener() {
+      public void actionPerformed(ActionEvent me) {
+        redirectToCreateNewGameFrame();
+      }
+    });
+  }
+
+  private void redirectToCreateNewGameFrame() {
+    CreateNewGame createNewGame = new CreateNewGame();
+    gridContainer.disposeFrame();
   }
 }

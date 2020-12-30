@@ -54,12 +54,11 @@ public class LoginUtente {
     private void addAllEventListeners(final InputLabel email, final InputLabel password) {
         submitButton.attachActionListenerToButton(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String emailValue = email.getValueTextField();
+                final String emailValue = email.getValueTextField();
                 String passwordValue = password.getValueTextField();
 
                 if (checkFormFields(emailValue, passwordValue)) {
                     System.out.println("Fields form valid");
-                    System.out.println(RemoteObjectContextProvider.server);
                     try {
                         RemoteObjectContextProvider
                         .server
@@ -71,7 +70,7 @@ public class LoginUtente {
                                 public void confirmLoginPlayerAccount(String name, String surname, String username) throws RemoteException {
                                     super.confirmLoginPlayerAccount(name, surname, username);
 
-                                    PlayerContextProvider.setPlayerInfo(name, surname, username);
+                                    PlayerContextProvider.setPlayerInfo(name, surname, username, emailValue);
                                     redirectToHomeFrame();
                                 }
 
