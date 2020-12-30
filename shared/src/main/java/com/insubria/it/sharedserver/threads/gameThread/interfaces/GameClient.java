@@ -6,7 +6,6 @@ import java.util.HashMap;
 
 import java.util.ArrayList;
 
-import com.insubria.it.sharedserver.threads.gameThread.abstracts.Game;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
 /**

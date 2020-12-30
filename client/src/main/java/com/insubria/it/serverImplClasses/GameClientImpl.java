@@ -1,6 +1,5 @@
 package com.insubria.it.serverImplClasses;
 
-import com.insubria.it.sharedserver.threads.gameThread.abstracts.Game;
 import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 

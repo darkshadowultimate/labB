@@ -15,11 +15,6 @@ import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
  * client to communicate with the remote object that handles the game.
  */
 public interface Game extends Remote {
-    /**
-     * The signature of the triggerEndOfSessionGameClient method This method is
-     * implemented in the GameThread class.
-     */
-    void triggerEndOfSessionGameClient();
 
     /**
      * The signature of the createNewGame method This method is implemented in the

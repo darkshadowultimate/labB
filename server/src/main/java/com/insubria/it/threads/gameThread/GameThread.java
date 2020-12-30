@@ -684,7 +684,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
                 Registry registry = LocateRegistry.getRegistry(1099);
                 registry.rebind(Integer.toString(this.idGame), this);
                 this.gameCreator.confirmCreateNewGame(Integer.toString(this.idGame));
-                
+
                 System.out.println("Game thread " + this.idGame + " is listening...");
             } catch (Exception e) {
                 System.err.println("Error while registering " + this.idGame + " game thread");
