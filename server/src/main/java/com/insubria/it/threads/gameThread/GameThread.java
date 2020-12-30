@@ -710,7 +710,7 @@ public class GameThread extends Game implements Runnable {
                 
                 System.out.println("Game thread " + this.idGame + " is listening...");
             } catch (Exception e) {
-                System.err.println("Error while registering " + this.idGame + " game thread");
+                System.err.println("Error while registering " + this.idGame + " game thread: " + e);
             }
         }
     }
