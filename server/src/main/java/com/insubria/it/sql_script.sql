@@ -33,7 +33,7 @@ create table game
 	name varchar(20) not null,
 	max_players integer not null
 		constraint players_constraint
-			check ((max_players > 2) AND (max_players < 7)),
+			check ((max_players >= 2) AND (max_players < 7)),
 	status varchar(7) not null
 		constraint status_constraint
 			check ((status)::text = ANY ((ARRAY['open'::character varying, 'playing'::character varying, 'closed'::character varying])::text[])),
