@@ -470,7 +470,7 @@ public class PlayerThread extends Player implements Runnable {
      *                      throws SQLException
      */
     private boolean checkOldPassword(String password, String email) throws SQLException {
-        String sqlQuery = "SELECT password FROM users WHERE email = " + email;
+        String sqlQuery = "SELECT password FROM users WHERE email = '" + email + "'";
         Connection dbConnection = null;
         Statement stm = null;
         try {
@@ -545,7 +545,7 @@ public class PlayerThread extends Player implements Runnable {
                         "Your new password has been correctly set");
                 player.confirmChangePlayerData();
             } else {
-                player.errorChangePlayerData("Passord doesn't match");
+                player.errorChangePlayerData("Password doesn't match");
             }
         }
         System.out.println("The player data have been correctly changed");

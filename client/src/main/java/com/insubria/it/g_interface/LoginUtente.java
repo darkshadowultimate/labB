@@ -116,7 +116,7 @@ public class LoginUtente {
     }
 
     private void redirectToRegistrationFrame() {
-        UserRegistration registration = new UserRegistration();
+        UserRegistration registration = new UserRegistration(false);
         gridFrame.disposeFrame();
     }
 

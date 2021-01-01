@@ -64,7 +64,7 @@ public class Home {
     });
     editProfileButton.attachActionListenerToButton(new ActionListener() {
       public void actionPerformed(ActionEvent me) {
-        redirectToCreateNewGameFrame();
+        redirectToUserRegistrationFrame();
       }
     });
     analyticsButton.attachActionListenerToButton(new ActionListener() {
@@ -76,6 +76,11 @@ public class Home {
 
   private void redirectToCreateNewGameFrame() {
     CreateNewGame createNewGame = new CreateNewGame();
+    gridContainer.disposeFrame();
+  }
+
+  private void redirectToUserRegistrationFrame() {
+    UserRegistration userRegistration = new UserRegistration(true);
     gridContainer.disposeFrame();
   }
 }
