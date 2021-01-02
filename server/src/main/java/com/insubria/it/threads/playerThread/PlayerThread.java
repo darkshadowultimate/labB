@@ -481,6 +481,7 @@ public class PlayerThread extends Player implements Runnable {
         }
 
         ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
+        result.next();
 
         if (BCrypt.checkpw(password, result.getString("password"))) {
             System.out.println("Passord matches");
