@@ -329,17 +329,15 @@ public class MonitorThread extends Monitor implements Runnable {
      * This is the method called when the user wants to retrieve the occurrence of
      * the valid words
      * 
-     * @param page - The number of page to retrieve from the DB
-     * 
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      * @throws SQLException    - If there is an error while the DB operations, it
      *                         throws SQLException
      */
-    protected void validWordsOccurrences(int page) throws RemoteException, SQLException {
+    protected void validWordsOccurrences() throws RemoteException, SQLException {
         System.out.println("Reaching the valid word occurrences list...");
         String sqlQuery = "SELECT word, COUNT(*) as occurrences " + "FROM discover " + "WHERE is_valid = True "
-                + "GROUP BY word " + "ORDER BY occurrences DESC " + "LIMIT 10 OFFSET " + (page - 1) * 10 + ";";
+                + "GROUP BY word " + "ORDER BY occurrences DESC;";
         Connection dbConnection = null;
         Statement stm = null;
         try {
@@ -367,14 +365,12 @@ public class MonitorThread extends Monitor implements Runnable {
      * This is the method called when the user wants to retrieve the list of words
      * that gave more scores
      * 
-     * @param page - The number of page to retrieve from the DB
-     * 
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      * @throws SQLException    - If there is an error while the DB operations, it
      *                         throws SQLException
      */
-    protected void wordHighestScore(int page) throws RemoteException, SQLException {
+    protected void wordHighestScore() throws RemoteException, SQLException {
         System.out.println("Reaching the highest score valid words...");
         String sqlQuery = "SELECT DISTINCT word, id_game, score " + "FROM discover " + "WHERE is_valid = True "
                 + "ORDER BY score DESC;";
@@ -557,17 +553,15 @@ public class MonitorThread extends Monitor implements Runnable {
      * This is the method called when the user wants to retrieve the words that have
      * the highest number of definition requests
      * 
-     * @param page - The number of page to retrieve from the DB
-     * 
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      * @throws SQLException    - If there is an error while the DB operations, it
      *                         throws SQLException
      */
-    protected void definitionRequest(int page) throws RemoteException, SQLException {
+    protected void definitionRequest() throws RemoteException, SQLException {
         System.out.println("Reaching the words users required the definition...");
         String sqlQuery = "SELECT word, AVG(n_requests) as avg_requests " + "FROM discover " + "WHERE n_requests > 0 "
-                + "GROUP BY word " + "ORDER BY AVG(n_requests) DESC " + "LIMIT 10 OFFSET " + (page - 1) * 10 + ";";
+                + "GROUP BY word " + "ORDER BY AVG(n_requests) DESC;";
         Connection dbConnection = null;
         Statement stm = null;
         try {
@@ -595,17 +589,14 @@ public class MonitorThread extends Monitor implements Runnable {
      * This is the method called when the user wants to retrieve the games that have
      * the highest number of definition requests (for words)
      * 
-     * @param page - The number of page to retrieve from the DB
-     * 
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      * @throws SQLException    - If there is an error while the DB operations, it
      *                         throws SQLException
      */
-    protected void gameDefinitionRequest(int page) throws RemoteException, SQLException {
+    protected void gameDefinitionRequest() throws RemoteException, SQLException {
         System.out.println("Reaching the games where users required the definition...");
-        String sqlQuery = "SELECT DISTINCT id_game " + "FROM discover " + "WHERE n_requests > 0 " + "LIMIT 10 OFFSET "
-                + (page - 1) * 10 + ";";
+        String sqlQuery = "SELECT DISTINCT id_game " + "FROM discover " + "WHERE n_requests > 0;";
         Connection dbConnection = null;
         Statement stm = null;
         try {

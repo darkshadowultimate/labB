@@ -45,13 +45,13 @@ public abstract class Monitor {
      * The signature of the validWordsOccurrences method This method is defined in
      * the MonitorThread class
      */
-    protected abstract void validWordsOccurrences(int page) throws RemoteException, SQLException;
+    protected abstract void validWordsOccurrences() throws RemoteException, SQLException;
 
     /**
      * The signature of the wordHighestScore method This method is defined in the
      * MonitorThread class
      */
-    protected abstract void wordHighestScore(int page) throws RemoteException, SQLException;
+    protected abstract void wordHighestScore() throws RemoteException, SQLException;
 
     /**
      * The signature of the averageRounds method This method is defined in the
@@ -75,13 +75,13 @@ public abstract class Monitor {
      * The signature of the definitionRequest method This method is defined in the
      * MonitorThread class
      */
-    protected abstract void definitionRequest(int page) throws RemoteException, SQLException;
+    protected abstract void definitionRequest() throws RemoteException, SQLException;
 
     /**
      * The signature of the gameDefinitionRequest method This method is defined in
      * the MonitorThread class
      */
-    protected abstract void gameDefinitionRequest(int page) throws RemoteException, SQLException;
+    protected abstract void gameDefinitionRequest() throws RemoteException, SQLException;
 
     /**
      * The signature of the getListOfGames method This method is defined in the
