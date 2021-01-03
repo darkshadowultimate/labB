@@ -196,33 +196,28 @@ public class PlayerThread extends Player implements Runnable {
      *                      SQLException is thrown
      */
     private boolean checkProfileExists(String email, String username) throws SQLException {
-        String sqlQueryEmail = "SELECT * FROM users WHERE email = '" + email + "'",
-                sqlQueryUsername = "SELECT * FROM users WHERE username = '" + username + "'";
+        String sqlQuery = "SELECT * FROM users WHERE email = ? OR username = ?";
         Connection dbConnection = null;
-        Statement stm1 = null, stm2 = null;
+        PreparedStatement pst = null;
 
         try {
             dbConnection = this.db.getDatabaseConnection();
-            stm1 = dbConnection.createStatement();
-            stm2 = dbConnection.createStatement();
+
+            pst =  dbConnection.prepareStatement(sqlQuery);
+            pst.setString(1, email);
+            pst.setString(2, username);
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
 
 
-        ResultSet result1 = this.db.performSimpleQuery(sqlQueryEmail, stm1),
-                result2 = this.db.performSimpleQuery(sqlQueryUsername, stm2);
+        ResultSet result = this.db.peroformComplexQuery(pst);
 
-        boolean doesUserAlreadyExists = result1.isBeforeFirst() || result2.isBeforeFirst();
-
-        result1.close();
-        result2.close();
-        stm1.close();
-        stm2.close();
-
+        result.close();
+        pst.close();
         dbConnection.close();
 
-        if (doesUserAlreadyExists) {
+        if (result.isBeforeFirst()) {
             System.err.println("A user with the following email/username already exists");
             return true;
         } else {
@@ -241,21 +236,25 @@ public class PlayerThread extends Player implements Runnable {
      *                      SQLException is thrown
      */
     private boolean checkHasConfirmedAccount(String email) throws SQLException {
-        String sqlQuery = "SELECT * FROM users WHERE email = " + email;
+        String sqlQuery = "SELECT * FROM users WHERE email = ?";
         Connection dbConnection = null;
-        Statement stm = null;
+        PreparedStatement pst = null;
         try {
             dbConnection = this.db.getDatabaseConnection();
-            stm = dbConnection.createStatement();
+
+            pst =  dbConnection.prepareStatement(sqlQuery);
+            pst.setString(1, email);
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
 
-        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
+        ResultSet result = this.db.peroformComplexQuery(pst);
+        result.next();
+
         boolean booleanResult = result.getBoolean("is_confirmed");
 
         result.close();
-        stm.close();
+        pst.close();
         dbConnection.close();
         return booleanResult;
     }
@@ -391,17 +390,20 @@ public class PlayerThread extends Player implements Runnable {
     protected void loginPlayerAccount(String email, String password, PlayerCredentials player)
             throws RemoteException, SQLException {
         System.out.println("Logging in the player...");
-        String sqlQuery = "SELECT name, surname, username, password FROM users WHERE email = '" + email + "'";
+        String sqlQuery = "SELECT name, surname, username, password FROM users WHERE email = ?";
         Connection dbConnection = null;
-        Statement stm = null;
+        PreparedStatement pst = null;
+
         try {
             dbConnection = this.db.getDatabaseConnection();
-            stm = dbConnection.createStatement();
+
+            pst =  dbConnection.prepareStatement(sqlQuery);
+            pst.setString(1, email);
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
 
-        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
+        ResultSet result = this.db.peroformComplexQuery(pst);
         if (result.isBeforeFirst()) {
             result.next();
             if (BCrypt.checkpw(password, result.getString("password"))) {
@@ -418,7 +420,7 @@ public class PlayerThread extends Player implements Runnable {
         }
         result.close();
         dbConnection.close();
-        stm.close();
+        pst.close();
     }
 
     /**
@@ -470,32 +472,42 @@ public class PlayerThread extends Player implements Runnable {
      *                      throws SQLException
      */
     private boolean checkOldPassword(String password, String email) throws SQLException {
-        String sqlQuery = "SELECT password FROM users WHERE email = '" + email + "'";
+        String sqlQuery = "SELECT * FROM users WHERE email = ?";
         Connection dbConnection = null;
-        Statement stm = null;
+        PreparedStatement pst = null;
         try {
             dbConnection = this.db.getDatabaseConnection();
-            stm = dbConnection.createStatement();
+            pst = dbConnection.prepareStatement(sqlQuery);
+            pst.setString(1, email);
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
 
-        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
-        result.next();
+        ResultSet result = this.db.peroformComplexQuery(pst);
 
-        if (BCrypt.checkpw(password, result.getString("password"))) {
-            System.out.println("Passord matches");
-
-            result.close();
-            dbConnection.close();
-            stm.close();
-            return true;
+        if (result.isBeforeFirst()) {
+            result.next();
+            if (BCrypt.checkpw(password, result.getString("password"))) {
+                System.out.println("Passord matches");
+    
+                result.close();
+                dbConnection.close();
+                pst.close();
+                return true;
+            } else {
+                System.out.println("Passord doesn't match");
+    
+                result.close();
+                dbConnection.close();
+                pst.close();
+                return false;
+            }
         } else {
-            System.out.println("Passord doesn't match");
-
+            System.out.println("No records found");
             result.close();
             dbConnection.close();
-            stm.close();
+            pst.close();
+
             return false;
         }
     }
@@ -523,6 +535,7 @@ public class PlayerThread extends Player implements Runnable {
     protected void changePlayerData(String email, String name, String surname, String username, String password,
             String oldPassword, PlayerCredentials player) throws RemoteException, SQLException, MessagingException {
         System.out.println("Changing player data...");
+
         Connection dbConnection = this.db.getDatabaseConnection();
         String sqlUpdate = "UPDATE users SET name = ?, surname = ?, username = ? WHERE email = ?";
         PreparedStatement pst = dbConnection.prepareStatement(sqlUpdate);
