@@ -76,11 +76,26 @@ public class DatabaseController extends Database {
    *
    * @return The result of the query as a ResultSet object
    * @param query - The SQL query as a String
+   * @param stm - The statement obj
    * @throws SQLException - If a SQLException occurs while the query execution,
    *                      this will be thrown to the caller
    */
   public ResultSet performSimpleQuery(String query, Statement stm) throws SQLException {
     return stm.executeQuery(query);
+  }
+
+  /**
+   * This method will execute the SQL query passed as an argument. The object that
+   * calls this method only needs to define the SQL query and pass it (as a
+   * PreparedStatement).
+   *
+   * @return The result of the query as a ResultSet object
+   * @param pst - The PreparedStatement that represents the SQL query
+   * @throws SQLException - If a SQLException occurs while the query execution,
+   *                      this will be thrown to the caller
+   */
+  public ResultSet peroformComplexQuery(PreparedStatement pst) throws SQLException {
+    return pst.executeQuery();
   }
 
   /**

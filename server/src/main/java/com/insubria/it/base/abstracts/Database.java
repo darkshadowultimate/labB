@@ -38,6 +38,12 @@ public abstract class Database {
   public abstract ResultSet performSimpleQuery(String query, Statement stm) throws SQLException;
 
   /**
+   * The signature of the peroformComplexQuery method. This method is defined in the
+   * DatabaseController class
+   */
+  public abstract ResultSet peroformComplexQuery(PreparedStatement pst) throws SQLException;
+
+  /**
    * The signature of the performChangeState method. This method is defined in the
    * DatabaseController class
    */

@@ -13,6 +13,14 @@ import com.insubria.it.sharedserver.threads.monitorThread.interfaces.MonitorClie
 import com.insubria.it.threads.monitorThread.abstracts.Monitor;
 
 import java.rmi.RemoteException;
+<<<<<<< HEAD
+=======
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+>>>>>>> update_user_profile
 
 /**
  * The MonitorThread class represents the thread that will be created for each
@@ -646,30 +654,33 @@ public class MonitorThread extends Monitor implements Runnable {
      */
     protected void getListOfGames(String status) throws RemoteException, SQLException {
         System.out.println("Reaching the games with info...");
-        String sqlQuery = "SELECT g.id, g.date, g.max_players, COUNT(DISTINCT email_user) as actual_players "
-                + "FROM game as g INNER JOIN enter as e on g.id = e.id_game " + "WHERE g.status = '" + status + "' "
+        String sqlQuery = "SELECT g.id, g.date, g.max_players, COUNT(DISTINCT email_user) as actual_players, g.status "
+                + "FROM game as g INNER JOIN enter as e on g.id = e.id_game " + "WHERE g.status = ? "
                 + "GROUP BY g.id, g.date, g.max_players;";
         Connection dbConnection = null;
-        Statement stm = null;
+        PreparedStatement pst = null;
+
         try {
             dbConnection = this.db.getDatabaseConnection();
-            stm = dbConnection.createStatement();
+
+            pst =  dbConnection.prepareStatement(sqlQuery);
+            pst.setString(1, status);
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
 
-        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
+        ResultSet result = this.db.peroformComplexQuery(pst);
 
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
-            String[] clientResult = this.transformString(result, 4);
+            String[] clientResult = this.transformString(result, 5);
             this.monitorClient.confirmGetListOfGames(clientResult);
         } else {
             System.out.println("No sessions played yet");
             this.monitorClient.errorGetListOfGames("No sessions played yet");
         }
         result.close();
-        stm.close();
+        pst.close();
         dbConnection.close();
     }
 
@@ -686,17 +697,20 @@ public class MonitorThread extends Monitor implements Runnable {
      */
     protected void getListOfPlayersForGame(int id) throws RemoteException, SQLException {
         System.out.println("Reaching the players for a game...");
-        String sqlQuery = "SELECT DISTINCT username_user " + "FROM enter " + "WHERE id_game = " + id + ";";
+        String sqlQuery = "SELECT DISTINCT username_user FROM enter WHERE id_game = ?";
         Connection dbConnection = null;
-        Statement stm = null;
+        PreparedStatement pst = null;
+
         try {
             dbConnection = this.db.getDatabaseConnection();
-            stm = dbConnection.createStatement();
+            
+            pst =  dbConnection.prepareStatement(sqlQuery);
+            pst.setInt(1, id);
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
 
-        ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
+        ResultSet result = this.db.peroformComplexQuery(pst);
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
             String[] clientResult = this.transformString(result, 1);
@@ -706,7 +720,7 @@ public class MonitorThread extends Monitor implements Runnable {
             this.monitorClient.errorGetListOfPlayersForGame("No sessions played yet");
         }
         result.close();
-        stm.close();
+        pst.close();
         dbConnection.close();
     }
 
