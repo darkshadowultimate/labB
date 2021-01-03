@@ -88,10 +88,4 @@ public abstract class Monitor {
      * MonitorThread class
      */
     protected abstract void getListOfGames(String status) throws RemoteException, SQLException;
-
-    /**
-     * The signature of the getListOfPlayersForGame method This method is defined in
-     * the MonitorThread class
-     */
-    protected abstract void getListOfPlayersForGame(int id) throws RemoteException, SQLException;
 }

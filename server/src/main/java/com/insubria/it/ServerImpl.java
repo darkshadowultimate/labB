@@ -384,24 +384,6 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
   }
 
   /**
-   * This is a remote method that is called by the client when it needs to
-   * retrieve the list of players for a specific game This method will create a
-   * MonitorThread thread and pass the "getListOfPlayersForGame" value to the
-   * action attribute
-   * 
-   * @param monitorClient - The reference to the remote object that represents the
-   *                      client (user) that made the request
-   * @param id            - The id of the game
-   * 
-   * @throws RemoteException - Thrown if there are errors while the remote call
-   */
-  public void getListOfPlayersForGame(MonitorClient monitorClient, int id) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, id, this.db, "getListOfPlayersForGame");
-    Thread thread = new Thread(monitorThread);
-    thread.start();
-  }
-
-  /**
    * This main method starts when the server is started. As first thing it will
    * set the RMI security manager (it will allow any kind of operations) Then the
    * server will use the AccessController class and its methods to check that an

@@ -130,10 +130,4 @@ public interface Server extends Remote {
    * ServerImpl class
    */
   void getListOfGames(MonitorClient monitorClient, String status) throws RemoteException;
-
-  /**
-   * The signature of the getListOfPlayersForGame method. This method is defined
-   * in the ServerImpl class
-   */
-  void getListOfPlayersForGame(MonitorClient monitorClient, int id) throws RemoteException;
 }

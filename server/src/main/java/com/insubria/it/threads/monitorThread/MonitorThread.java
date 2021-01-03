@@ -13,14 +13,6 @@ import com.insubria.it.sharedserver.threads.monitorThread.interfaces.MonitorClie
 import com.insubria.it.threads.monitorThread.abstracts.Monitor;
 
 import java.rmi.RemoteException;
-<<<<<<< HEAD
-=======
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
->>>>>>> update_user_profile
 
 /**
  * The MonitorThread class represents the thread that will be created for each
@@ -641,6 +633,81 @@ public class MonitorThread extends Monitor implements Runnable {
     }
 
     /**
+     * This method is called when we needs to retrieve the list of players
+     * for a specific game
+     * 
+     * @param id - The id of the game
+     *
+     * @throws SQLException    - If there is an error while the DB operations, it
+     *                         throws SQLException
+     */
+    private String getListOfPlayersForGame(int id) throws SQLException {
+        System.out.println("Reaching the players for a game...");
+        String sqlQuery = "SELECT DISTINCT username_user FROM enter WHERE id_game = ?";
+        Connection dbConnection = null;
+        PreparedStatement pst = null;
+
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+            
+            pst =  dbConnection.prepareStatement(sqlQuery);
+            pst.setInt(1, id);
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.peroformComplexQuery(pst);
+        String returnValue = null;
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            returnValue = this.lintListOfPlayers(result);
+        } else {
+            System.out.println("No players");
+        }
+        result.close();
+        pst.close();
+        dbConnection.close();
+
+        return returnValue;
+    }
+
+    /**
+     * This method is used to create a String that represents the list of players
+     * 
+     * @param result - The ResultSet that contains the players for a spaecific game
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it
+     *                         throws SQLException
+     */
+    private String lintListOfPlayers(ResultSet result) throws SQLException {
+        String returnString = "";
+        while (result.next()) {
+            returnString += result.getString("username_user") + " \n";
+        }
+
+        return returnString;
+    }
+
+    /**
+     * This method creates a matrix that contains the game info in the row 0 and players of the game in row 1
+     * 
+     * @param listGames - The list of games
+     * @param listPlayers - List of players for each game
+     * 
+     * @return - The matrix
+     */
+    private String[][] populateReturnMatrix (String[] listGames, String[] listPlayers) {
+        String[][] returnValue = new String[2][listGames.length];
+
+        for (int index = 0; index < listGames.length; index++) {
+            returnValue[0][index] = listGames[index];
+            returnValue[1][index] = listPlayers[index];
+        }
+
+        return returnValue;
+    }
+
+    /**
      * This is the method called when the user wants to retrieve the list of games
      * (with date, max players and actual players) for both "open" and "playing"
      * statuses
@@ -655,7 +722,7 @@ public class MonitorThread extends Monitor implements Runnable {
     protected void getListOfGames(String status) throws RemoteException, SQLException {
         System.out.println("Reaching the games with info...");
         String sqlQuery = "SELECT g.id, g.date, g.max_players, COUNT(DISTINCT email_user) as actual_players, g.status "
-                + "FROM game as g INNER JOIN enter as e on g.id = e.id_game " + "WHERE g.status = ? "
+                + "FROM game as g INNER JOIN enter as e on g.id = e.id_game WHERE g.status = ? "
                 + "GROUP BY g.id, g.date, g.max_players;";
         Connection dbConnection = null;
         PreparedStatement pst = null;
@@ -673,51 +740,20 @@ public class MonitorThread extends Monitor implements Runnable {
 
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
-            String[] clientResult = this.transformString(result, 5);
+            String[] gameList = this.transformString(result, 5);
+
+            result.beforeFirst();
+            String[] playersList = new String[gameList.length];
+            for (int index = 0; result.next(); index++) {
+                playersList[index] = this.getListOfPlayersForGame(result.getInt("id"));
+            }
+
+            String[][] clientResult = this.populateReturnMatrix(gameList, playersList);
+
             this.monitorClient.confirmGetListOfGames(clientResult);
         } else {
             System.out.println("No sessions played yet");
             this.monitorClient.errorGetListOfGames("No sessions played yet");
-        }
-        result.close();
-        pst.close();
-        dbConnection.close();
-    }
-
-    /**
-     * This is the method called when the user wants to retrieve the list of players
-     * for a specific game
-     * 
-     * @param id - The id of the game
-     * 
-     * @throws RemoteException - If there is an error while the client contact, it
-     *                         throws RemoteException
-     * @throws SQLException    - If there is an error while the DB operations, it
-     *                         throws SQLException
-     */
-    protected void getListOfPlayersForGame(int id) throws RemoteException, SQLException {
-        System.out.println("Reaching the players for a game...");
-        String sqlQuery = "SELECT DISTINCT username_user FROM enter WHERE id_game = ?";
-        Connection dbConnection = null;
-        PreparedStatement pst = null;
-
-        try {
-            dbConnection = this.db.getDatabaseConnection();
-            
-            pst =  dbConnection.prepareStatement(sqlQuery);
-            pst.setInt(1, id);
-        } catch (SQLException exc) {
-            System.err.println("Error while establishing the connection with the DB " + exc);
-        }
-
-        ResultSet result = this.db.peroformComplexQuery(pst);
-        if (result.isBeforeFirst()) {
-            System.out.println("Successfully performed the query");
-            String[] clientResult = this.transformString(result, 1);
-            this.monitorClient.confirmGetListOfPlayersForGame(clientResult);
-        } else {
-            System.out.println("No sessions played yet");
-            this.monitorClient.errorGetListOfPlayersForGame("No sessions played yet");
         }
         result.close();
         pst.close();
