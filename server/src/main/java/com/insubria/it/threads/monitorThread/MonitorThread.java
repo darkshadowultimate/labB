@@ -1,5 +1,9 @@
 package com.insubria.it.threads.monitorThread;
 
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,10 +13,6 @@ import com.insubria.it.sharedserver.threads.monitorThread.interfaces.MonitorClie
 import com.insubria.it.threads.monitorThread.abstracts.Monitor;
 
 import java.rmi.RemoteException;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * The MonitorThread class represents the thread that will be created for each
@@ -305,24 +305,36 @@ public class MonitorThread extends Monitor implements Runnable {
      * (each item represents a row of the DB query)
      * 
      * @param result - The DB query result
-     * @param lenght - The number of columns of the result table
+     * @param length - The number of columns of the result table
      * 
      * @return - An array of String
      * @throws SQLException - If there is an error while the DB operations, it
      *                      throws SQLException
      */
-    private String[] transformString(ResultSet result, int lenght) throws SQLException {
-        String[] returnArray = new String[10];
+    private String[] transformString(ResultSet result, int length) throws SQLException {
+        ArrayList<String> returnArray = new ArrayList<String>();
         String tmp = "";
-        int i = 0;
         while (result.next()) {
-            for (int index = 0; index < lenght; index++) {
-                tmp += (String) result.getObject(index + 1) + " ";
+            for (int index = 0; index < length; index++) {
+                Object currentObjResultSet = result.getObject(index + 1);
+
+                if(currentObjResultSet instanceof Integer) {
+                    tmp += Integer.toString(((Integer) currentObjResultSet).intValue());
+                } else if(currentObjResultSet instanceof Timestamp) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    tmp += dateFormat.format(new Date());
+                } else if(currentObjResultSet instanceof Long) {
+                    tmp += Long.toString(((Long) currentObjResultSet).longValue());
+                } else {
+                    tmp += (String) currentObjResultSet;
+                }
+                tmp += "//";
             }
-            returnArray[i++] = tmp;
+            returnArray.add(tmp);
             tmp = "";
         }
-        return returnArray;
+
+        return returnArray.toArray(new String[0]);
     }
 
     /**
@@ -635,7 +647,7 @@ public class MonitorThread extends Monitor implements Runnable {
     protected void getListOfGames(String status) throws RemoteException, SQLException {
         System.out.println("Reaching the games with info...");
         String sqlQuery = "SELECT g.id, g.date, g.max_players, COUNT(DISTINCT email_user) as actual_players "
-                + "FROM game as g INNER JOIN enter as e on g.id = e.id_game " + "WHERE g.status = " + status + " "
+                + "FROM game as g INNER JOIN enter as e on g.id = e.id_game " + "WHERE g.status = '" + status + "' "
                 + "GROUP BY g.id, g.date, g.max_players;";
         Connection dbConnection = null;
         Statement stm = null;
@@ -647,6 +659,7 @@ public class MonitorThread extends Monitor implements Runnable {
         }
 
         ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
+
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
             String[] clientResult = this.transformString(result, 4);
@@ -792,7 +805,7 @@ public class MonitorThread extends Monitor implements Runnable {
             }
             case "validWordsOccurrences": {
                 try {
-                    this.validWordsOccurrences(this.page);
+                    this.validWordsOccurrences();
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {
@@ -809,7 +822,7 @@ public class MonitorThread extends Monitor implements Runnable {
             }
             case "wordHighestScore": {
                 try {
-                    this.wordHighestScore(this.page);
+                    this.wordHighestScore();
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {
@@ -877,7 +890,7 @@ public class MonitorThread extends Monitor implements Runnable {
             }
             case "definitionRequest": {
                 try {
-                    this.definitionRequest(this.page);
+                    this.definitionRequest();
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {
@@ -894,7 +907,7 @@ public class MonitorThread extends Monitor implements Runnable {
             }
             case "gameDefinitionRequest": {
                 try {
-                    this.gameDefinitionRequest(this.page);
+                    this.gameDefinitionRequest();
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {
