@@ -12,6 +12,8 @@ import java.util.HashMap;
 import com.insubria.it.base.abstracts.Database;
 import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
 
+import com.insubria.it.threads.gameThread.utils.Research;
+
 
 /**
  * This class is used by the GameThread because it offers some utils
@@ -328,5 +330,17 @@ public class GameThreadUtils {
 
         pst.close();
         this.dbConnection.close();
+    }
+
+    public boolean checkWordInMatrix(String[][] randomMatrix, String toSearch) {
+        Research research = new Research(randomMatrix);
+
+        for (int x = 0; x < randomMatrix.length; x++) {
+            for (int y = 0; y < randomMatrix[0].length; y++) {
+                if (randomMatrix[x][y].equals("" + toSearch.charAt(0))) {
+                    research.startSearchProcess(toSearch, x, y);
+                }
+            }
+        }
     }
 }
