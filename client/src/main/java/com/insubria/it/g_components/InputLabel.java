@@ -17,6 +17,8 @@ public class InputLabel extends GraphicComponent {
     inputGroup.add(textField);
   }
 
+  public void setValueInputField(String valueInputField) { this.textField.setText(valueInputField); }
+
   public String getValueTextField() {
     return this.textField.getText();
   }

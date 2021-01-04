@@ -89,7 +89,7 @@ public class ConfirmCode {
   }
 
   private void redirectRegistrationFrame() {
-    UserRegistration userRegistration = new UserRegistration();
+    UserRegistration userRegistration = new UserRegistration(false);
     gridContainer.disposeFrame();
   }
 }
