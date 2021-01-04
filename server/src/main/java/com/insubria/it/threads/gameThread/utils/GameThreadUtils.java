@@ -62,19 +62,21 @@ public class GameThreadUtils {
                 ResultSet result;
                 String sqlQuery;
 
-                Statement stm = null;
+                PreparedStatement pst = null;
                 try {
                     this.dbConnection = this.db.getDatabaseConnection();
-                    stm = this.dbConnection.createStatement();
                 } catch (SQLException exc) {
                     System.err.println("Error while establishing the connection with the DB " + exc);
                 }
 
                 for (GameClient item : gameClientObservers) {
-                    sqlQuery = "SELECT SUM(score) as total_score " + "FROM discover " + "WHERE email_user = "
-                            + item.getEmail() + " AND id_game = " + idGame;
+                    sqlQuery = "SELECT SUM(score) as total_score FROM discover WHERE email_user = ? AND id_game = ?";
                     try {
-                        result = this.db.performSimpleQuery(sqlQuery, stm);
+                        pst =  dbConnection.prepareStatement(sqlQuery);
+                        pst.setString(1, item.getEmail());
+                        pst.setInt(2, idGame);
+
+                        result = this.db.peroformComplexQuery(pst);
                         if (result.isBeforeFirst()) {
                             result.next();
                             returnValue.put(item.getUsername(), result.getInt("total_score"));
@@ -84,7 +86,7 @@ public class GameThreadUtils {
                     }
                 }
 
-                stm.close();
+                pst.close();
                 this.dbConnection.close();
             }
         } catch (RemoteException exc) {
@@ -178,16 +180,18 @@ public class GameThreadUtils {
      *                      throws SQLException
      */
     public ResultSet getAcceptedWordForGameSession(int idGame, int sessionNumber) throws SQLException {
-        String sqlQuery = "SELECT word, username_user, score " + "FROM discover " + "WHERE id_game = " + idGame
-                + " AND session_number_enter = " + sessionNumber + " AND score > 0 " + "ORDER BY score DESC";
-        Statement stm = null;
+        String sqlQuery = "SELECT word, username_user, score FROM discover WHERE id_game = ? AND session_number_enter = ? AND score > 0 ORDER BY score DESC";
+        PreparedStatement pst = null;
         try {
             this.dbConnection = this.db.getDatabaseConnection();
-            stm = this.dbConnection.createStatement();
+
+            pst =  dbConnection.prepareStatement(sqlQuery);
+            pst.setInt(1, idGame);
+            pst.setInt(2, sessionNumber);
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
-        return this.db.performSimpleQuery(sqlQuery, stm);
+        return this.db.peroformComplexQuery(pst);
     }
 
     /**
@@ -203,16 +207,18 @@ public class GameThreadUtils {
      *                      throws SQLException
      */
     public ResultSet getRefusedWordForGameSession(int idGame, int sessionNumber) throws SQLException {
-        String sqlQuery = "SELECT word, username_user, score, reason " + "FROM discover " + "WHERE id_game = " + idGame
-                + " AND session_number_enter = " + sessionNumber + " AND score = 0";
-        Statement stm = null;
+        String sqlQuery = "SELECT word, username_user, score, reason FROM discover WHERE id_game = ? AND session_number_enter = ? AND score = 0";
+        PreparedStatement pst = null;
         try {
             this.dbConnection = this.db.getDatabaseConnection();
-            stm = this.dbConnection.createStatement();
+
+            pst =  dbConnection.prepareStatement(sqlQuery);
+            pst.setInt(1, idGame);
+            pst.setInt(2, sessionNumber);
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
-        return this.db.performSimpleQuery(sqlQuery, stm);
+        return this.db.peroformComplexQuery(pst);
     }
 
     /**
@@ -252,17 +258,18 @@ public class GameThreadUtils {
      *                      throws SQLException
      */
     public ResultSet checkReached50Score(int idGame) throws SQLException {
-        String sqlQuery = "SELECT username_user " + "FROM discover " + "WHERE id_game = " + idGame + " "
-                + "GROUP BY username_user " + "HAVING SUM(score) >= 50";
-        Statement stm = null;
+        String sqlQuery = "SELECT username_user FROM discover WHERE id_game = ? GROUP BY username_user HAVING SUM(score) >= 50";
+        PreparedStatement pst = null;
         try {
             this.dbConnection = this.db.getDatabaseConnection();
-            stm = this.dbConnection.createStatement();
+
+            pst =  dbConnection.prepareStatement(sqlQuery);
+            pst.setInt(1, idGame);
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
 
-        return this.db.performSimpleQuery(sqlQuery, stm);
+        return this.db.peroformComplexQuery(pst);
     }
 
     /**
