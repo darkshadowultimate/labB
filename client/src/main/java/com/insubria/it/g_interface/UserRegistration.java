@@ -175,10 +175,10 @@ public class UserRegistration {
             RemoteObjectContextProvider
             .server
             .changePlayerData(
+              email,
               name,
               surname,
               username,
-              email,
               password,
               oldPassword,
               new PlayerCredentialsImpl() {
