@@ -548,17 +548,19 @@ public class GameThread extends UnicastRemoteObject implements Game {
                     // @TODO: Check the word exists in the matrix
                     if (/* Check the word exists in the matrix */true) {
                         if (singleWord.length() >= 3) {
-                            String sqlQuery = "SELECT * FROM discover WHERE word = " + singleWord + " AND id_game = "
-                                    + this.idGame + " AND session_number_enter = " + this.sessionNumber;
-                            Statement stm = null;
+                            String sqlQuery = "SELECT * FROM discover WHERE word = ? AND id_game = ? AND session_number_enter = ?";
+                            PreparedStatement pst1 = null;
                             try {
-                                stm = this.dbConnection.createStatement();
+                                pst1 =  dbConnection.prepareStatement(sqlQuery);
+                                pst1.setString(1, singleWord);
+                                pst1.setInt(2, this.idGame);
+                                pst1.setInt(3, this.sessionNumber);
                             } catch (SQLException exc) {
                                 System.err.println("Error while establishing the connection with the DB " + exc);
                                 System.exit(1);
                             }
 
-                            ResultSet result = this.db.performSimpleQuery(sqlQuery, stm);
+                            ResultSet result = this.db.peroformComplexQuery(pst1);
 
                             if (result.isBeforeFirst()) {
                                 // This word already exists
@@ -575,7 +577,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
                             }
 
                             result.close();
-                            stm.close();
+                            pst1.close();
                         } else {
                             pst.setInt(6, 0);
                             pst.setBoolean(7, false);
