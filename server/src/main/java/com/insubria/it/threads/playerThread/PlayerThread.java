@@ -210,17 +210,18 @@ public class PlayerThread extends Player implements Runnable {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
 
-
         ResultSet result = this.db.peroformComplexQuery(pst);
 
-        result.close();
-        pst.close();
-        dbConnection.close();
-
         if (result.isBeforeFirst()) {
+            pst.close();
+            result.close();
+            dbConnection.close();
             System.err.println("A user with the following email/username already exists");
             return true;
         } else {
+            pst.close();
+            result.close();
+            dbConnection.close();
             return false;
         }
     }
