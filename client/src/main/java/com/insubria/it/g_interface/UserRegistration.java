@@ -186,7 +186,9 @@ public class UserRegistration {
                 public void confirmChangePlayerData() throws RemoteException {
                   super.confirmChangePlayerData();
 
+                  updatePlayerContextProvider(name, surname, username, email);
                   JOptionPane.showMessageDialog(null, UPDATE_PROFILE_SUCCESS_TEXT);
+                  redirectToHomeFrame();
                 }
 
                 @Override
@@ -230,6 +232,10 @@ public class UserRegistration {
     return
       password.equals(confirmPassword) &&
       password.length() > 3;
+  }
+
+  private void updatePlayerContextProvider(String name, String surname, String username, String email) {
+    PlayerContextProvider.setPlayerInfo(name, surname, username, email);
   }
 
   private void redirectConfirmCodeFrame() {
