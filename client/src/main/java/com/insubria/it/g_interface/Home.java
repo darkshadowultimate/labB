@@ -82,13 +82,13 @@ public class Home {
     gridContainer.disposeFrame();
   }
 
-<<<<<<< HEAD
   private void redirectToListGamesFrame() {
     ListGames listGames = new ListGames();
-=======
+    gridContainer.disposeFrame();
+  }
+
   private void redirectToUserRegistrationFrame() {
     UserRegistration userRegistration = new UserRegistration(true);
->>>>>>> update_user_profile
     gridContainer.disposeFrame();
   }
 }

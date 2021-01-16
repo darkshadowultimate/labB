@@ -35,11 +35,11 @@ public class ListGames {
     private GridFrame gridContainer, gridTableGames, gridButtons;
 
     public ListGames() {
-        String[] gamesArrayString = getListOfGamesFromServer();
+        String[][] gamesArrayString = getListOfGamesFromServer();
 
         //TODO: handle the case when gamesArrayString is null by showing a label like: "Al momento non ci sono partite disponibili"
 
-        int lengthListGames = gamesArrayString.length + 1;
+        /*int lengthListGames = gamesArrayString.length + 1;
 
         singleGames = createListOfSingleGames(gamesArrayString);
 
@@ -96,7 +96,9 @@ public class ListGames {
 
         gridContainer.addToView(mainTitle);
         gridContainer.addToView(gridTableGames);
-        gridContainer.addToView(gridButtons);
+        gridContainer.addToView(gridButtons);*/
+
+        gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_CONTAINER);
 
         gridContainer.showWindow(1200, 500);
     }
@@ -109,26 +111,44 @@ public class ListGames {
         return gamesArray;
     }
 
-    private String[] getListOfGamesFromServer() {
+    private String[][] getListOfGamesFromServer() {
         final String[][] listOfGames = {null};
+        final String[][] listPlayersForGame = {null};
 
         try {
             RemoteObjectContextProvider
             .server
             .getListOfGames(new MonitorClientImpl() {
                 @Override
-                public void confirmGetListOfGames(String[] result) throws RemoteException {
+                public void confirmGetListOfGames(String[][] result) throws RemoteException {
                     super.confirmGetListOfGames(result);
 
-                    for(String singleResult : result) {
-                        System.out.println(singleResult);
+                    if(result == null) {
+                        System.out.println("Matrix is null");
+                    } else {
+                        System.out.println("Length result matrix games " + result[0].length);
+
+                        for(int i = 0; i < result[0].length; i++) {
+                            listOfGames[0][i] = result[0][0];
+                            listPlayersForGame[0][i] = result[0][1];
+                            System.out.println("\n\nCurrent game => " + listOfGames[0][i]);
+                            System.out.println("Current players => " + listPlayersForGame[0][i]);
+                        }
                     }
-                    listOfGames[0] = result;
+
+                    /*for(int i = 0; i < result[0].length; i++) {
+                        listOfGames[0][i] = result[0][0];
+                        listPlayersForGame[0][i] = result[0][1];
+                        System.out.println("\n\nCurrent game => " + listOfGames[0][i]);
+                        System.out.println("Current players => " + listPlayersForGame[0][i]);
+                    }*/
                 }
 
                 @Override
                 public void errorGetListOfGames(String reason) throws RemoteException {
                     super.errorGetListOfGames(reason);
+
+                    System.out.println("Error function called by the server");
 
                     JOptionPane.showMessageDialog(null, GET_LIST_GAMES_ERROR_TEXT);
                 }
@@ -137,7 +157,7 @@ public class ListGames {
             exc.printStackTrace();
         }
 
-        return listOfGames[0];
+        return new String[][] { listOfGames[0], listPlayersForGame[0] };
     }
 
     private void addAllEventListeners() {

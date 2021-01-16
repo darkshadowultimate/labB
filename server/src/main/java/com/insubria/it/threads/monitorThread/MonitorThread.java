@@ -992,12 +992,6 @@ public class MonitorThread extends Monitor implements Runnable {
             case "getListOfPlayersForGame": {
                 try {
                     this.getListOfPlayersForGame(this.id);
-                } catch (RemoteException exc) {
-                    System.err.println("Error while contacting the client " + exc);
-                    try {
-                        this.monitorClient.errorGetListOfPlayersForGame("Error while contacting the client " + exc);
-                    } catch (RemoteException e) {
-                    }
                 } catch (SQLException exc) {
                     try {
                         this.monitorClient.errorGetListOfPlayersForGame("Error while performing DB operations " + exc);

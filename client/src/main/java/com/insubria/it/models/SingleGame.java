@@ -5,12 +5,14 @@ public class SingleGame {
     private String dateCreation;
     private String maxPlayers;
     private String rounds;
+    private String players;
 
-    public SingleGame(String id, String dateCreation, String maxPlayers, String rounds) {
+    public SingleGame(String id, String dateCreation, String maxPlayers, String rounds, String players) {
         this.id = id;
         this.dateCreation = dateCreation;
         this.maxPlayers = maxPlayers;
         this.rounds = rounds;
+        this.players = players;
     }
 
     public static SingleGame createSingleGameFromString(String singleGameString) {
@@ -19,7 +21,8 @@ public class SingleGame {
             gameFields[0],
             gameFields[1],
             gameFields[2],
-            gameFields[3]
+            gameFields[3],
+            gameFields[4]
         );
     }
 
