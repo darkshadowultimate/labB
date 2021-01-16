@@ -730,7 +730,7 @@ public class MonitorThread extends Monitor implements Runnable {
         try {
             dbConnection = this.db.getDatabaseConnection();
 
-            pst =  dbConnection.prepareStatement(sqlQuery);
+            pst =  dbConnection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
             pst.setString(1, status);
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
@@ -743,13 +743,13 @@ public class MonitorThread extends Monitor implements Runnable {
             String[] gameList = this.transformString(result, 5);
 
             result.beforeFirst();
+
             String[] playersList = new String[gameList.length];
             for (int index = 0; result.next(); index++) {
                 playersList[index] = this.getListOfPlayersForGame(result.getInt("id"));
             }
 
             String[][] clientResult = this.populateReturnMatrix(gameList, playersList);
-
             this.monitorClient.confirmGetListOfGames(clientResult);
         } else {
             System.out.println("No sessions played yet");
