@@ -4,25 +4,28 @@ public class SingleGame {
     private String id;
     private String dateCreation;
     private String maxPlayers;
-    private String rounds;
+    private String currentNumPlayers;
     private String players;
+    private String status;
 
-    public SingleGame(String id, String dateCreation, String maxPlayers, String rounds, String players) {
+    public SingleGame(String id, String dateCreation, String maxPlayers, String currentNumPlayers, String players, String status) {
         this.id = id;
         this.dateCreation = dateCreation;
         this.maxPlayers = maxPlayers;
-        this.rounds = rounds;
+        this.currentNumPlayers = currentNumPlayers;
         this.players = players;
+        this.status = status;
     }
 
-    public static SingleGame createSingleGameFromString(String singleGameString) {
+    public static SingleGame createSingleGameFromString(String singleGameString, String playersGame) {
         String[] gameFields = singleGameString.split("//");
         return new SingleGame(
             gameFields[0],
             gameFields[1],
             gameFields[2],
             gameFields[3],
-            gameFields[4]
+            playersGame,
+            gameFields[5]
         );
     }
 
@@ -38,7 +41,15 @@ public class SingleGame {
         return maxPlayers;
     }
 
-    public String getRounds() {
-        return rounds;
+    public String getCurrentNumPlayers() {
+        return currentNumPlayers;
+    }
+
+    public String getPlayers() {
+        return players;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }
