@@ -34,15 +34,18 @@ public class ListGames {
     private Button viewOpenGamesButton, viewStartedGamesButton, joinGameButton, cancelButton;
     private GridFrame gridContainer, gridTableGames, gridButtons;
 
+    private String stringGames = "", stringPlayers = "";
+
     public ListGames() {
-        String[][] gamesArrayString = getListOfGamesFromServer();
+        getListOfGamesFromServer();
 
         //TODO: handle the case when gamesArrayString is null by showing a label like: "Al momento non ci sono partite disponibili"
 
-        /*int lengthListGames = gamesArrayString.length + 1;
+        System.out.println("stringGames after server ==> " + this.stringGames);
 
-        singleGames = createListOfSingleGames(gamesArrayString);
+        /*singleGames = createListOfSingleGames(stringGames, stringPlayers);
 
+        int lengthListGames = singleGames.length + 1;
 
         gameNameText = new Label[lengthListGames];
         dateText = new Label[lengthListGames];
@@ -72,12 +75,12 @@ public class ListGames {
         addAllEventListeners();
 
         for(int i = 1; i < lengthListGames; i++) {
-            gameNameText[i] = new Label("??");
+            gameNameText[i] = new Label(singleGames[i - 1].getId());
             dateText[i] = new Label(singleGames[i - 1].getDateCreation());
             maxPlayersText[i] = new Label(singleGames[i - 1].getMaxPlayers());
-            currentPlayersText[i] = new Label("??");
-            playersText[i] = new Label("??");
-            gameStatusText[i] = new Label("??");
+            currentPlayersText[i] = new Label(singleGames[i - 1].getCurrentNumPlayers());
+            playersText[i] = new Label(singleGames[i - 1].getPlayers());
+            gameStatusText[i] = new Label(singleGames[i - 1].getStatus());
         }
 
         for(int i = 0; i < lengthListGames; i++) {
@@ -99,22 +102,21 @@ public class ListGames {
         gridContainer.addToView(gridButtons);*/
 
         gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_CONTAINER);
-
         gridContainer.showWindow(1200, 500);
     }
 
-    private SingleGame[] createListOfSingleGames(String[] stringsOfSingleGames) {
-        SingleGame[] gamesArray = new SingleGame[stringsOfSingleGames.length];
-        for(int i = 0; i < stringsOfSingleGames.length; i++) {
-            gamesArray[i] = SingleGame.createSingleGameFromString(stringsOfSingleGames[i]);
+    private SingleGame[] createListOfSingleGames(String stringGamesList, String stringPlayersList) {
+        String[] gamesArray = stringGamesList.split("%%%");
+        String[] playersArray = stringPlayersList.split("%%%");
+
+        SingleGame[] resultArray = new SingleGame[gamesArray.length];
+        for(int i = 0; i < gamesArray.length; i++) {
+            resultArray[i] = SingleGame.createSingleGameFromString(gamesArray[i], playersArray[i]);
         }
-        return gamesArray;
+        return resultArray;
     }
 
-    private String[][] getListOfGamesFromServer() {
-        final String[][] listOfGames = {null};
-        final String[][] listPlayersForGame = {null};
-
+    private void getListOfGamesFromServer() {
         try {
             RemoteObjectContextProvider
             .server
@@ -123,25 +125,8 @@ public class ListGames {
                 public void confirmGetListOfGames(String[][] result) throws RemoteException {
                     super.confirmGetListOfGames(result);
 
-                    if(result == null) {
-                        System.out.println("Matrix is null");
-                    } else {
-                        System.out.println("Length result matrix games " + result[0].length);
-
-                        for(int i = 0; i < result[0].length; i++) {
-                            listOfGames[0][i] = result[0][0];
-                            listPlayersForGame[0][i] = result[0][1];
-                            System.out.println("\n\nCurrent game => " + listOfGames[0][i]);
-                            System.out.println("Current players => " + listPlayersForGame[0][i]);
-                        }
-                    }
-
-                    /*for(int i = 0; i < result[0].length; i++) {
-                        listOfGames[0][i] = result[0][0];
-                        listPlayersForGame[0][i] = result[0][1];
-                        System.out.println("\n\nCurrent game => " + listOfGames[0][i]);
-                        System.out.println("Current players => " + listPlayersForGame[0][i]);
-                    }*/
+                    System.out.println("\n\nLength result array => " + result[0].length);
+                    setMatrixGamesPlayers(result);
                 }
 
                 @Override
@@ -156,8 +141,6 @@ public class ListGames {
         } catch(RemoteException exc) {
             exc.printStackTrace();
         }
-
-        return new String[][] { listOfGames[0], listPlayersForGame[0] };
     }
 
     private void addAllEventListeners() {
@@ -186,5 +169,15 @@ public class ListGames {
     private void redirectToHomeFrame() {
         Home home = new Home();
         gridContainer.disposeFrame();
+    }
+
+    private void setMatrixGamesPlayers(String[][] resultMatrix) {
+        for(int i = 0; i < resultMatrix[0].length; i++) {
+            this.stringGames += resultMatrix[0][i] + "%%%";
+            this.stringPlayers += resultMatrix[1][i] + "%%%";
+            System.out.println("\n\nCurrent game => " + resultMatrix[0][i]);
+            System.out.println("Current players => " + resultMatrix[1][i]);
+        }
+        System.out.println(this.stringGames + "\n\n\n");
     }
 }
