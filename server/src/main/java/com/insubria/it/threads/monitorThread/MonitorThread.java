@@ -721,7 +721,7 @@ public class MonitorThread extends Monitor implements Runnable {
      */
     protected void getListOfGames(String status) throws RemoteException, SQLException {
         System.out.println("Reaching the games with info...");
-        String sqlQuery = "SELECT g.id, g.date, g.max_players, COUNT(DISTINCT email_user) as actual_players, g.status "
+        String sqlQuery = "SELECT g.id, g.name, g.date, g.max_players, COUNT(DISTINCT email_user) as actual_players, g.status "
                 + "FROM game as g INNER JOIN enter as e on g.id = e.id_game WHERE g.status = ? "
                 + "GROUP BY g.id, g.date, g.max_players;";
         Connection dbConnection = null;
@@ -740,7 +740,7 @@ public class MonitorThread extends Monitor implements Runnable {
 
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
-            String[] gameList = this.transformString(result, 5);
+            String[] gameList = this.transformString(result, 6);
 
             result.beforeFirst();
 
