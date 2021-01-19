@@ -338,9 +338,10 @@ public class GameThreadUtils {
         for (int x = 0; x < randomMatrix.length; x++) {
             for (int y = 0; y < randomMatrix[0].length; y++) {
                 if (randomMatrix[x][y].equals("" + toSearch.charAt(0))) {
-                    research.startSearchProcess(toSearch, x, y);
+                    return research.startSearchProcess(toSearch, x, y);
                 }
             }
         }
+        return false;
     }
 }
