@@ -4,6 +4,7 @@ import com.insubria.it.g_components.*;
 import com.insubria.it.context.*;
 import com.insubria.it.serverImplClasses.MonitorClientImpl;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
@@ -12,7 +13,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Analytics {
-    private static final String[] LABELS_INFO = {
+    private static final String[] BUTTONS_TEXTS = {
         "Giocatore con punteggio più alto (per sessione e partita): ",
         "Giocatore con più sessioni di gioco: ",
         "Giocatore con la media più alta di punti (per sessione e partita): ",
@@ -32,7 +33,30 @@ public class Analytics {
     private static final int ROWS = 0;
     private static final int COLS = 1;
 
-    private Label[] labels = new Label[LABELS_INFO.length];
+/*    private static final String[] testStrings = {
+        "UserTot - 1",
+        "UserTot - 2",
+        "UserTot - 3",
+        "UserTot - 4",
+        "UserTot - 5",
+        "UserTot - 6",
+        "UserTot - 7",
+        "UserTot - 8",
+        "UserTot - 9",
+        "UserTot - 10",
+        "UserTot - 11",
+        "UserTot - 12",
+        "UserTot - 13",
+        "UserTot - 14",
+        "UserTot - 15",
+        "UserTot - 16",
+        "UserTot - 17",
+        "UserTot - 18",
+        "UserTot - 19",
+        "UserTot - 20",
+    };*/
+
+    private Button[] buttons = new Button[BUTTONS_TEXTS.length];
     private Button homeButton;
     private GridFrame gridContainer;
 
@@ -40,16 +64,13 @@ public class Analytics {
         gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS);
 
         homeButton = new Button(HOME_BUTTON_TEXT);
-
-        initializeLabels();
-
+        
         addAllEventListeners();
 
-        for(int i = 0; i < LABELS_INFO.length; i++) {
-            if(labels[i] != null) {
-                System.out.println("Text => " + labels[i].getLabelText());
-                gridContainer.addToView(labels[i]);
-            }
+        for(int i = 0; i < BUTTONS_TEXTS.length; i++) {
+            buttons[i] = new Button(BUTTONS_TEXTS[i]);
+            buttons[i].attachActionListenerToButton(getCorrectActionListener(i));
+            gridContainer.addToView(buttons[i]);
         }
 
         gridContainer.addToView(homeButton);
@@ -57,22 +78,7 @@ public class Analytics {
         gridContainer.showWindow(800, 1000);
     }
 
-    private void initializeLabels() {
-        scoreGameAndSession(0);
-        sessionsPlayed(1);
-        avgScoreGameAndSession(2);
-        proposedDuplicatedWords(3);
-        invalidProposedWords(4);
-        validWordsOccurrencesList(5);
-        wordHighestScoreList(6);
-        averageRoundsList(7);
-        definitionRequestList(10);
-        gameDefinitionRequestList(11);
-        minMaxRoundsList(8);
-        charactersAvgOccurrenceList(9);
-    }
-
-    private void scoreGameAndSession(final int indexLabelArray) {
+    private void scoreGameAndSession() {
         try {
             RemoteObjectContextProvider
             .server
@@ -82,14 +88,14 @@ public class Analytics {
                     public void confirmMoreScoreGameAndSession(String[] result) throws RemoteException {
                         super.confirmMoreScoreGameAndSession(result);
 
-                        updateLabelArray(indexLabelArray, convertArrayIntoStringFormatted(result));
+                        updateLabelArray(convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
                     public void errorMoreScoreGameAndSession(String reason) throws RemoteException {
                         super.errorMoreScoreGameAndSession(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 }
             );
@@ -98,7 +104,7 @@ public class Analytics {
         }
     }
 
-    private void sessionsPlayed(final int indexLabelArray) {
+    private void sessionsPlayed() {
         try {
             RemoteObjectContextProvider
             .server
@@ -107,14 +113,14 @@ public class Analytics {
                     @Override
                     public void confirmMoreSessionsPlayed(String result) throws RemoteException {
                         super.confirmMoreSessionsPlayed(result);
-                        updateLabelArray(indexLabelArray, result);
+                        updateLabelArray(result);
                     }
 
                     @Override
                     public void errorMoreSessionsPlayed(String reason) throws RemoteException {
                         super.errorMoreSessionsPlayed(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 }
             );
@@ -123,7 +129,7 @@ public class Analytics {
         }
     }
 
-    private void avgScoreGameAndSession(final int indexLabelArray) {
+    private void avgScoreGameAndSession() {
         try {
             RemoteObjectContextProvider
             .server
@@ -133,14 +139,14 @@ public class Analytics {
                     public void confirmMoreAvgScoreGameAndSession(String[] result) throws RemoteException {
                         super.confirmMoreAvgScoreGameAndSession(result);
 
-                        updateLabelArray(indexLabelArray, convertArrayIntoStringFormatted(result));
+                        updateLabelArray(convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
                     public void errorMoreAvgScoreGameAndSession(String reason) throws RemoteException {
                         super.errorMoreAvgScoreGameAndSession(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 }
             );
@@ -149,7 +155,7 @@ public class Analytics {
         }
     }
 
-    private void proposedDuplicatedWords(final int indexLabelArray) {
+    private void proposedDuplicatedWords() {
         try {
             RemoteObjectContextProvider
             .server
@@ -159,14 +165,14 @@ public class Analytics {
                     public void confirmMoreProposedDuplicatedWords(String result) throws RemoteException {
                         super.confirmMoreProposedDuplicatedWords(result);
 
-                        updateLabelArray(indexLabelArray, result);
+                        updateLabelArray(result);
                     }
 
                     @Override
                     public void errorMoreProposedDuplicatedWords(String reason) throws RemoteException {
                         super.errorMoreProposedDuplicatedWords(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 }
             );
@@ -175,7 +181,7 @@ public class Analytics {
         }
     }
 
-    private void invalidProposedWords(final int indexLabelArray) {
+    private void invalidProposedWords() {
         try {
             RemoteObjectContextProvider
             .server
@@ -185,14 +191,14 @@ public class Analytics {
                     public void confirmMoreInvalidProposedWords(String result) throws RemoteException {
                         super.confirmMoreInvalidProposedWords(result);
 
-                        updateLabelArray(indexLabelArray, result);
+                        updateLabelArray(result);
                     }
 
                     @Override
                     public void errorMoreInvalidProposedWords(String reason) throws RemoteException {
                         super.errorMoreInvalidProposedWords(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 }
             );
@@ -201,7 +207,7 @@ public class Analytics {
         }
     }
 
-    private void validWordsOccurrencesList(final int indexLabelArray) {
+    private void validWordsOccurrencesList() {
         try {
             RemoteObjectContextProvider
             .server
@@ -211,14 +217,14 @@ public class Analytics {
                     public void confirmValidWordsOccurrences(String[] result) throws RemoteException {
                         super.confirmValidWordsOccurrences(result);
 
-                        updateLabelArray(indexLabelArray, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination("occorrenzeParoleValide", convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
                     public void errorValidWordsOccurrences(String reason) throws RemoteException {
                         super.errorValidWordsOccurrences(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 },1
             );
@@ -227,7 +233,7 @@ public class Analytics {
         }
     }
 
-    private void wordHighestScoreList(final int indexLabelArray) {
+    private void wordHighestScoreList() {
         try {
             RemoteObjectContextProvider
             .server
@@ -237,14 +243,14 @@ public class Analytics {
                     public void confirmWordHighestScore(String[] result) throws RemoteException {
                         super.confirmWordHighestScore(result);
 
-                        updateLabelArray(indexLabelArray, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination("paroleConValoreMaggiore", convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
                     public void errorWordHighestScore(String reason) throws RemoteException {
                         super.errorWordHighestScore(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 },1
             );
@@ -253,7 +259,7 @@ public class Analytics {
         }
     }
 
-    private void averageRoundsList(final int indexLabelArray) {
+    private void averageRoundsList() {
         try {
             RemoteObjectContextProvider
             .server
@@ -263,14 +269,14 @@ public class Analytics {
                     public void confirmAverageRounds(String[] result) throws RemoteException {
                         super.confirmAverageRounds(result);
 
-                        updateLabelArray(indexLabelArray, convertArrayIntoStringFormatted(result));
+                        updateLabelArray(convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
                     public void errorAverageRounds(String reason) throws RemoteException {
                         super.errorAverageRounds(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 }
             );
@@ -279,7 +285,7 @@ public class Analytics {
         }
     }
 
-    private void minMaxRoundsList(final int indexLabelArray) {
+    private void minMaxRoundsList() {
         try {
             RemoteObjectContextProvider
             .server
@@ -289,14 +295,14 @@ public class Analytics {
                     public void confirmAverageRounds(String[] result) throws RemoteException {
                         super.confirmAverageRounds(result);
 
-                        updateLabelArray(indexLabelArray, convertArrayIntoStringFormatted(result));
+                        updateLabelArray(convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
                     public void errorAverageRounds(String reason) throws RemoteException {
                         super.errorAverageRounds(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 }
             );
@@ -305,7 +311,7 @@ public class Analytics {
         }
     }
 
-    private void charactersAvgOccurrenceList(final int indexLabelArray) {
+    private void charactersAvgOccurrenceList() {
         try {
             RemoteObjectContextProvider
             .server
@@ -325,14 +331,14 @@ public class Analytics {
                             it.remove();
                         }
 
-                        updateLabelArray(indexLabelArray, resultString);
+                        updateLabelArray(resultString);
                     }
 
                     @Override
                     public void errorCharactersAvgOccurrence(String reason) throws RemoteException {
                         super.errorCharactersAvgOccurrence(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 }
             );
@@ -341,7 +347,7 @@ public class Analytics {
         }
     }
 
-    private void definitionRequestList(final int indexLabelArray) {
+    private void definitionRequestList() {
         try {
             RemoteObjectContextProvider
             .server
@@ -351,14 +357,14 @@ public class Analytics {
                     public void confirmDefinitionRequest(String[] result) throws RemoteException {
                         super.confirmDefinitionRequest(result);
 
-                        updateLabelArray(indexLabelArray, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination("paroleVisualizzateMaggiormente", convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
                     public void errorDefinitionRequest(String reason) throws RemoteException {
                         super.errorDefinitionRequest(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 }, 1
             );
@@ -367,7 +373,7 @@ public class Analytics {
         }
     }
 
-    private void gameDefinitionRequestList(final int indexLabelArray) {
+    private void gameDefinitionRequestList() {
         try {
             RemoteObjectContextProvider
             .server
@@ -377,14 +383,16 @@ public class Analytics {
                     public void confirmGameDefinitionRequest(String[] result) throws RemoteException {
                         super.confirmGameDefinitionRequest(result);
 
-                        updateLabelArray(indexLabelArray, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination("giochiConPiùParoleVisualizzateMaggiormente", convertArrayIntoStringFormatted(result));
+
+                        updateLabelArray(convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
                     public void errorGameDefinitionRequest(String reason) throws RemoteException {
                         super.errorGameDefinitionRequest(reason);
 
-                        errorResultOperation(indexLabelArray);
+                        errorResultOperation(reason);
                     }
                 }, 1
             );
@@ -393,22 +401,25 @@ public class Analytics {
         }
     }
 
-    private String convertArrayIntoStringFormatted(String[] arrayString) {
-        String resultStringFormatted = "";
+    public static String convertArrayIntoStringFormatted(String[] arrayString) {
+        String resultStringFormatted = "<html>";
 
         for(String singleRecord: arrayString) {
-            resultStringFormatted += singleRecord + "\n";
+            resultStringFormatted += singleRecord + "<br />";
         }
 
         return resultStringFormatted;
     }
 
-    private void errorResultOperation(int labelIndex) {
-        updateLabelArray(labelIndex, ERROR_NO_DATA_TEXT);
+    public static void errorResultOperation(String messageFromServer) {
+        updateLabelArray(ERROR_NO_DATA_TEXT);
+        System.out.println(messageFromServer);
     }
 
-    private void updateLabelArray(int indexLabel, String serverDataLabel) {
-        labels[indexLabel] = new Label(LABELS_INFO[indexLabel] + serverDataLabel);
+    private static void updateLabelArray(String serverDataLabel) {
+        //String degubString = convertArrayIntoStringFormatted(testStrings);
+        //JOptionPane.showMessageDialog(null, degubString);
+        JOptionPane.showMessageDialog(null, serverDataLabel);
     }
 
     private void addAllEventListeners() {
@@ -419,8 +430,91 @@ public class Analytics {
         });
     }
 
+    private ActionListener getCorrectActionListener(int indexButton) {
+        switch(indexButton) {
+            case 0:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        scoreGameAndSession();
+                    }
+                };
+            case 1:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        sessionsPlayed();
+                    }
+                };
+            case 2:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        avgScoreGameAndSession();
+                    }
+                };
+            case 3:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        proposedDuplicatedWords();
+                    }
+                };
+            case 4:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        invalidProposedWords();
+                    }
+                };
+            case 5:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        validWordsOccurrencesList();
+                    }
+                };
+            case 6:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        wordHighestScoreList();
+                    }
+                };
+            case 7:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        averageRoundsList();
+                    }
+                };
+            case 8:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        minMaxRoundsList();
+                    }
+                };
+            case 9:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        charactersAvgOccurrenceList();
+                    }
+                };
+            case 10:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        definitionRequestList();
+                    }
+                };
+            case 11:
+                return new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        gameDefinitionRequestList();
+                    }
+                };
+            default:
+                return null;
+        }
+    }
+
     private void redirectToHomeFrame() {
         Home home = new Home();
         gridContainer.disposeFrame();
+    }
+
+    private void redirectToAnalyticsPagination(String sectionToLoad, String dataFromServer) {
+        AnalyticsPagination analyticsPagination = new AnalyticsPagination(gridContainer, sectionToLoad, dataFromServer, 1);
     }
 }
