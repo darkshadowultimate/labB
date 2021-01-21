@@ -14,24 +14,27 @@ public class Home {
     "Analizza Statistiche"
   };
   private static final String TITLE_WINDOW = "Il Paroliere - Home";
-  private static final String MAIN_TITLE = String.format(
-    "Ciao %s, benvenuto nel Paroliere",
-    PlayerContextProvider.getUsernamePlayer()
-  );
   private static final int COLS_MAIN_CONTAINER = 1;
   private static final int ROWS = 0;
   private static final int COLS = 2;
 
+  private String mainTitle;
   private Button createGameButton, viewGamesButton, editProfileButton, analyticsButton;
   private Label titlePage;
   private GridFrame gridButtonFrame, gridContainer;
 
   public Home() {
+    // The mainTitle needs to be placed inside the constructor to update its value after the user's profile update
+    mainTitle = String.format(
+      "Ciao %s, benvenuto nel Paroliere",
+      PlayerContextProvider.getUsernamePlayer()
+    );
+
     gridButtonFrame = new GridFrame(ROWS, COLS);
 
     gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_MAIN_CONTAINER);
 
-    titlePage = new Label(MAIN_TITLE);
+    titlePage = new Label(mainTitle);
     createGameButton = new Button(BUTTONS_TEXTS[0]);
     viewGamesButton = new Button(BUTTONS_TEXTS[1]);
     editProfileButton = new Button(BUTTONS_TEXTS[2]);
@@ -59,7 +62,7 @@ public class Home {
     });
     viewGamesButton.attachActionListenerToButton(new ActionListener() {
       public void actionPerformed(ActionEvent me) {
-        redirectToCreateNewGameFrame();
+        redirectToListGamesFrame();
       }
     });
     editProfileButton.attachActionListenerToButton(new ActionListener() {
@@ -69,7 +72,7 @@ public class Home {
     });
     analyticsButton.attachActionListenerToButton(new ActionListener() {
       public void actionPerformed(ActionEvent me) {
-        redirectToCreateNewGameFrame();
+        redirectToAnalyticsFrame();
       }
     });
   }
@@ -79,8 +82,18 @@ public class Home {
     gridContainer.disposeFrame();
   }
 
+  private void redirectToListGamesFrame() {
+    ListGames listGames = new ListGames();
+    gridContainer.disposeFrame();
+  }
+
   private void redirectToUserRegistrationFrame() {
     UserRegistration userRegistration = new UserRegistration(true);
+    gridContainer.disposeFrame();
+  }
+
+  private void redirectToAnalyticsFrame() {
+    Analytics analytics = new Analytics();
     gridContainer.disposeFrame();
   }
 }
