@@ -12,14 +12,12 @@ public class AnalyticsDataPage {
     private static final String TITLE_WINDOW = "Il Paroliere - Analitycs";
     private static final String BUTTON_BACK_HOME_TEXT = "Torna alla Home";
     private static final String BUTTON_BACK_ANALYTICS_TEXT = "Torna ad analytics";
-    private static final String BUTTON_PREVIOUS_PAGE_TEXT = "Pagina Precedente";
-    private static final String BUTTON_NEXT_PAGE_TEXT = "Pagina Successiva";
     private static final int COLS_MAIN_CONTAINER = 1;
-    private static final int COLS_BUTTONS = 4;
+    private static final int COLS_BUTTONS = 2;
     private static final int ROWS = 0;
 
     private String mainTitle = "Analytics - ";
-    private Button backToHome, backToAnalytics, nextPage, previousPage;
+    private Button backToHome, backToAnalytics;
     private Label titlePage, data;
     private GridFrame gridButtonFrame, gridContainer, parentGridAnalytics;
 
@@ -38,8 +36,6 @@ public class AnalyticsDataPage {
 
         backToHome = new Button(BUTTON_BACK_HOME_TEXT);
         backToAnalytics = new Button(BUTTON_BACK_ANALYTICS_TEXT);
-        previousPage = new Button(BUTTON_PREVIOUS_PAGE_TEXT);
-        nextPage = new Button(BUTTON_NEXT_PAGE_TEXT);
 
         addAllEventListeners();
 
@@ -48,8 +44,6 @@ public class AnalyticsDataPage {
 
         gridButtonFrame.addToView(backToHome);
         gridButtonFrame.addToView(backToAnalytics);
-        gridButtonFrame.addToView(previousPage);
-        gridButtonFrame.addToView(nextPage);
 
         gridContainer.addToView(gridButtonFrame);
 
