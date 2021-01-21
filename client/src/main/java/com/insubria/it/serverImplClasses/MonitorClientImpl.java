@@ -170,7 +170,7 @@ public class MonitorClientImpl extends UnicastRemoteObject implements MonitorCli
      * and the String[] array with values need to be returned to the client It is
      * implemented client side
      */
-    public void confirmGetListOfGames(String[] result) throws RemoteException {}
+    public void confirmGetListOfGames(String[][] result) throws RemoteException {}
 
     /**
      * The signature of the errorGetListOfGames method Called when query didn't go

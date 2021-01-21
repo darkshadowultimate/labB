@@ -65,6 +65,11 @@ public class GameThread extends UnicastRemoteObject implements Game {
     private GameClient gameCreator;
 
     /**
+     * It represents the matrix used in the game session
+     */
+    private String[][] randomMatrix;
+
+    /**
      * It represents the ArrayList that contains the references to the clients that
      * are in the game
      */
@@ -216,6 +221,8 @@ public class GameThread extends UnicastRemoteObject implements Game {
                 System.err.println("Error in the current thread" + exc);
             }
         }
+
+        this.randomMatrix = randomMatrix;
 
         for (GameClient item : this.gameClientObservers) {
             try {
@@ -545,8 +552,8 @@ public class GameThread extends UnicastRemoteObject implements Game {
 
                 // Check the word exists in the dictionary
                 if (this.dictionary.exists(singleWord)) {
-                    // @TODO: Check the word exists in the matrix
-                    if (/* Check the word exists in the matrix */true) {
+                    // Check the word exists in the matrix
+                    if (this.gameUtil.checkWordInMatrix(this.randomMatrix, singleWord)) {
                         if (singleWord.length() >= 3) {
                             String sqlQuery = "SELECT * FROM discover WHERE word = ? AND id_game = ? AND session_number_enter = ?";
                             PreparedStatement pst1 = null;

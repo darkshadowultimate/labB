@@ -62,7 +62,7 @@ public class Home {
     });
     viewGamesButton.attachActionListenerToButton(new ActionListener() {
       public void actionPerformed(ActionEvent me) {
-        redirectToCreateNewGameFrame();
+        redirectToListGamesFrame();
       }
     });
     editProfileButton.attachActionListenerToButton(new ActionListener() {
@@ -79,6 +79,11 @@ public class Home {
 
   private void redirectToCreateNewGameFrame() {
     CreateNewGame createNewGame = new CreateNewGame();
+    gridContainer.disposeFrame();
+  }
+
+  private void redirectToListGamesFrame() {
+    ListGames listGames = new ListGames();
     gridContainer.disposeFrame();
   }
 

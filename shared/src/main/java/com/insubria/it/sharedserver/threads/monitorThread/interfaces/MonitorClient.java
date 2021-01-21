@@ -172,7 +172,7 @@ public interface MonitorClient extends Remote {
      * and the String[] array with values need to be returned to the client It is
      * implemented client side
      */
-    void confirmGetListOfGames(String[] result) throws RemoteException;
+    void confirmGetListOfGames(String[][] result) throws RemoteException;
 
     /**
      * The signature of the errorGetListOfGames method Called when query didn't go
