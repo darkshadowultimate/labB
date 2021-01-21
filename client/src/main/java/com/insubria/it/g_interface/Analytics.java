@@ -515,6 +515,6 @@ public class Analytics {
     }
 
     private void redirectToAnalyticsPagination(String sectionToLoad, String dataFromServer) {
-        AnalyticsPagination analyticsPagination = new AnalyticsPagination(gridContainer, sectionToLoad, dataFromServer, 1);
+        AnalyticsDataPage analyticsDataPage = new AnalyticsDataPage(gridContainer, sectionToLoad, dataFromServer);
     }
 }
