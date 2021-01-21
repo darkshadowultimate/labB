@@ -29,11 +29,6 @@ public class MonitorThread extends Monitor implements Runnable {
      */
     private final MonitorClient monitorClient;
 
-    /**
-     * It represents the page of the statistics to reach (pagination on the DB to
-     * avoid reaching thoudands of rows at the same time)
-     */
-    private int page;
 
     /**
      * It represents the status of the game
@@ -50,6 +45,7 @@ public class MonitorThread extends Monitor implements Runnable {
      */
     private Database db;
 
+    
     /**
      * It represents the string that has the keyword to let the run method
      * understand which method to call and execute
@@ -58,13 +54,6 @@ public class MonitorThread extends Monitor implements Runnable {
 
     public MonitorThread(MonitorClient monitorClient, String action, Database db) {
         this.monitorClient = monitorClient;
-        this.action = action;
-        this.db = db;
-    }
-
-    public MonitorThread(MonitorClient monitorClient, int page, String action, Database db) {
-        this.monitorClient = monitorClient;
-        this.page = page;
         this.action = action;
         this.db = db;
     }
