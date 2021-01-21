@@ -1,5 +1,9 @@
 package com.insubria.it.threads.monitorThread;
 
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,11 +13,6 @@ import com.insubria.it.sharedserver.threads.monitorThread.interfaces.MonitorClie
 import com.insubria.it.threads.monitorThread.abstracts.Monitor;
 
 import java.rmi.RemoteException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * The MonitorThread class represents the thread that will be created for each
@@ -30,11 +29,6 @@ public class MonitorThread extends Monitor implements Runnable {
      */
     private final MonitorClient monitorClient;
 
-    /**
-     * It represents the page of the statistics to reach (pagination on the DB to
-     * avoid reaching thoudands of rows at the same time)
-     */
-    private int page;
 
     /**
      * It represents the status of the game
@@ -51,6 +45,7 @@ public class MonitorThread extends Monitor implements Runnable {
      */
     private Database db;
 
+    
     /**
      * It represents the string that has the keyword to let the run method
      * understand which method to call and execute
@@ -59,13 +54,6 @@ public class MonitorThread extends Monitor implements Runnable {
 
     public MonitorThread(MonitorClient monitorClient, String action, Database db) {
         this.monitorClient = monitorClient;
-        this.action = action;
-        this.db = db;
-    }
-
-    public MonitorThread(MonitorClient monitorClient, int page, String action, Database db) {
-        this.monitorClient = monitorClient;
-        this.page = page;
         this.action = action;
         this.db = db;
     }
@@ -306,41 +294,51 @@ public class MonitorThread extends Monitor implements Runnable {
      * (each item represents a row of the DB query)
      * 
      * @param result - The DB query result
-     * @param lenght - The number of columns of the result table
+     * @param length - The number of columns of the result table
      * 
      * @return - An array of String
      * @throws SQLException - If there is an error while the DB operations, it
      *                      throws SQLException
      */
-    private String[] transformString(ResultSet result, int lenght) throws SQLException {
-        String[] returnArray = new String[10];
+    private String[] transformString(ResultSet result, int length) throws SQLException {
+        ArrayList<String> returnArray = new ArrayList<String>();
         String tmp = "";
-        int i = 0;
         while (result.next()) {
-            for (int index = 0; index < lenght; index++) {
-                tmp += (String) result.getObject(index + 1) + " ";
+            for (int index = 0; index < length; index++) {
+                Object currentObjResultSet = result.getObject(index + 1);
+
+                if(currentObjResultSet instanceof Integer) {
+                    tmp += Integer.toString(((Integer) currentObjResultSet).intValue());
+                } else if(currentObjResultSet instanceof Timestamp) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    tmp += dateFormat.format(new Date());
+                } else if(currentObjResultSet instanceof Long) {
+                    tmp += Long.toString(((Long) currentObjResultSet).longValue());
+                } else {
+                    tmp += (String) currentObjResultSet;
+                }
+                tmp += "//";
             }
-            returnArray[i++] = tmp;
+            returnArray.add(tmp);
             tmp = "";
         }
-        return returnArray;
+
+        return returnArray.toArray(new String[0]);
     }
 
     /**
      * This is the method called when the user wants to retrieve the occurrence of
      * the valid words
      * 
-     * @param page - The number of page to retrieve from the DB
-     * 
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      * @throws SQLException    - If there is an error while the DB operations, it
      *                         throws SQLException
      */
-    protected void validWordsOccurrences(int page) throws RemoteException, SQLException {
+    protected void validWordsOccurrences() throws RemoteException, SQLException {
         System.out.println("Reaching the valid word occurrences list...");
         String sqlQuery = "SELECT word, COUNT(*) as occurrences " + "FROM discover " + "WHERE is_valid = True "
-                + "GROUP BY word " + "ORDER BY occurrences DESC " + "LIMIT 10 OFFSET " + (page - 1) * 10 + ";";
+                + "GROUP BY word " + "ORDER BY occurrences DESC;";
         Connection dbConnection = null;
         Statement stm = null;
         try {
@@ -368,14 +366,12 @@ public class MonitorThread extends Monitor implements Runnable {
      * This is the method called when the user wants to retrieve the list of words
      * that gave more scores
      * 
-     * @param page - The number of page to retrieve from the DB
-     * 
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      * @throws SQLException    - If there is an error while the DB operations, it
      *                         throws SQLException
      */
-    protected void wordHighestScore(int page) throws RemoteException, SQLException {
+    protected void wordHighestScore() throws RemoteException, SQLException {
         System.out.println("Reaching the highest score valid words...");
         String sqlQuery = "SELECT DISTINCT word, id_game, score " + "FROM discover " + "WHERE is_valid = True "
                 + "ORDER BY score DESC;";
@@ -558,17 +554,15 @@ public class MonitorThread extends Monitor implements Runnable {
      * This is the method called when the user wants to retrieve the words that have
      * the highest number of definition requests
      * 
-     * @param page - The number of page to retrieve from the DB
-     * 
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      * @throws SQLException    - If there is an error while the DB operations, it
      *                         throws SQLException
      */
-    protected void definitionRequest(int page) throws RemoteException, SQLException {
+    protected void definitionRequest() throws RemoteException, SQLException {
         System.out.println("Reaching the words users required the definition...");
         String sqlQuery = "SELECT word, AVG(n_requests) as avg_requests " + "FROM discover " + "WHERE n_requests > 0 "
-                + "GROUP BY word " + "ORDER BY AVG(n_requests) DESC " + "LIMIT 10 OFFSET " + (page - 1) * 10 + ";";
+                + "GROUP BY word " + "ORDER BY AVG(n_requests) DESC;";
         Connection dbConnection = null;
         Statement stm = null;
         try {
@@ -596,17 +590,14 @@ public class MonitorThread extends Monitor implements Runnable {
      * This is the method called when the user wants to retrieve the games that have
      * the highest number of definition requests (for words)
      * 
-     * @param page - The number of page to retrieve from the DB
-     * 
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      * @throws SQLException    - If there is an error while the DB operations, it
      *                         throws SQLException
      */
-    protected void gameDefinitionRequest(int page) throws RemoteException, SQLException {
+    protected void gameDefinitionRequest() throws RemoteException, SQLException {
         System.out.println("Reaching the games where users required the definition...");
-        String sqlQuery = "SELECT DISTINCT id_game " + "FROM discover " + "WHERE n_requests > 0 " + "LIMIT 10 OFFSET "
-                + (page - 1) * 10 + ";";
+        String sqlQuery = "SELECT DISTINCT id_game " + "FROM discover " + "WHERE n_requests > 0;";
         Connection dbConnection = null;
         Statement stm = null;
         try {
@@ -631,59 +622,15 @@ public class MonitorThread extends Monitor implements Runnable {
     }
 
     /**
-     * This is the method called when the user wants to retrieve the list of games
-     * (with date, max players and actual players) for both "open" and "playing"
-     * statuses
-     * 
-     * @param status - The status of the games to retrieve
-     * 
-     * @throws RemoteException - If there is an error while the client contact, it
-     *                         throws RemoteException
-     * @throws SQLException    - If there is an error while the DB operations, it
-     *                         throws SQLException
-     */
-    protected void getListOfGames(String status) throws RemoteException, SQLException {
-        System.out.println("Reaching the games with info...");
-        String sqlQuery = "SELECT g.id, g.date, g.max_players, COUNT(DISTINCT email_user) as actual_players "
-                + "FROM game as g INNER JOIN enter as e on g.id = e.id_game " + "WHERE g.status =  ? "
-                + "GROUP BY g.id, g.date, g.max_players;";
-        Connection dbConnection = null;
-        PreparedStatement pst = null;
-        try {
-            dbConnection = this.db.getDatabaseConnection();
-
-            pst =  dbConnection.prepareStatement(sqlQuery);
-            pst.setString(1, status);
-        } catch (SQLException exc) {
-            System.err.println("Error while establishing the connection with the DB " + exc);
-        }
-
-        ResultSet result = this.db.peroformComplexQuery(pst);
-        if (result.isBeforeFirst()) {
-            System.out.println("Successfully performed the query");
-            String[] clientResult = this.transformString(result, 4);
-            this.monitorClient.confirmGetListOfGames(clientResult);
-        } else {
-            System.out.println("No sessions played yet");
-            this.monitorClient.errorGetListOfGames("No sessions played yet");
-        }
-        result.close();
-        pst.close();
-        dbConnection.close();
-    }
-
-    /**
-     * This is the method called when the user wants to retrieve the list of players
+     * This method is called when we needs to retrieve the list of players
      * for a specific game
      * 
      * @param id - The id of the game
-     * 
-     * @throws RemoteException - If there is an error while the client contact, it
-     *                         throws RemoteException
+     *
      * @throws SQLException    - If there is an error while the DB operations, it
      *                         throws SQLException
      */
-    protected void getListOfPlayersForGame(int id) throws RemoteException, SQLException {
+    private String getListOfPlayersForGame(int id) throws SQLException {
         System.out.println("Reaching the players for a game...");
         String sqlQuery = "SELECT DISTINCT username_user FROM enter WHERE id_game = ?";
         Connection dbConnection = null;
@@ -699,13 +646,103 @@ public class MonitorThread extends Monitor implements Runnable {
         }
 
         ResultSet result = this.db.peroformComplexQuery(pst);
+        String returnValue = null;
         if (result.isBeforeFirst()) {
             System.out.println("Successfully performed the query");
-            String[] clientResult = this.transformString(result, 1);
-            this.monitorClient.confirmGetListOfPlayersForGame(clientResult);
+            returnValue = this.lintListOfPlayers(result);
+        } else {
+            System.out.println("No players");
+        }
+        result.close();
+        pst.close();
+        dbConnection.close();
+
+        return returnValue;
+    }
+
+    /**
+     * This method is used to create a String that represents the list of players
+     * 
+     * @param result - The ResultSet that contains the players for a spaecific game
+     * 
+     * @throws SQLException - If there is an error while the DB operations, it
+     *                         throws SQLException
+     */
+    private String lintListOfPlayers(ResultSet result) throws SQLException {
+        String returnString = "";
+        while (result.next()) {
+            returnString += result.getString("username_user") + " \n";
+        }
+
+        return returnString;
+    }
+
+    /**
+     * This method creates a matrix that contains the game info in the row 0 and players of the game in row 1
+     * 
+     * @param listGames - The list of games
+     * @param listPlayers - List of players for each game
+     * 
+     * @return - The matrix
+     */
+    private String[][] populateReturnMatrix (String[] listGames, String[] listPlayers) {
+        String[][] returnValue = new String[2][listGames.length];
+
+        for (int index = 0; index < listGames.length; index++) {
+            returnValue[0][index] = listGames[index];
+            returnValue[1][index] = listPlayers[index];
+        }
+
+        return returnValue;
+    }
+
+    /**
+     * This is the method called when the user wants to retrieve the list of games
+     * (with date, max players and actual players) for both "open" and "playing"
+     * statuses
+     * 
+     * @param status - The status of the games to retrieve
+     * 
+     * @throws RemoteException - If there is an error while the client contact, it
+     *                         throws RemoteException
+     * @throws SQLException    - If there is an error while the DB operations, it
+     *                         throws SQLException
+     */
+    protected void getListOfGames(String status) throws RemoteException, SQLException {
+        System.out.println("Reaching the games with info...");
+        String sqlQuery = "SELECT g.id, g.name, g.date, g.max_players, COUNT(DISTINCT email_user) as actual_players, g.status "
+                + "FROM game as g INNER JOIN enter as e on g.id = e.id_game WHERE g.status = ? "
+                + "GROUP BY g.id, g.date, g.max_players;";
+        Connection dbConnection = null;
+        PreparedStatement pst = null;
+
+        try {
+            dbConnection = this.db.getDatabaseConnection();
+
+            pst =  dbConnection.prepareStatement(sqlQuery, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            pst.setString(1, status);
+        } catch (SQLException exc) {
+            System.err.println("Error while establishing the connection with the DB " + exc);
+        }
+
+        ResultSet result = this.db.peroformComplexQuery(pst);
+
+        if (result.isBeforeFirst()) {
+            System.out.println("Successfully performed the query");
+            String[] gameList = this.transformString(result, 6);
+
+            result.beforeFirst();
+
+            String[] playersList = new String[gameList.length];
+            for (int index = 0; result.next(); index++) {
+                playersList[index] = this.getListOfPlayersForGame(result.getInt("id"));
+            }
+
+            String[][] clientResult = this.populateReturnMatrix(gameList, playersList);
+            this.monitorClient.confirmGetListOfGames(clientResult);
         } else {
             System.out.println("No sessions played yet");
-            this.monitorClient.errorGetListOfPlayersForGame("No sessions played yet");
+            this.monitorClient.errorGetListOfGames("No sessions played yet");
         }
         result.close();
         pst.close();
@@ -807,7 +844,7 @@ public class MonitorThread extends Monitor implements Runnable {
             }
             case "validWordsOccurrences": {
                 try {
-                    this.validWordsOccurrences(this.page);
+                    this.validWordsOccurrences();
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {
@@ -824,7 +861,7 @@ public class MonitorThread extends Monitor implements Runnable {
             }
             case "wordHighestScore": {
                 try {
-                    this.wordHighestScore(this.page);
+                    this.wordHighestScore();
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {
@@ -892,7 +929,7 @@ public class MonitorThread extends Monitor implements Runnable {
             }
             case "definitionRequest": {
                 try {
-                    this.definitionRequest(this.page);
+                    this.definitionRequest();
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {
@@ -909,7 +946,7 @@ public class MonitorThread extends Monitor implements Runnable {
             }
             case "gameDefinitionRequest": {
                 try {
-                    this.gameDefinitionRequest(this.page);
+                    this.gameDefinitionRequest();
                 } catch (RemoteException exc) {
                     System.err.println("Error while contacting the client " + exc);
                     try {
@@ -944,12 +981,6 @@ public class MonitorThread extends Monitor implements Runnable {
             case "getListOfPlayersForGame": {
                 try {
                     this.getListOfPlayersForGame(this.id);
-                } catch (RemoteException exc) {
-                    System.err.println("Error while contacting the client " + exc);
-                    try {
-                        this.monitorClient.errorGetListOfPlayersForGame("Error while contacting the client " + exc);
-                    } catch (RemoteException e) {
-                    }
                 } catch (SQLException exc) {
                     try {
                         this.monitorClient.errorGetListOfPlayersForGame("Error while performing DB operations " + exc);

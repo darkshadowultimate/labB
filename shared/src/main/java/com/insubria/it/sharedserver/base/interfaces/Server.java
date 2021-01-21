@@ -81,13 +81,13 @@ public interface Server extends Remote {
    * The signature of the validWordsOccurrences method. This method is defined in
    * the ServerImpl class
    */
-  void validWordsOccurrences(MonitorClient monitorClient, int page) throws RemoteException;
+  void validWordsOccurrences(MonitorClient monitorClient) throws RemoteException;
 
   /**
    * The signature of the wordHighestScore method. This method is defined in the
    * ServerImpl class
    */
-  void wordHighestScore(MonitorClient monitorClient, int page) throws RemoteException;
+  void wordHighestScore(MonitorClient monitorClient) throws RemoteException;
 
   /**
    * The signature of the averageRounds method. This method is defined in the
@@ -111,29 +111,23 @@ public interface Server extends Remote {
    * The signature of the definitionRequest method. This method is defined in the
    * ServerImpl class
    */
-  void definitionRequest(MonitorClient monitorClient, int page) throws RemoteException;
+  void definitionRequest(MonitorClient monitorClient) throws RemoteException;
 
   /**
    * The signature of the gameDefinitionRequest method. This method is defined in
    * the ServerImpl class
    */
-  void gameDefinitionRequest(MonitorClient monitorClient, int page) throws RemoteException;
+  void gameDefinitionRequest(MonitorClient monitorClient) throws RemoteException;
 
   /**
    * The signature of the createNewGame method. This method is defined in the
    * ServerImpl class
    */
-  void  createNewGame(String name, int maxPlayers, GameClient gameCreator) throws RemoteException, IOException;
+  void createNewGame(String name, int maxPlayers, GameClient gameCreator) throws RemoteException, IOException;
 
   /**
    * The signature of the getListOfGames method. This method is defined in the
    * ServerImpl class
    */
   void getListOfGames(MonitorClient monitorClient, String status) throws RemoteException;
-
-  /**
-   * The signature of the getListOfPlayersForGame method. This method is defined
-   * in the ServerImpl class
-   */
-  void getListOfPlayersForGame(MonitorClient monitorClient, int id) throws RemoteException;
 }

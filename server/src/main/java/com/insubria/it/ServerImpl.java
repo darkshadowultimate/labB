@@ -245,12 +245,11 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
    * 
    * @param monitorClient - The reference to the remote object that represents the
    *                      client (user) that made the request
-   * @param page          - The number of page to retrieve from the DB
    * 
    * @throws RemoteException - Thrown if there are errors while the remote call
    */
-  public void validWordsOccurrences(MonitorClient monitorClient, int page) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "validWordsOccurrences", this.db);
+  public void validWordsOccurrences(MonitorClient monitorClient) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "validWordsOccurrences", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
@@ -263,12 +262,11 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
    * 
    * @param monitorClient - The reference to the remote object that represents the
    *                      client (user) that made the request
-   * @param page          - The number of page to retrieve from the DB
    * 
    * @throws RemoteException - Thrown if there are errors while the remote call
    */
-  public void wordHighestScore(MonitorClient monitorClient, int page) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "wordHighestScore", this.db);
+  public void wordHighestScore(MonitorClient monitorClient) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "wordHighestScore", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
@@ -332,12 +330,11 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
    * 
    * @param monitorClient - The reference to the remote object that represents the
    *                      client (user) that made the request
-   * @param page          - The number of page to retrieve from the DB
    * 
    * @throws RemoteException - Thrown if there are errors while the remote call
    */
-  public void definitionRequest(MonitorClient monitorClient, int page) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "definitionRequest", this.db);
+  public void definitionRequest(MonitorClient monitorClient) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "definitionRequest", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
@@ -350,16 +347,27 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
    * 
    * @param monitorClient - The reference to the remote object that represents the
    *                      client (user) that made the request
-   * @param page          - The number of page to retrieve from the DB
    * 
    * @throws RemoteException - Thrown if there are errors while the remote call
    */
-  public void gameDefinitionRequest(MonitorClient monitorClient, int page) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, page, "gameDefinitionRequest", this.db);
+  public void gameDefinitionRequest(MonitorClient monitorClient) throws RemoteException {
+    MonitorThread monitorThread = new MonitorThread(monitorClient, "gameDefinitionRequest", this.db);
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
 
+  /**
+   * This is a remote method that is called by the client when it needs to
+   * create a new game. This method will create a new object and call its run method. The run
+   * method will register the object as an RMI remote object.
+   * 
+   * @param name - The name of the game
+   * @param maxPlayers - The maximum number of users in the game
+   * @param gameCreator - The reference to the game creator
+   * 
+   * @throws RemoteException - Thrown if there are errors while the remote call
+   * @throws IOException - Thrown if there are errors while the dictionary handling
+   */
   public void createNewGame(String name, int maxPlayers, GameClient gameCreator) throws RemoteException, IOException {
     GameThread gameThread = new GameThread(gameCreator, name, maxPlayers, this.db);
     gameThread.run();
@@ -379,24 +387,6 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
    */
   public void getListOfGames(MonitorClient monitorClient, String status) throws RemoteException {
     MonitorThread monitorThread = new MonitorThread(monitorClient, status, "getListOfGames", this.db);
-    Thread thread = new Thread(monitorThread);
-    thread.start();
-  }
-
-  /**
-   * This is a remote method that is called by the client when it needs to
-   * retrieve the list of players for a specific game This method will create a
-   * MonitorThread thread and pass the "getListOfPlayersForGame" value to the
-   * action attribute
-   * 
-   * @param monitorClient - The reference to the remote object that represents the
-   *                      client (user) that made the request
-   * @param id            - The id of the game
-   * 
-   * @throws RemoteException - Thrown if there are errors while the remote call
-   */
-  public void getListOfPlayersForGame(MonitorClient monitorClient, int id) throws RemoteException {
-    MonitorThread monitorThread = new MonitorThread(monitorClient, id, this.db, "getListOfPlayersForGame");
     Thread thread = new Thread(monitorThread);
     thread.start();
   }
