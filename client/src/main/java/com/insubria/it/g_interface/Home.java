@@ -62,7 +62,7 @@ public class Home {
     });
     viewGamesButton.attachActionListenerToButton(new ActionListener() {
       public void actionPerformed(ActionEvent me) {
-        redirectToCreateNewGameFrame();
+        redirectToListGamesFrame();
       }
     });
     editProfileButton.attachActionListenerToButton(new ActionListener() {
@@ -72,7 +72,7 @@ public class Home {
     });
     analyticsButton.attachActionListenerToButton(new ActionListener() {
       public void actionPerformed(ActionEvent me) {
-        redirectToCreateNewGameFrame();
+        redirectToAnalyticsFrame();
       }
     });
   }
@@ -82,8 +82,18 @@ public class Home {
     gridContainer.disposeFrame();
   }
 
+  private void redirectToListGamesFrame() {
+    ListGames listGames = new ListGames();
+    gridContainer.disposeFrame();
+  }
+
   private void redirectToUserRegistrationFrame() {
     UserRegistration userRegistration = new UserRegistration(true);
+    gridContainer.disposeFrame();
+  }
+
+  private void redirectToAnalyticsFrame() {
+    Analytics analytics = new Analytics();
     gridContainer.disposeFrame();
   }
 }

@@ -77,7 +77,7 @@ public class CreateNewGame {
 
                     GameContextProvider.setGameReference(gameThread);
 
-                    redirectToHomeFrame();
+                    redirectToWaitingRoomFrame();
                   }
 
                   @Override
@@ -110,8 +110,8 @@ public class CreateNewGame {
       (numMaxPlayers > 1 && numMaxPlayers < 7);
   }
 
-  private void redirectToHomeFrame() {
-    Home home = new Home();
+  private void redirectToWaitingRoomFrame() {
+    WaitingPlayers waitingPlayers = new WaitingPlayers(true);
     //gridFrame.disposeFrame();
   }
 }
