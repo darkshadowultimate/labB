@@ -9,7 +9,8 @@ public class Label extends GraphicComponent {
   private JLabel label;
 
   public Label(String text) {
-    this.label = new JLabel(text.length() > 0 ? text : "undefined", SwingConstants.CENTER);
+    String labelText = text == null || text.length() < 1 ? "NULL value" : text;
+    this.label = new JLabel(labelText, SwingConstants.CENTER);
   }
 
   public void attachMouseListener(MouseAdapter event) {
