@@ -1,6 +1,7 @@
 package com.insubria.it;
 
 import java.awt.*;
+import java.net.SocketPermission;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
@@ -17,6 +18,8 @@ public class Main {
 
 		public static void main(String[] args) {
 				RemoteObjectContextProvider.setServerRemoteObject(args);
+
+				//SocketPermission perm = new SocketPermission("localhost:1024-", "accept,connect,listen,resolve");
 
 				LoginUtente loginUtente = new LoginUtente();
 				// UserRegistration registration = new UserRegistration();

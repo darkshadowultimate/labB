@@ -83,7 +83,7 @@ public class Home {
   }
 
   private void redirectToListGamesFrame() {
-    ListGames listGames = new ListGames();
+    ListGames listGames = new ListGames("open");
     gridContainer.disposeFrame();
   }
 

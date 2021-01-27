@@ -19,10 +19,10 @@ public class RemoteObjectContextProvider {
   public static Server server;
 
   private static void setRegistryFromServer(String[] arguments) {
-    if (System.getSecurityManager() == null) {
+    /*if (System.getSecurityManager() == null) {
       System.out.println("Configuration Security Manager...");
       System.setSecurityManager(new SecurityManager());
-    }
+    }*/
 
     IP_ADDRESS_SERVER = arguments.length > 0 ? arguments[0] : LOCALHOST;
 
