@@ -6,6 +6,7 @@ import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GameClientImpl extends UnicastRemoteObject implements GameClient {
 
@@ -106,7 +107,7 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
         String name,
         int sessionNumber,
         String[][] matrix,
-        int playerScore
+        HashMap<String, Integer> playerScore
     ) throws RemoteException {}
 
     /**

@@ -207,7 +207,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
                     pst.close();
                     this.dbConnection.close();
 
-                    this.removeGame();
+                    this.removeObject();
                 } else {
                     // New session needs to be triggered
                     this.gameUtil.createNewEnterForNewSession(this.idGame, this.sessionNumber, stringMatrix,
@@ -227,7 +227,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
         for (GameClient item : this.gameClientObservers) {
             try {
                 item.confirmGameSession(this.name, this.sessionNumber, randomMatrix,
-                        playerScore.get(item.getUsername()));
+                        playerScore);
             } catch (RemoteException exc) {
                 System.err.println("Error while contacting the player");
             }
