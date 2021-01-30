@@ -8,7 +8,6 @@ import com.insubria.it.serverImplClasses.MonitorClientImpl;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.SocketPermission;
 import java.rmi.RemoteException;
 import java.util.concurrent.CompletableFuture;
 
@@ -29,14 +28,15 @@ public class ListGames {
     private static final String GET_LIST_GAMES_ERROR_TEXT = "Ops... Sembra che ci sia stato un errore nel caricare le partite";
     private static final int ROWS = 0;
     private static final int COLS_CONTAINER = 1;
-    private static final int COLS_TABLE_GAMES = 6;
+    private static final int COLS_TITLES = 7;
     private static final int COLS_BUTTONS = 4;
 
     private String[][] gameUserMatrix;
     private SingleGame[] singleGames;
     private Label[] gameNameText, dateText, maxPlayersText, currentPlayersText, playersText, gameStatusText;
     private Label mainTitle, noGamesAvailableLabel;
-    private Button viewOpenGamesButton, viewStartedGamesButton, joinGameButton, homeButton;
+    private ButtonWithData[] joinGameButton;
+    private Button viewOpenGamesButton, viewStartedGamesButton, homeButton;
     private GridFrame gridContainer, gridTableGames, gridButtons;
 
     public ListGames(String gameStatus) {
@@ -45,7 +45,7 @@ public class ListGames {
         boolean noGamesFetched = gameUserMatrix == null;
 
         gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_CONTAINER);
-        gridTableGames = new GridFrame(ROWS, COLS_TABLE_GAMES);
+        gridTableGames = new GridFrame(ROWS, COLS_TITLES);
         gridButtons = new GridFrame(ROWS, COLS_BUTTONS);
 
         mainTitle = new Label(MAIN_TITLE);
@@ -58,14 +58,12 @@ public class ListGames {
 
         viewOpenGamesButton = new Button(OPEN_GAMES_BUTTON);
         viewStartedGamesButton = new Button(STARTED_GAMES_BUTTON);
-        joinGameButton = new Button(JOIN_BUTTON);
         homeButton = new Button(HOME_BUTTON);
 
         addAllEventListeners();
 
         gridButtons.addToView(viewOpenGamesButton);
         gridButtons.addToView(viewStartedGamesButton);
-        gridButtons.addToView(joinGameButton);
         gridButtons.addToView(homeButton);
 
         gridContainer.addToView(mainTitle);
@@ -86,6 +84,7 @@ public class ListGames {
         currentPlayersText = new Label[lengthListGames];
         playersText = new Label[lengthListGames];
         gameStatusText = new Label[lengthListGames];
+        joinGameButton = new ButtonWithData[lengthListGames];
 
         gameNameText[0] = new Label(GAME_NAME_TEXT);
         dateText[0] = new Label(DATE_TEXT);
@@ -101,15 +100,32 @@ public class ListGames {
             currentPlayersText[i] = new Label(singleGames[i - 1].getCurrentNumPlayers());
             playersText[i] = new Label(singleGames[i - 1].getPlayers());
             gameStatusText[i] = new Label(singleGames[i - 1].getStatus());
+            joinGameButton[i] = new ButtonWithData(JOIN_BUTTON, singleGames[i - 1].getId());
         }
 
-        for(int i = 0; i < lengthListGames; i++) {
+        gridTableGames.addToView(gameNameText[0]);
+        gridTableGames.addToView(dateText[0]);
+        gridTableGames.addToView(maxPlayersText[0]);
+        gridTableGames.addToView(currentPlayersText[0]);
+        gridTableGames.addToView(playersText[0]);
+        gridTableGames.addToView(gameStatusText[0]);
+        gridTableGames.addToView(new Label(""));
+
+        for(int i = 1; i < lengthListGames; i++) {
             gridTableGames.addToView(gameNameText[i]);
             gridTableGames.addToView(dateText[i]);
             gridTableGames.addToView(maxPlayersText[i]);
             gridTableGames.addToView(currentPlayersText[i]);
             gridTableGames.addToView(playersText[i]);
             gridTableGames.addToView(gameStatusText[i]);
+
+
+            joinGameButton[i].attachActionListenerToButton(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JOptionPane.showMessageDialog(null, "HELLO");
+                }
+            });
+            gridTableGames.addToView(joinGameButton[i]);
         }
     }
 
@@ -166,11 +182,6 @@ public class ListGames {
         viewStartedGamesButton.attachActionListenerToButton(new ActionListener() {
             public void actionPerformed(ActionEvent me) {
                 redirectToNewListGame("started");
-            }
-        });
-        joinGameButton.attachActionListenerToButton(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-
             }
         });
         homeButton.attachActionListenerToButton(new ActionListener() {
