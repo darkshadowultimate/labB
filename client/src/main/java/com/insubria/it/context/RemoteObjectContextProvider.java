@@ -17,12 +17,13 @@ public class RemoteObjectContextProvider {
   private static String IP_ADDRESS_SERVER = null;
   private static Registry registry = null;
   public static Server server;
+  public static Game game;
 
   private static void setRegistryFromServer(String[] arguments) {
-    if (System.getSecurityManager() == null) {
+    /*if (System.getSecurityManager() == null) {
       System.out.println("Configuration Security Manager...");
       System.setSecurityManager(new SecurityManager());
-    }
+    }*/
 
     IP_ADDRESS_SERVER = arguments.length > 0 ? arguments[0] : LOCALHOST;
 
@@ -63,7 +64,7 @@ public class RemoteObjectContextProvider {
     server = (Server) getRemoteObjectFromRegistry("server");
   }
 
-  public static Game getGameThreadRemoteObect(String gameThreadId) {
-    return (Game) getRemoteObjectFromRegistry(gameThreadId);
+  public static void setGameRemoteObject(String idGame) {
+    game = (Game) getRemoteObjectFromRegistry(idGame);
   }
 }

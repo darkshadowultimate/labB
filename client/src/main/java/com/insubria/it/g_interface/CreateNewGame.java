@@ -31,7 +31,7 @@ public class CreateNewGame {
   private Label titleLabel;
   private InputLabel nameGame, numPlayers;
   private Button createGameButton;
-  private GridFrame gridFrame;
+  private static GridFrame gridFrame;
 
   public CreateNewGame() {
     gridFrame = new GridFrame(TITLE_WINDOW, ROWS, COLS);
@@ -68,25 +68,7 @@ public class CreateNewGame {
               .createNewGame(
                 nameGameString,
                 numPlayersInt,
-                new GameClientImpl(username, userEmail) {
-                  @Override
-                  public void confirmCreateNewGame(String gameThreadId) throws RemoteException {
-                    super.confirmCreateNewGame(gameThreadId);
-
-                    Game gameThread = RemoteObjectContextProvider.getGameThreadRemoteObect(gameThreadId);
-
-                    GameContextProvider.setGameReference(gameThread);
-
-                    redirectToWaitingRoomFrame();
-                  }
-
-                  @Override
-                  public void errorCreateNewGame(String reason) throws RemoteException {
-                    super.errorCreateNewGame(reason);
-
-                    JOptionPane.showMessageDialog(null, CREATE_GAME_ERROR_TEXT);
-                  }
-                }
+                GameContextProvider.getGameClientReference()
               );
             } catch(RemoteException exc) {
               exc.printStackTrace();
@@ -110,8 +92,8 @@ public class CreateNewGame {
       (numMaxPlayers > 1 && numMaxPlayers < 7);
   }
 
-  private void redirectToWaitingRoomFrame() {
-    WaitingPlayers waitingPlayers = new WaitingPlayers(true);
-    //gridFrame.disposeFrame();
+  public static void redirectToWaitingRoomFrame() {
+    WaitingPlayers waitingPlayers = new WaitingPlayers();
+    gridFrame.disposeFrame();
   }
 }
