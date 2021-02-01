@@ -1,9 +1,13 @@
 package com.insubria.it.g_interface;
 
+import com.insubria.it.context.GameContextProvider;
+import com.insubria.it.context.PlayerContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
 import com.insubria.it.models.SingleGame;
+import com.insubria.it.serverImplClasses.GameClientImpl;
 import com.insubria.it.serverImplClasses.MonitorClientImpl;
+import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -37,7 +41,8 @@ public class ListGames {
     private Label mainTitle, noGamesAvailableLabel;
     private ButtonWithData[] joinGameButton;
     private Button viewOpenGamesButton, viewStartedGamesButton, homeButton;
-    private GridFrame gridContainer, gridTableGames, gridButtons;
+    private static GridFrame gridContainer;
+    private GridFrame gridTableGames, gridButtons;
 
     public ListGames(String gameStatus) {
         getListOfGamesFromServer(gameStatus).join();
@@ -53,7 +58,7 @@ public class ListGames {
         if(noGamesFetched) {
             noGamesAvailableLabel = new Label(NO_GAMES_AVAILABLE);
         } else {
-            createListGameTable();
+            createListGameTable(gameStatus);
         }
 
         viewOpenGamesButton = new Button(OPEN_GAMES_BUTTON);
@@ -73,7 +78,7 @@ public class ListGames {
         gridContainer.showWindow(1200, 500);
     }
 
-    private void createListGameTable() {
+    private void createListGameTable(String gameStatus) {
         singleGames = createListOfSingleGames(gameUserMatrix);
 
         int lengthListGames = singleGames.length + 1;
@@ -100,7 +105,26 @@ public class ListGames {
             currentPlayersText[i] = new Label(singleGames[i - 1].getCurrentNumPlayers());
             playersText[i] = new Label(singleGames[i - 1].getPlayers());
             gameStatusText[i] = new Label(singleGames[i - 1].getStatus());
-            joinGameButton[i] = new ButtonWithData(JOIN_BUTTON, singleGames[i - 1].getId());
+
+            if(gameStatus.equals("open")) {
+                joinGameButton[i] = new ButtonWithData(JOIN_BUTTON, singleGames[i - 1].getId());
+
+                final String idGameCopy = singleGames[i - 1].getId();
+
+                joinGameButton[i].attachActionListenerToButton(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            RemoteObjectContextProvider.setGameRemoteObject(idGameCopy);
+
+                            RemoteObjectContextProvider
+                            .game
+                            .addNewPlayer(GameContextProvider.getGameClientReference());
+                        } catch(RemoteException exc) {
+                            exc.printStackTrace();
+                        }
+                    }
+                });
+            }
         }
 
         gridTableGames.addToView(gameNameText[0]);
@@ -118,14 +142,9 @@ public class ListGames {
             gridTableGames.addToView(currentPlayersText[i]);
             gridTableGames.addToView(playersText[i]);
             gridTableGames.addToView(gameStatusText[i]);
-
-
-            joinGameButton[i].attachActionListenerToButton(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JOptionPane.showMessageDialog(null, "HELLO");
-                }
-            });
-            gridTableGames.addToView(joinGameButton[i]);
+            if(gameStatus.equals("open")) {
+                gridTableGames.addToView(joinGameButton[i]);
+            }
         }
     }
 
@@ -192,12 +211,17 @@ public class ListGames {
     }
 
     private void redirectToHomeFrame() {
-        Home home = new Home();
         gridContainer.disposeFrame();
+        Home home = new Home();
+    }
+
+    public static void redirectToWaitingPlayersFrame() {
+        gridContainer.disposeFrame();
+        WaitingPlayers waitingPlayers = new WaitingPlayers();
     }
 
     private void redirectToNewListGame(String statusGames) {
-        ListGames listGames = new ListGames(statusGames);
         gridContainer.disposeFrame();
+        ListGames listGames = new ListGames(statusGames);
     }
 }

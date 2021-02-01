@@ -1,12 +1,18 @@
 package com.insubria.it.serverImplClasses;
 
+import com.insubria.it.context.RemoteObjectContextProvider;
+import com.insubria.it.g_interface.CreateNewGame;
+import com.insubria.it.g_interface.ListGames;
+import com.insubria.it.g_interface.WaitingPlayers;
 import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
+import javax.swing.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 public class GameClientImpl extends UnicastRemoteObject implements GameClient {
 
@@ -38,19 +44,33 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * been created and the reference to the thread is returned to the client It is
      * implemented client side
      */
-    public void confirmCreateNewGame(String gameThreadId) throws RemoteException {}
+    public void confirmCreateNewGame(String gameThreadId) throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            RemoteObjectContextProvider.setGameRemoteObject(gameThreadId);
+
+            CreateNewGame.redirectToWaitingRoomFrame();
+        });
+    }
 
     /**
      * The signature of the errorCreateNewGame method Called when the game has not
      * created and the reason is returned It is implemented client side
      */
-    public void errorCreateNewGame(String reason) throws RemoteException {}
+    public void errorCreateNewGame(String reason) throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            JOptionPane.showMessageDialog(null, reason);
+        });
+    }
 
     /**
      * The signature of the confirmAddNewPlayer method Called when the player is
      * correctly added to the game It is implemented client side
      */
-    public void confirmAddNewPlayer() throws RemoteException {}
+    public void confirmAddNewPlayer() throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            ListGames.redirectToWaitingPlayersFrame();
+        });
+    }
 
     /**
      * The signature of the errorAddNewPlayer method Called when the player is not
@@ -63,14 +83,22 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * player is correctly removed form a not started game It is implemented client
      * side
      */
-    public void confirmRemovePlayerNotStartedGame() throws RemoteException {}
+    public void confirmRemovePlayerNotStartedGame() throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            WaitingPlayers.redirectToHomeFrame();
+        });
+    }
 
     /**
      * The signature of the errorRemovePlayerNotStartedGame method Called when the
      * player is not removed from a not started game and the reason is returned It
      * is implemented client side
      */
-    public void errorRemovePlayerNotStartedGame(String reason) throws RemoteException {}
+    public void errorRemovePlayerNotStartedGame(String reason) throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            JOptionPane.showMessageDialog(null, reason);
+        });
+    }
 
     /**
      * The signature of the gameHasBeenRemoved method Called when the game has been

@@ -1,37 +1,38 @@
 package com.insubria.it.g_interface;
 
+import com.insubria.it.context.GameContextProvider;
+import com.insubria.it.context.PlayerContextProvider;
+import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+import com.insubria.it.serverImplClasses.GameClientImpl;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
+import java.util.concurrent.CompletableFuture;
 
 public class WaitingPlayers {
     private static final String TITLE_WINDOW = "Il Paroliere - Attesa giocatori";
     private static final String WAIT_PLAYERS_TEXT = "In attesa di altri giocatori...";
-    private static final String MAX_PLAYERS_TEXT = "Max iscritti: ";
-    private static final String CURRENT_PLAYERS_TEXT = "Giocatori attuali: ";
     private static final String HOME_BUTTON = "Torna alla Home";
     private static final int ROWS = 0;
     private static final int COLS = 1;
 
-    private Label waitPlayersText, maxPlayersText, currentPlayersText;
+    private Label waitPlayersText;
     private Button cancel;
-    private GridFrame gridContainer;
+    private static GridFrame gridContainer;
 
-    public WaitingPlayers(boolean isGameCreator) {
+    public WaitingPlayers() {
         gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS);
 
         waitPlayersText = new Label(WAIT_PLAYERS_TEXT);
-        maxPlayersText = new Label(MAX_PLAYERS_TEXT);
-        currentPlayersText = new Label(CURRENT_PLAYERS_TEXT);
 
         cancel = new Button(HOME_BUTTON);
 
         addAllEventListeners();
 
         gridContainer.addToView(waitPlayersText);
-        gridContainer.addToView(maxPlayersText);
-        gridContainer.addToView(currentPlayersText);
 
         gridContainer.addToView(cancel);
 
@@ -41,13 +42,19 @@ public class WaitingPlayers {
     private void addAllEventListeners() {
         cancel.attachActionListenerToButton(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                redirectToHomeFrame();
+                try {
+                    RemoteObjectContextProvider
+                    .game
+                    .removePlayerNotStartedGame(GameContextProvider.getGameClientReference());
+                } catch(RemoteException exc) {
+                    exc.printStackTrace();
+                }
             }
         });
     }
 
-    private void redirectToHomeFrame() {
-        Home home = new Home();
+    public static void redirectToHomeFrame() {
         gridContainer.disposeFrame();
+        Home home = new Home();
     }
 }
