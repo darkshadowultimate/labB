@@ -101,7 +101,7 @@ public interface GameClient extends Remote {
      * The signature of the confirmGameSession method Called when a new session is
      * triggered and the player can start play It is implemented client side
      */
-    void confirmGameSession(String name, int sessionNumber, String[][] matrix, int playerScore) throws RemoteException;
+    void confirmGameSession(String name, int sessionNumber, String[][] matrix, HashMap<String, Integer> playerScores) throws RemoteException;
 
     /**
      * The signature of the triggerEndOfSession method Called when the current

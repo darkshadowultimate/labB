@@ -2,14 +2,16 @@ package com.insubria.it.models;
 
 public class SingleGame {
     private String id;
+    private String nameGame;
     private String dateCreation;
     private String maxPlayers;
     private String currentNumPlayers;
     private String players;
     private String status;
 
-    public SingleGame(String id, String dateCreation, String maxPlayers, String currentNumPlayers, String players, String status) {
+    public SingleGame(String id, String nameGame, String dateCreation, String maxPlayers, String currentNumPlayers, String players, String status) {
         this.id = id;
+        this.nameGame = nameGame;
         this.dateCreation = dateCreation;
         this.maxPlayers = maxPlayers;
         this.currentNumPlayers = currentNumPlayers;
@@ -24,6 +26,7 @@ public class SingleGame {
             gameFields[1],
             gameFields[2],
             gameFields[3],
+            gameFields[4],
             playersGame,
             gameFields[5]
         );
@@ -31,6 +34,10 @@ public class SingleGame {
 
     public String getId() {
         return id;
+    }
+
+    public String getNameGame() {
+        return nameGame;
     }
 
     public String getDateCreation() {
