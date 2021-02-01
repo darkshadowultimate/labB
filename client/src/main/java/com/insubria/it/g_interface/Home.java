@@ -33,6 +33,9 @@ public class Home {
     if(GameContextProvider.getGameClientReference() == null) {
       GameContextProvider.initGameClientReference();
     }
+    if(GameContextProvider.getGameReference() != null) {
+      GameContextProvider.setGameReference(null);
+    }
 
     gridButtonFrame = new GridFrame(ROWS, COLS);
 

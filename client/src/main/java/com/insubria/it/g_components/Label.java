@@ -28,4 +28,6 @@ public class Label extends GraphicComponent {
   public Component getGraphicComponent() {
     return this.label;
   }
+
+  public void setLabelValue(String value) { label.setText(value); }
 }

@@ -35,7 +35,6 @@ public class WaitingPlayers {
         gridContainer.addToView(waitPlayersText);
 
         gridContainer.addToView(cancel);
-
         gridContainer.showWindow();
     }
 
@@ -51,6 +50,11 @@ public class WaitingPlayers {
                 }
             }
         });
+    }
+
+    public static void redirectToCountdownFrame() {
+        gridContainer.disposeFrame();
+        WaitingStartGame waitingStartGame = new WaitingStartGame();
     }
 
     public static void redirectToHomeFrame() {

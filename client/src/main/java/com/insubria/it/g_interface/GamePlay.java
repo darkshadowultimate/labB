@@ -1,15 +1,26 @@
 package com.insubria.it.g_interface;
 
+import com.insubria.it.context.GameContextProvider;
+import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class GamePlay {
   // Constants
   private static final String TITLE_WINDOW = "Il Paroliere - Svolgimento partita";
-  private static final String TIMER_TEXT = "Timer: ";
-  private static final String WORDS_FOUND_TEXT = "<html>Parole trovate: <br/>- Parola1 <br/>- Parola2";
-  private static final String LIST_SCORES_TEXT = "Classifica: ";
+  private static final String TIMER_TEXT = "Timer: 180s";
+  private static final String WORDS_FOUND_TEXT = "<html>Parole trovate: <br/><br/>";
+  private static final String LIST_SCORES_TEXT = "<html>Classifica: <br /><br />";
   private static final String INSERT_WORD_TEXT = "Nuova parola trovata";
   private static final String ADD_WORD_BUTTON = "Aggiungi parola";
+  private static final String EXIT_GAMEPLAY_BUTTON = "Esci dalla partita";
   private static final int ROWS = 0;
   private static final int ROWS_GRID_LETTERS = 4;
   private static final int COLS_CONTAINER = 1;
@@ -19,12 +30,14 @@ public class GamePlay {
   private static final int COLS_GRID_ADD_WORD = 1;
   private static final int COLS_BUTTONS = 2;
   // Variables
-  private Label mainTitle, timerText, wordsFoundText, listScoresText, insertWordText;
+  private ArrayList<String> wordsFound = new ArrayList<String>();
+  private Label mainTitle, wordsFoundText, listScoresText, insertWordText;
+  private static Label timerText = new Label(TIMER_TEXT);
   private InputLabel addNewWordInput;
   private Button addWordButton, cancelButton;
   private GridFrame gridContainer, gridLettersTimerPoints, gridLetters, gridTimerWords, gridAddWord, gridButtons;
 
-  public GamePlay(String gameName, String[][] matrixLetters) {
+  public GamePlay(String gameName, int sessionNumber, String[][] matrixLetters, HashMap<String, Integer> playersWithScore) {
     // initialize grids
     gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_CONTAINER);
     gridLettersTimerPoints = new GridFrame(ROWS, COLS_GRID_LETTER_TIMER_POINTS);
@@ -33,21 +46,24 @@ public class GamePlay {
     gridAddWord = new GridFrame(ROWS, COLS_GRID_ADD_WORD);
     gridButtons = new GridFrame(ROWS, COLS_BUTTONS);
 
+    String playersScores = getLabelTextForPlayerScores(playersWithScore);
+
     // initialize labels
     mainTitle = new Label(gameName);
-    timerText = new Label(TIMER_TEXT);
     wordsFoundText = new Label(WORDS_FOUND_TEXT);
-    listScoresText = new Label(LIST_SCORES_TEXT);
+    listScoresText = new Label(playersScores);
 
     // initialize input labels
     addNewWordInput = new InputLabel(INSERT_WORD_TEXT);
 
     // initialize buttons
     addWordButton = new Button(ADD_WORD_BUTTON);
-    cancelButton = new Button("Cancel");
+    cancelButton = new Button(EXIT_GAMEPLAY_BUTTON);
 
     // ***** gridLettersTimerPoints *****
     fillGridLetters(matrixLetters);
+
+    addAllEventListeners();
 
     gridTimerWords.addToView(timerText);
     gridTimerWords.addToView(wordsFoundText);
@@ -72,6 +88,43 @@ public class GamePlay {
     gridContainer.showWindow(1200, 500);
   }
 
+  private void addAllEventListeners() {
+    cancelButton.attachActionListenerToButton(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        try {
+          RemoteObjectContextProvider
+          .game
+          .removePlayerInGame(GameContextProvider.getGameClientReference());
+        } catch(RemoteException exc) {
+          exc.printStackTrace();
+        }
+      }
+    });
+    addWordButton.attachActionListenerToButton(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        String wordInserted = addNewWordInput.getValueTextField();
+
+        wordsFound.add(wordInserted);
+        wordsFoundText.setLabelValue(wordsFoundText.getLabelText() + "- " + wordInserted + "<br />");
+        addNewWordInput.setValueInputField("");
+      }
+    });
+  }
+
+  private String getLabelTextForPlayerScores(HashMap<String, Integer> playersWithScore) {
+    String labelText = "";
+
+    Iterator it = playersWithScore.entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry pair = (Map.Entry)it.next();
+      labelText += pair.getKey() + " - " + pair.getValue() + " / ";
+      // this avoids ConcurrentModificationException
+      it.remove();
+    }
+
+    return LIST_SCORES_TEXT + labelText;
+  }
+
   // fill gridLetters with letters from matrixLetters (4X4)
   private void fillGridLetters(String[][] matrixLetters) {
     for (int row = 0; row < ROWS_GRID_LETTERS; row++) {
@@ -79,5 +132,9 @@ public class GamePlay {
         this.gridLetters.addToView(new Label(matrixLetters[row][col]));
       }
     }
+  }
+
+  public static void updateCountdown(int currentValue) {
+    timerText.setLabelValue("Timer: " + currentValue + "s");
   }
 }

@@ -1,9 +1,7 @@
 package com.insubria.it.serverImplClasses;
 
 import com.insubria.it.context.RemoteObjectContextProvider;
-import com.insubria.it.g_interface.CreateNewGame;
-import com.insubria.it.g_interface.ListGames;
-import com.insubria.it.g_interface.WaitingPlayers;
+import com.insubria.it.g_interface.*;
 import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
@@ -111,14 +109,22 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * thread needs to synchronize the player with the pre-start timer (30 seconds)
      * It is implemented client side
      */
-    public void synchronizePreStartGameTimer(int seconds) throws RemoteException {}
+    public void synchronizePreStartGameTimer(int seconds) throws RemoteException {
+        if(seconds == 30) {
+            WaitingPlayers.redirectToCountdownFrame();
+        } else {
+            WaitingStartGame.updateCountdown(seconds);
+        }
+    }
 
     /**
      * The signature of the synchronizeInGameTimer method Called when the thread
      * needs to synchronize the player with the in-game timer (3 minutes) It is
      * implemented client side
      */
-    public void synchronizeInGameTimer(int seconds) throws RemoteException {}
+    public void synchronizeInGameTimer(int seconds) throws RemoteException {
+        GamePlay.updateCountdown(seconds);
+    }
 
     /**
      * The signature of the synchronizeInWaitTimer method Called when the thread
@@ -136,7 +142,16 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
         int sessionNumber,
         String[][] matrix,
         HashMap<String, Integer> playerScore
-    ) throws RemoteException {}
+    ) throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            WaitingStartGame.redirectToGamePlayFrame(
+                    name,
+                    sessionNumber,
+                    matrix,
+                    playerScore
+            );
+        });
+    }
 
     /**
      * The signature of the triggerEndOfSession method Called when the current
