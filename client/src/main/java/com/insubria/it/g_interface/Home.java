@@ -30,6 +30,10 @@ public class Home {
       PlayerContextProvider.getUsernamePlayer()
     );
 
+    if(GameContextProvider.getGameClientReference() == null) {
+      GameContextProvider.initGameClientReference();
+    }
+
     gridButtonFrame = new GridFrame(ROWS, COLS);
 
     gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_MAIN_CONTAINER);
@@ -83,7 +87,7 @@ public class Home {
   }
 
   private void redirectToListGamesFrame() {
-    ListGames listGames = new ListGames();
+    ListGames listGames = new ListGames("open");
     gridContainer.disposeFrame();
   }
 

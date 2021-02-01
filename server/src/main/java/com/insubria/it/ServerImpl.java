@@ -1,6 +1,7 @@
 package com.insubria.it;
 
 import java.io.IOException;
+import java.net.SocketPermission;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.registry.Registry;
@@ -406,9 +407,9 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
    *                         creation of the registry
    */
   public static void main(String[] args) throws RemoteException {
-    if (System.getSecurityManager() == null) {
+    /*if (System.getSecurityManager() == null) {
       System.setSecurityManager(new SecurityManager());
-    }
+    }*/
     ServerImpl server = new ServerImpl();
 
     AccessController accessController = new AccessController();

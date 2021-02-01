@@ -9,7 +9,7 @@ public class Label extends GraphicComponent {
   private JLabel label;
 
   public Label(String text) {
-    String labelText = text == null || text.length() < 1 ? "NULL value" : text;
+    String labelText = text == null || text.length() < 1 ? "" : text;
     this.label = new JLabel(labelText, SwingConstants.CENTER);
   }
 
