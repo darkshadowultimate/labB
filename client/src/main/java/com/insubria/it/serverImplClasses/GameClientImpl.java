@@ -171,21 +171,10 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * The signature of the triggerEndOfSession method Called when the current
      * session expires (because of time out) It is implemented client side
      */
-    public void triggerEndOfSession() throws RemoteException {
+    public ArrayList<String> triggerEndOfSession() throws RemoteException {
         System.out.println("Ricevuta triggerEndOfSession");
 
-        CompletableFuture.runAsync(() -> {
-            try {
-                GameContextProvider
-                .getGameReference()
-                .checkPlayerWords(
-                    GameContextProvider.getGameClientReference(),
-                    GamePlay.getWordsFound()
-                );
-            } catch(RemoteException exc) {
-                exc.printStackTrace();
-            }
-        });
+        return GamePlay.getWordsFound();
     }
 
     /**

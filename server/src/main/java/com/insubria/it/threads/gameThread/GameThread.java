@@ -88,13 +88,6 @@ public class GameThread extends UnicastRemoteObject implements Game {
     private TimerThread timerThread;
 
     /**
-     * It is used as a counter to understand if the last client sent the list of
-     * words. If so, the thread will retrieve the list of words proposed in the
-     * session and will send them to the clients
-     */
-    private int triggerNextStep;
-
-    /**
      * It represents the reference of the Dictionary object used to check if words
      * are eligible
      */
@@ -132,7 +125,6 @@ public class GameThread extends UnicastRemoteObject implements Game {
 
         this.name = name;
         this.sessionNumber = 1;
-        this.triggerNextStep = 0;
 
         this.maxPlayers = maxPlayers;
         this.db = db;
@@ -272,6 +264,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
         }
 
         this.timerThread = new TimerThread("isReviewing", this, this.gameClientObservers);
+        this.timerThread.start();
     }
 
     /**
@@ -342,16 +335,21 @@ public class GameThread extends UnicastRemoteObject implements Game {
      */
     public void triggerEndOfSessionGameClient() {
         System.out.println("Triggering the end of game on clients...");
+        ArrayList<String> singlePlayerWords = null;
+
         for (GameClient singlePlayer : this.gameClientObservers) {
-            CompletableFuture.runAsync(() -> {
-                try {
-                    singlePlayer.triggerEndOfSession();
-                } catch (RemoteException exc) {
-                    System.err.println("Error while contacting the client " + exc);
-                }
-            });
+            try {
+                singlePlayerWords = singlePlayer.triggerEndOfSession();
+
+                System.out.println("The list of words have been reached");
+                
+                this.checkPlayerWords(singlePlayer, singlePlayerWords);
+            } catch (RemoteException exc) {
+                System.err.println("Error while contacting the client " + exc);
+            }
         }
-        System.out.println("End of triggerEndOfSessionGameClient method");
+
+        this.retrieveGameSessionWords();
     }
 
     /**
@@ -544,7 +542,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      */
-    public void checkPlayerWords(GameClient player, ArrayList<String> wordsList) throws RemoteException {
+    private void checkPlayerWords(GameClient player, ArrayList<String> wordsList) throws RemoteException {
         System.out.println("Checking words reached by player " + player.getUsername());
 
         try {
@@ -553,6 +551,8 @@ public class GameThread extends UnicastRemoteObject implements Game {
             PreparedStatement pst;
 
             for (String singleWord : wordsList) {
+                System.out.print("Word is " + singleWord);
+
                 pst = this.dbConnection.prepareStatement(sqlInsert);
                 pst.setString(1, singleWord);
                 pst.setInt(2, this.idGame);
@@ -617,15 +617,6 @@ public class GameThread extends UnicastRemoteObject implements Game {
             this.dbConnection.close();
         } catch (SQLException exc) {
             System.err.println("Error while performing DB operations " + exc);
-        }
-
-        this.triggerNextStep++;
-
-        if (this.triggerNextStep == this.maxPlayers) {
-            this.triggerNextStep = 0;
-            CompletableFuture.runAsync(() -> {
-                this.retrieveGameSessionWords();
-            });
         }
     }
 

@@ -79,7 +79,7 @@ public class TimerThread extends Thread {
      */
     public void run() {
         try {
-            this.performCountdown(100);
+            this.performCountdown(30);
 
             if (this.scope.equals("isPlaying")) {
                 CompletableFuture.runAsync(() -> {

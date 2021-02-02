@@ -107,7 +107,7 @@ public interface GameClient extends Remote {
      * The signature of the triggerEndOfSession method Called when the current
      * session expires (because of time out) It is implemented client side
      */
-    void triggerEndOfSession() throws RemoteException;
+    ArrayList<String> triggerEndOfSession() throws RemoteException;
 
     /**
      * The signature of the sendWordsDiscoveredInSession method Called when the
