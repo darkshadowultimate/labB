@@ -44,8 +44,6 @@ public class TimerThread extends Thread {
         this.scope = scope;
         this.gameClientObservers = gameClientObservers;
         this.gameResponsible = gameResponsible;
-
-        this.start();
     }
 
     /**
@@ -81,7 +79,7 @@ public class TimerThread extends Thread {
      */
     public void run() {
         try {
-            this.performCountdown(180);
+            this.performCountdown(100);
 
             if (this.scope.equals("isPlaying")) {
                 CompletableFuture.runAsync(() -> {

@@ -3,6 +3,7 @@ package com.insubria.it.g_interface;
 import com.insubria.it.context.GameContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,12 +31,13 @@ public class GamePlay {
   private static final int COLS_GRID_ADD_WORD = 1;
   private static final int COLS_BUTTONS = 2;
   // Variables
-  private ArrayList<String> wordsFound = new ArrayList<String>();
+  private static ArrayList<String> wordsFound = new ArrayList<String>();
   private Label mainTitle, wordsFoundText, listScoresText, insertWordText;
   private static Label timerText = new Label(TIMER_TEXT);
   private InputLabel addNewWordInput;
   private Button addWordButton, cancelButton;
-  private GridFrame gridContainer, gridLettersTimerPoints, gridLetters, gridTimerWords, gridAddWord, gridButtons;
+  private GridFrame gridLettersTimerPoints, gridLetters, gridTimerWords, gridAddWord, gridButtons;
+  private static GridFrame gridContainer;
 
   public GamePlay(String gameName, int sessionNumber, String[][] matrixLetters, HashMap<String, Integer> playersWithScore) {
     // initialize grids
@@ -117,7 +119,7 @@ public class GamePlay {
     Iterator it = playersWithScore.entrySet().iterator();
     while (it.hasNext()) {
       Map.Entry pair = (Map.Entry)it.next();
-      labelText += pair.getKey() + " - " + pair.getValue() + " / ";
+      labelText += pair.getKey() + " - " + pair.getValue() + "<br />";
       // this avoids ConcurrentModificationException
       it.remove();
     }
@@ -134,7 +136,21 @@ public class GamePlay {
     }
   }
 
+  public static ArrayList<String> getWordsFound() {
+    return wordsFound;
+  }
+
   public static void updateCountdown(int currentValue) {
     timerText.setLabelValue("Timer: " + currentValue + "s");
+  }
+
+  public static void redirectToWordsAnalysisFrame() {
+    gridContainer.disposeFrame();
+    WordsAnalysis wordsAnalysis = new WordsAnalysis();
+  }
+
+  public static void redirectToHomeFrame() {
+    gridContainer.disposeFrame();
+    Home home = new Home();
   }
 }

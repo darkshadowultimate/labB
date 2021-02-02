@@ -1,11 +1,14 @@
 package com.insubria.it.g_interface;
 
+
 import com.insubria.it.g_components.*;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class GameWinner {
     private static final String TITLE_WINDOW = "Il Paroliere - Vincitore della partita";
     private static final String THE_WINNER_IS_TEXT = "Il vincitore della partita è...";
-    private static final String WINNER_NAME_TEXT = "Tizio";
     private static final String CONGRATULATIONS_TEXT = "Congratulazioni!";
     private static final String CONTINUE_BUTTON = "OK";
     private static final int ROWS = 0;
@@ -15,14 +18,16 @@ public class GameWinner {
     private Button continueButton;
     private GridFrame gridContainer;
 
-    public GameWinner() {
+    public GameWinner(String usernameWinner) {
         gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS);
 
         theWinnerIsText = new Label(THE_WINNER_IS_TEXT);
-        winnerNameText = new Label(WINNER_NAME_TEXT);
+        winnerNameText = new Label(usernameWinner);
         congratulationsText = new Label(CONGRATULATIONS_TEXT);
 
         continueButton = new Button(CONTINUE_BUTTON);
+
+        addAllEventListeners();
 
         gridContainer.addToView(theWinnerIsText);
         gridContainer.addToView(winnerNameText);
@@ -31,5 +36,18 @@ public class GameWinner {
         gridContainer.addToView(continueButton);
 
         gridContainer.showWindow();
+    }
+
+    private void addAllEventListeners() {
+        continueButton.attachActionListenerToButton(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                redirectToHomeFrame();
+            }
+        });
+    }
+
+    private void redirectToHomeFrame() {
+        gridContainer.disposeFrame();
+        Home home = new Home();
     }
 }

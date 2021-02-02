@@ -1,5 +1,6 @@
 package com.insubria.it.serverImplClasses;
 
+import com.insubria.it.context.GameContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_interface.*;
 import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
@@ -74,7 +75,11 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * The signature of the errorAddNewPlayer method Called when the player is not
      * added and the reason is returned It is implemented client side
      */
-    public void errorAddNewPlayer(String reason) throws RemoteException {}
+    public void errorAddNewPlayer(String reason) throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            JOptionPane.showMessageDialog(null, reason);
+        });
+    }
 
     /**
      * The signature of the confirmRemovePlayerNotStartedGame method Called when the
@@ -102,7 +107,9 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * The signature of the gameHasBeenRemoved method Called when the game has been
      * removed It is implemented client side
      */
-    public void gameHasBeenRemoved(String reason) throws RemoteException {}
+    public void gameHasBeenRemoved(String reason) throws RemoteException {
+        GamePlay.redirectToHomeFrame();
+    }
 
     /**
      * The signature of the synchronizePreStartGameTimer method Called when the
@@ -131,7 +138,9 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * needs to synchronize the player with the review timer (3 minutes) It is
      * implemented client side
      */
-    public void synchronizeInWaitTimer(int seconds) throws RemoteException {}
+    public void synchronizeInWaitTimer(int seconds) throws RemoteException {
+        WordsAnalysis.updateCountdown(seconds);
+    }
 
     /**
      * The signature of the confirmGameSession method Called when a new session is
@@ -143,12 +152,17 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
         String[][] matrix,
         HashMap<String, Integer> playerScore
     ) throws RemoteException {
+        if(WordsAnalysis.isWordsAnalysisFrameActive()) {
+            WordsAnalysis.redirectToGamePlayFrame();
+        } else {
+            WaitingStartGame.redirectToGamePlayFrame();
+        }
         CompletableFuture.runAsync(() -> {
-            WaitingStartGame.redirectToGamePlayFrame(
-                    name,
-                    sessionNumber,
-                    matrix,
-                    playerScore
+            GamePlay gamePlay = new GamePlay(
+                name,
+                sessionNumber,
+                matrix,
+                playerScore
             );
         });
     }
@@ -157,7 +171,22 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * The signature of the triggerEndOfSession method Called when the current
      * session expires (because of time out) It is implemented client side
      */
-    public void triggerEndOfSession() throws RemoteException {}
+    public void triggerEndOfSession() throws RemoteException {
+        System.out.println("Ricevuta triggerEndOfSession");
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                GameContextProvider
+                .getGameReference()
+                .checkPlayerWords(
+                    GameContextProvider.getGameClientReference(),
+                    GamePlay.getWordsFound()
+                );
+            } catch(RemoteException exc) {
+                exc.printStackTrace();
+            }
+        });
+    }
 
     /**
      * The signature of the sendWordsDiscoveredInSession method Called when the
@@ -167,26 +196,39 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
     public void sendWordsDiscoveredInSession(
         ArrayList<WordRecord> acceptedArray,
         ArrayList<WordRecord> refusedArray
-    ) throws RemoteException {}
+    ) throws RemoteException {
+        System.out.println("Ricevuta sendWordsDiscoveredInSession");
+
+        CompletableFuture.runAsync(() -> {
+            GamePlay.redirectToWordsAnalysisFrame();
+            WordsAnalysis.updateAcceptedRefusedWords(acceptedArray, refusedArray);
+        });
+    }
 
     /**
      * The signature of the confirmWordDefinitions method Called when the thread
      * looked for a word definition and it returns it to the player It is
      * implemented client side
      */
-    public void confirmWordDefinitions(String wordDefinitions) throws RemoteException {}
+    public void confirmWordDefinitions(String wordDefinitions) throws RemoteException {
+        SingleWordAnalysis.showWordDefinition(wordDefinitions);
+    }
 
     /**
      * The signature of the errorWordDefinitions method Called when the thread
      * didn't find the word definition correctly and the reason is returned It is
      * implemented client side
      */
-    public void errorWordDefinitions(String reason) throws RemoteException {}
+    public void errorWordDefinitions(String reason) throws RemoteException {
+        JOptionPane.showMessageDialog(null, reason);
+    }
 
     /**
      * The signature of the gameWonByUser method Called when the game is won by a
      * player and the username is sent to all the players It is implemented client
      * side
      */
-    public void gameWonByUser(String username) throws RemoteException {}
+    public void gameWonByUser(String username) throws RemoteException {
+        WordsAnalysis.redirectToGameWinnerFrame(username);
+    }
 }

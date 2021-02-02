@@ -233,6 +233,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
             }
         }
         this.timerThread = new TimerThread("isPlaying", this, this.gameClientObservers);
+        this.timerThread.start();
     }
 
     /**
@@ -342,12 +343,15 @@ public class GameThread extends UnicastRemoteObject implements Game {
     public void triggerEndOfSessionGameClient() {
         System.out.println("Triggering the end of game on clients...");
         for (GameClient singlePlayer : this.gameClientObservers) {
-            try {
-                singlePlayer.triggerEndOfSession();
-            } catch (RemoteException exc) {
-                System.err.println("Error while contacting the client " + exc);
-            }
+            CompletableFuture.runAsync(() -> {
+                try {
+                    singlePlayer.triggerEndOfSession();
+                } catch (RemoteException exc) {
+                    System.err.println("Error while contacting the client " + exc);
+                }
+            });
         }
+        System.out.println("End of triggerEndOfSessionGameClient method");
     }
 
     /**
@@ -400,7 +404,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      */
-    public synchronized void addNewPlayer(GameClient player) throws RemoteException {
+    public void addNewPlayer(GameClient player) throws RemoteException {
         System.out.println("Adding a user to the game...");
         boolean flag = true;
 
@@ -452,7 +456,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      */
-    public synchronized void removePlayerNotStartedGame(GameClient player) throws RemoteException {
+    public void removePlayerNotStartedGame(GameClient player) throws RemoteException {
         System.out.println("Removing a user to not started game...");
 
         try {
@@ -497,7 +501,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      */
-    public synchronized void removePlayerInGame(GameClient player) throws RemoteException {
+    public void removePlayerInGame(GameClient player) throws RemoteException {
         System.out.println("Removing a user to started game...");
 
         try {
@@ -505,7 +509,13 @@ public class GameThread extends UnicastRemoteObject implements Game {
             System.out.println("Removing the whole game, sessions and words discovered...");
 
             for (GameClient singlePlayer : this.gameClientObservers) {
-                singlePlayer.gameHasBeenRemoved("Player " + player.getUsername() + " left the game");
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        singlePlayer.gameHasBeenRemoved("Player " + player.getUsername() + " left the game");
+                    } catch(RemoteException exc) {
+                        exc.printStackTrace();
+                    }
+                });
             }
 
             System.out.println("Removing the game...");
@@ -534,7 +544,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      */
-    public synchronized void checkPlayerWords(GameClient player, ArrayList<String> wordsList) throws RemoteException {
+    public void checkPlayerWords(GameClient player, ArrayList<String> wordsList) throws RemoteException {
         System.out.println("Checking words reached by player " + player.getUsername());
 
         try {

@@ -1,37 +1,54 @@
 package com.insubria.it.g_interface;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import com.insubria.it.g_components.*;
+import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
 public class WordsAnalysis {
   private static final String TITLE_WINDOW = "Il Paroliere - Analisi parole trovate";
   private static final String MAIN_TITLE = "Tutte le parole trovate";
-  private static final String TIMER_TEXT = " Timer: ";
+  private static final String ACCEPTED_WORDS = "Parole accettate (seleziona una parola per maggiori dettagli)";
+  private static final String REFUSED_WORDS = "Parole rifiutate (seleziona una parola per maggiori dettagli)";
+  private static final String TIMER_TEXT = " Timer: 180s";
   private static final String CHECK_TERM_BUTTON = "Verifica termine su vocabolario";
   private static final String STOP_ANALYSIS_BUTTON = "Termina analisi";
+  private static final String BACK_TO_HOME_BUTTON = "Esci e torna alla Home";
   private static final int ROWS = 0;
   private static final int COLS_GRID_CONTAINER = 1;
-  private static final int COLS_GRID_WORDS = 5;
+  private static final int COLS_GRID_WORDS = 6;
   private static final int COLS_GRID_BUTTONS = 3;
 
-  private Label mainTitle, timerText;
-  private Label[] wordsFoundLabels;
+  private static boolean isFrameActive = false;
+  private static ArrayList<WordRecord>
+        correctWords = new ArrayList<WordRecord>(),
+        wrongWords = new ArrayList<WordRecord>();
+  private Label mainTitle, acceptedWords, refusedWords;
+  private static Label timerText;
+  private Label[] correctWordsLabels, wrongWordsLabels;
   private Button checkTermButton, stopAnalysisButton, cancelButton;
-  private GridFrame gridContainer, gridWords, gridButtons;
+  private GridFrame gridCorrectWords, gridWrongWords, gridButtons;
+  private static GridFrame gridContainer = null;
 
-  public WordsAnalysis(ArrayList<String> wordsFound) {
+  public WordsAnalysis() {
+    isFrameActive = true;
+
     gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_GRID_CONTAINER);
-    gridWords = new GridFrame(ROWS, COLS_GRID_WORDS);
+    gridCorrectWords = new GridFrame(ROWS, COLS_GRID_WORDS);
+    gridWrongWords = new GridFrame(ROWS, COLS_GRID_WORDS);
     gridButtons = new GridFrame(ROWS, COLS_GRID_BUTTONS);
 
     mainTitle = new Label(MAIN_TITLE);
+    acceptedWords = new Label(ACCEPTED_WORDS);
+    refusedWords = new Label(REFUSED_WORDS);
     timerText = new Label(TIMER_TEXT);
 
-    this.initializeWordsLabels(wordsFound);
+    this.initializeWordsLabels();
 
     checkTermButton = new Button(CHECK_TERM_BUTTON);
     stopAnalysisButton = new Button(STOP_ANALYSIS_BUTTON);
-    cancelButton = new Button("CANCEL");
+    cancelButton = new Button(BACK_TO_HOME_BUTTON);
 
     // ***** gridButtons ***** //
     gridButtons.addToView(checkTermButton);
@@ -41,19 +58,65 @@ public class WordsAnalysis {
     // ***** gridContainer ***** //
     gridContainer.addToView(mainTitle);
     gridContainer.addToView(timerText);
-    gridContainer.addToView(gridWords);
+    gridContainer.addToView(acceptedWords);
+    gridContainer.addToView(gridCorrectWords);
+    gridContainer.addToView(refusedWords);
+    gridContainer.addToView(gridWrongWords);
     gridContainer.addToView(gridButtons);
 
     gridContainer.showWindow();
   }
 
-  public void initializeWordsLabels(ArrayList<String> wordsFound) {
-    this.wordsFoundLabels = new Label[wordsFound.size()];
+  public void initializeWordsLabels() {
+    this.correctWordsLabels = new Label[correctWords.size()];
+    this.wrongWordsLabels = new Label[wrongWords.size()];
 
-    for (int i = 0; i < wordsFound.size(); i++) {
-      this.wordsFoundLabels[i] = new Label(wordsFound.get(i));
+    for (int i = 0; i < correctWords.size(); i++) {
+      this.correctWordsLabels[i] = new Label(correctWords.get(i).getWord());
+
+      int tmpCounter = i;
+
+      this.correctWordsLabels[i].attachMouseListener(new MouseAdapter() {
+        public void mouseClicked(MouseEvent me) {
+          SingleWordAnalysis singleWordAnalysis = new SingleWordAnalysis(correctWords.get(tmpCounter));
+        }
+      });
       // ***** gridWords ***** //
-      this.gridWords.addToView(this.wordsFoundLabels[i]);
+      this.gridCorrectWords.addToView(this.correctWordsLabels[i]);
     }
+    for (int i = 0; i < wrongWords.size(); i++) {
+      this.wrongWordsLabels[i] = new Label(wrongWords.get(i).getWord());
+      // ***** gridWords ***** //
+      this.gridWrongWords.addToView(this.wrongWordsLabels[i]);
+    }
+  }
+
+  public static void updateAcceptedRefusedWords(
+    ArrayList<WordRecord> acceptedArray,
+    ArrayList<WordRecord> refusedArray
+  ) {
+    correctWords = acceptedArray;
+    wrongWords = refusedArray;
+  }
+
+  public static void updateCountdown(int currentValue) {
+    timerText.setLabelValue("Timer: " + currentValue + "s");
+  }
+
+  public static boolean isWordsAnalysisFrameActive() {
+    return isFrameActive;
+  }
+
+  public static void redirectToGameWinnerFrame(String usernameWinner) {
+    isFrameActive = false;
+    if(gridContainer != null) {
+      gridContainer.disposeFrame();
+    }
+    GameWinner gameWinner = new GameWinner(usernameWinner);
+  }
+
+  public static void redirectToGamePlayFrame() {
+    SingleWordAnalysis.redirectToWordsAnalysisFrame();
+    gridContainer.disposeFrame();
   }
 }
