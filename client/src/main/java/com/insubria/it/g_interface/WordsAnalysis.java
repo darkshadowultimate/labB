@@ -1,8 +1,14 @@
 package com.insubria.it.g_interface;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+
+import com.insubria.it.context.GameContextProvider;
+import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
@@ -36,13 +42,6 @@ public class WordsAnalysis {
     correctWords = correctListWords;
     wrongWords = wrongListWords;
 
-    /*correctWords.add(new WordRecord("pane", "username1", 5));
-    correctWords.add(new WordRecord("bacca", "username1", 4));
-    correctWords.add(new WordRecord("auto", "username2", 1));
-
-    wrongWords.add(new WordRecord("ddd", "username2", 0, "What is this??"));
-    wrongWords.add(new WordRecord("auti", "username1", 0, "Come on, man!"));*/
-
     isFrameActive = true;
 
     gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_GRID_CONTAINER);
@@ -61,6 +60,8 @@ public class WordsAnalysis {
     stopAnalysisButton = new Button(STOP_ANALYSIS_BUTTON);
     cancelButton = new Button(BACK_TO_HOME_BUTTON);
 
+    addAllEventListeners();
+
     // ***** gridButtons ***** //
     gridButtons.addToView(checkTermButton);
     gridButtons.addToView(stopAnalysisButton);
@@ -76,6 +77,25 @@ public class WordsAnalysis {
     gridContainer.addToView(gridButtons);
 
     gridContainer.showWindow();
+  }
+
+  private void addAllEventListeners() {
+    cancelButton.attachActionListenerToButton(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        try {
+          RemoteObjectContextProvider
+          .game
+          .removePlayerInGame(GameContextProvider.getGameClientReference());
+        } catch(RemoteException exc) {
+          exc.printStackTrace();
+        }
+      }
+    });
+    stopAnalysisButton.attachActionListenerToButton(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        redirectToWaitingPlayersFrame();
+      }
+    });
   }
 
   private void initializeWordsLabels() {
@@ -106,6 +126,17 @@ public class WordsAnalysis {
   public static void redirectToGamePlayFrame() {
     SingleWordAnalysis.redirectToWordsAnalysisFrame();
     gridContainer.disposeFrame();
+  }
+
+  // once the analysis is finished before the timer
+  private void redirectToWaitingPlayersFrame() {
+    gridContainer.disposeFrame();
+    WaitingPlayers waitingPlayers = new WaitingPlayers(WaitingPlayers.WORDS_ANALYSIS);
+  }
+
+  public static void redirectToHomeFrame() {
+    gridContainer.disposeFrame();
+    Home home = new Home();
   }
 
   private void attachEventListenersToLabels(ArrayList<WordRecord> list, Label[] labels, GridFrame grid) {

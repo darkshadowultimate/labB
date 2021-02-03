@@ -107,7 +107,11 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      */
     public void gameHasBeenRemoved(String reason) throws RemoteException {
         CompletableFuture.runAsync(() -> {
-            GamePlay.redirectToHomeFrame();
+            if(WordsAnalysis.isWordsAnalysisFrameActive()) {
+                WordsAnalysis.redirectToHomeFrame();
+            } else {
+                GamePlay.redirectToHomeFrame();
+            }
         });
     }
 
@@ -161,6 +165,8 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
         CompletableFuture.runAsync(() -> {
             if(WordsAnalysis.isWordsAnalysisFrameActive()) {
                 WordsAnalysis.redirectToGamePlayFrame();
+            } else if(WaitingPlayers.checkIsFrameActive()) {
+                WaitingPlayers.closeWindow();
             } else {
                 WaitingStartGame.redirectToGamePlayFrame();
             }

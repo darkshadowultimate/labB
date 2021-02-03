@@ -8,11 +8,13 @@ import com.insubria.it.models.SingleGame;
 import com.insubria.it.serverImplClasses.GameClientImpl;
 import com.insubria.it.serverImplClasses.MonitorClientImpl;
 import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
+import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 public class ListGames {
@@ -47,7 +49,9 @@ public class ListGames {
     public ListGames(String gameStatus) {
         getListOfGamesFromServer(gameStatus).join();
 
-        boolean noGamesFetched = gameUserMatrix == null;
+        singleGames = createListOfSingleGames(gameUserMatrix);
+
+        boolean noGamesFetched = singleGames == null;
 
         gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_CONTAINER);
         gridTableGames = new GridFrame(ROWS, COLS_TITLES);
@@ -79,8 +83,6 @@ public class ListGames {
     }
 
     private void createListGameTable(String gameStatus) {
-        singleGames = createListOfSingleGames(gameUserMatrix);
-
         int lengthListGames = singleGames.length + 1;
 
         gameNameText = new Label[lengthListGames];
@@ -151,13 +153,29 @@ public class ListGames {
     }
 
     private SingleGame[] createListOfSingleGames(String[][] matrix) {
+        if(matrix == null) {
+            return null;
+        }
+
         int matrixLength = matrix[0].length;
 
-        SingleGame[] resultArray = new SingleGame[matrixLength];
+        ArrayList<SingleGame> validGamesOpen = new ArrayList<SingleGame>();
+
         for(int i = 0; i < matrixLength; i++) {
-            resultArray[i] = SingleGame.createSingleGameFromString(matrix[0][i], matrix[1][i]);
+            SingleGame tmpSingleGame = SingleGame.createSingleGameFromString(matrix[0][i], matrix[1][i]);
+
+            if(Integer.parseInt(tmpSingleGame.getMaxPlayers()) > Integer.parseInt(tmpSingleGame.getCurrentNumPlayers())) {
+                validGamesOpen.add(tmpSingleGame);
+            }
         }
-        return resultArray;
+
+        if(validGamesOpen.size() == 0) {
+            return null;
+        }
+
+        singleGames = new SingleGame[validGamesOpen.size()];
+
+        return validGamesOpen.toArray(singleGames);
     }
 
     private CompletableFuture getListOfGamesFromServer(String gameStatus) {
@@ -169,12 +187,6 @@ public class ListGames {
                     @Override
                     public void confirmGetListOfGames(String[][] result) throws RemoteException {
                         super.confirmGetListOfGames(result);
-
-                        //TODO ==> Use 2 arraylists (uno for the game and the other for the players
-
-                        for(int i = 0; i < result[0].length; i++) {
-
-                        }
 
                         gameUserMatrix = result;
                     }
@@ -226,7 +238,7 @@ public class ListGames {
 
     public static void redirectToWaitingPlayersFrame() {
         gridContainer.disposeFrame();
-        WaitingPlayers waitingPlayers = new WaitingPlayers();
+        WaitingPlayers waitingPlayers = new WaitingPlayers(WaitingPlayers.START_GAME);
     }
 
     private void redirectToNewListGame(String statusGames) {

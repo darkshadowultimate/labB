@@ -93,7 +93,7 @@ public class CreateNewGame {
   }
 
   public static void redirectToWaitingRoomFrame() {
-    WaitingPlayers waitingPlayers = new WaitingPlayers();
+    WaitingPlayers waitingPlayers = new WaitingPlayers(WaitingPlayers.START_GAME);
     gridFrame.disposeFrame();
   }
 }

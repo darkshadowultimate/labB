@@ -13,24 +13,31 @@ import java.rmi.RemoteException;
 import java.util.concurrent.CompletableFuture;
 
 public class WaitingPlayers {
+    public static final int START_GAME = 1;
+    public static final int WORDS_ANALYSIS = 2;
+
     private static final String TITLE_WINDOW = "Il Paroliere - Attesa giocatori";
     private static final String WAIT_PLAYERS_TEXT = "In attesa di altri giocatori...";
+    private static final String WAIT_PLAYERS_WORD_ANALYSIS_TEXT = "In attesa che gli altri giocatori terminino la fase di analisi...";
     private static final String HOME_BUTTON = "Torna alla Home";
     private static final int ROWS = 0;
     private static final int COLS = 1;
 
+    private static boolean isFrameActive = false;
     private Label waitPlayersText;
     private Button cancel;
     private static GridFrame gridContainer;
 
-    public WaitingPlayers() {
+    public WaitingPlayers(int context) {
         gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS);
 
-        waitPlayersText = new Label(WAIT_PLAYERS_TEXT);
+        waitPlayersText = new Label(getMainTitleLabelText(context));
 
         cancel = new Button(HOME_BUTTON);
 
         addAllEventListeners();
+
+        isFrameActive = true;
 
         gridContainer.addToView(waitPlayersText);
 
@@ -52,13 +59,36 @@ public class WaitingPlayers {
         });
     }
 
+    private String getMainTitleLabelText(int context) {
+        switch(context) {
+            case START_GAME:
+                return WAIT_PLAYERS_TEXT;
+            case WORDS_ANALYSIS:
+                return WAIT_PLAYERS_WORD_ANALYSIS_TEXT;
+            default:
+                return "In attesa degli altri giocatori...";
+        }
+    }
+
     public static void redirectToCountdownFrame() {
+        isFrameActive = false;
         gridContainer.disposeFrame();
         WaitingStartGame waitingStartGame = new WaitingStartGame();
     }
 
     public static void redirectToHomeFrame() {
+        isFrameActive = false;
         gridContainer.disposeFrame();
         Home home = new Home();
+    }
+
+    public static void closeWindow() {
+        if(gridContainer != null) {
+            gridContainer.disposeFrame();
+        }
+    }
+
+    public static boolean checkIsFrameActive() {
+        return isFrameActive;
     }
 }

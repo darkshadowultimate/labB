@@ -35,6 +35,7 @@ public class SingleWordAnalysis {
         gridButtons = new GridFrame(ROWS, COLS_GRID_BUTTONS);
 
         int wordScore = wordToAnalyse.getScore();
+        boolean isThereAReason = wordScore == 0;
 
         mainTitleLabel = new Label(MAIN_TITLE + wordToAnalyse.getWord());
         playerFounderLabel = new Label(PLAYER_FOUNDER_TEXT + wordToAnalyse.getUsername());
@@ -42,17 +43,21 @@ public class SingleWordAnalysis {
 
         backButton = new Button(BACK_BUTTON_TEXT);
 
-        addAllEventListeners(wordToAnalyse.getWord());
+        if(isThereAReason) {
+            reasonWrongWordLabel = new Label(REASON_WRONG_WORD_TEXT + wordToAnalyse.getReason());
+        } else {
+            requestDefinitionButton = new Button(DEFINITION_REQUEST_BUTTON_TEXT);
+        }
+
+        addAllEventListeners(wordToAnalyse.getWord(), isThereAReason);
 
         gridContainer.addToView(mainTitleLabel);
         gridContainer.addToView(playerFounderLabel);
         gridContainer.addToView(scoreWordLabel);
 
-        if(wordScore == 0) {
-            reasonWrongWordLabel = new Label(REASON_WRONG_WORD_TEXT + wordToAnalyse.getReason());
+        if(isThereAReason) {
             gridContainer.addToView(reasonWrongWordLabel);
         } else {
-            requestDefinitionButton = new Button(DEFINITION_REQUEST_BUTTON_TEXT);
             gridButtons.addToView(requestDefinitionButton);
         }
 
@@ -62,21 +67,24 @@ public class SingleWordAnalysis {
         gridContainer.showWindow();
     }
 
-    private void addAllEventListeners(final String wordString) {
-        requestDefinitionButton.attachActionListenerToButton(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    RemoteObjectContextProvider
-                    .game
-                    .askForWordDefinition(
-                        GameContextProvider.getGameClientReference(),
-                        wordString
-                    );
-                } catch(RemoteException exc) {
-                    exc.printStackTrace();
+    private void addAllEventListeners(final String wordString, boolean isThereAReason) {
+        // if the word is wrong, then it doesn't have a definition
+        if(!isThereAReason) {
+            requestDefinitionButton.attachActionListenerToButton(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        RemoteObjectContextProvider
+                        .game
+                        .askForWordDefinition(
+                            GameContextProvider.getGameClientReference(),
+                            wordString
+                        );
+                    } catch(RemoteException exc) {
+                        exc.printStackTrace();
+                    }
                 }
-            }
-        });
+            });
+        }
         backButton.attachActionListenerToButton(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 redirectToWordsAnalysisFrame();
