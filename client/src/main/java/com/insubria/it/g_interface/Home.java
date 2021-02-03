@@ -2,6 +2,7 @@ package com.insubria.it.g_interface;
 
 import com.insubria.it.g_components.*;
 import com.insubria.it.context.*;
+import com.insubria.it.helpers.FrameHandler;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -58,7 +59,7 @@ public class Home {
 
     gridContainer.addToView(gridButtonFrame);
 
-    gridContainer.showWindow();
+    FrameHandler.showMainGridContainer(gridContainer);
   }
 
   private void addAllEventListeners() {
@@ -86,21 +87,17 @@ public class Home {
 
   private void redirectToCreateNewGameFrame() {
     CreateNewGame createNewGame = new CreateNewGame();
-    gridContainer.disposeFrame();
   }
 
   private void redirectToListGamesFrame() {
     ListGames listGames = new ListGames("open");
-    gridContainer.disposeFrame();
   }
 
   private void redirectToUserRegistrationFrame() {
     UserRegistration userRegistration = new UserRegistration(true);
-    gridContainer.disposeFrame();
   }
 
   private void redirectToAnalyticsFrame() {
     Analytics analytics = new Analytics();
-    gridContainer.disposeFrame();
   }
 }

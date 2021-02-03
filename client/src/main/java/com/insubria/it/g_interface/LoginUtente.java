@@ -4,6 +4,7 @@ import java.awt.event.*;
 import javax.swing.JOptionPane;
 import java.rmi.RemoteException;
 
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.helpers.Validation;
 import com.insubria.it.serverImplClasses.PlayerCredentialsImpl;
 import com.insubria.it.context.*;
@@ -48,7 +49,7 @@ public class LoginUtente {
         // Registration link
         gridFrame.addToView(regLink);
 
-        gridFrame.showWindow();
+        FrameHandler.showMainGridContainer(gridFrame);
     }
 
     private void addAllEventListeners(final InputLabel email, final InputLabel password) {
@@ -107,17 +108,14 @@ public class LoginUtente {
 
     private void redirectToHomeFrame() {
         Home home = new Home();
-        gridFrame.disposeFrame();
     }
 
     private void redirectToResetPasswordFrame() {
         ResetPassword resetPassword = new ResetPassword();
-        gridFrame.disposeFrame();
     }
 
     private void redirectToRegistrationFrame() {
         UserRegistration registration = new UserRegistration(false);
-        gridFrame.disposeFrame();
     }
 
     private void showError(String errMessage) {

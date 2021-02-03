@@ -5,6 +5,7 @@ import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.Button;
 import com.insubria.it.g_components.GridFrame;
 import com.insubria.it.g_components.Label;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
 import javax.swing.*;
@@ -64,7 +65,7 @@ public class SingleWordAnalysis {
         gridButtons.addToView(backButton);
         gridContainer.addToView(gridButtons);
 
-        gridContainer.showWindow();
+        FrameHandler.showSecondaryGridContainer(gridContainer);
     }
 
     private void addAllEventListeners(final String wordString, boolean isThereAReason) {
@@ -87,18 +88,12 @@ public class SingleWordAnalysis {
         }
         backButton.attachActionListenerToButton(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                redirectToWordsAnalysisFrame();
+                FrameHandler.disposeSecondaryGridContainer();
             }
         });
     }
 
     public static void showWordDefinition(String wordDefinition) {
         JOptionPane.showMessageDialog(null, wordDefinition);
-    }
-
-    public static void redirectToWordsAnalysisFrame() {
-        if(gridContainer != null) {
-            gridContainer.disposeFrame();
-        }
     }
 }

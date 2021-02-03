@@ -2,7 +2,7 @@ package com.insubria.it.g_interface;
 
 
 import com.insubria.it.g_components.*;
-import java.util.HashMap;
+import com.insubria.it.helpers.FrameHandler;
 
 public class WaitingStartGame {
     private static final String TITLE_WINDOW = "Il Paroliere - Attesa inizio partita";
@@ -20,23 +20,17 @@ public class WaitingStartGame {
         waitGameStartText = new Label(WAIT_GAME_START_TEXT);
         secondsText = new Label("30s");
 
-
         gridContainer.addToView(waitGameStartText);
         gridContainer.addToView(secondsText);
 
-        gridContainer.showWindow();
+        FrameHandler.showMainGridContainer(gridContainer);
     }
 
     public static void updateCountdown(int currentValue) {
         secondsText.setLabelValue(currentValue + "s");
     }
 
-    public static void redirectToGamePlayFrame() {
-        gridContainer.disposeFrame();
-    }
-
     public static void redirectToHomeFrame() {
-        gridContainer.disposeFrame();
         Home home = new Home();
     }
 }

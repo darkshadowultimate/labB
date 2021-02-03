@@ -3,6 +3,7 @@ package com.insubria.it.g_interface;
 import com.insubria.it.context.GameContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
 import java.awt.event.ActionEvent;
@@ -89,7 +90,7 @@ public class GamePlay {
     gridContainer.addToView(gridLettersTimerPoints);
     gridContainer.addToView(gridButtons);
 
-    gridContainer.showWindow(1200, 500);
+    FrameHandler.showMainGridContainerWithSizes(gridContainer, 1200, 500);
   }
 
   private void addAllEventListeners() {
@@ -150,12 +151,10 @@ public class GamePlay {
     ArrayList<WordRecord> correctListWords,
     ArrayList<WordRecord> wrongListWords
   ) {
-    gridContainer.disposeFrame();
     WordsAnalysis wordsAnalysis = new WordsAnalysis(correctListWords, wrongListWords);
   }
 
   public static void redirectToHomeFrame() {
-    gridContainer.disposeFrame();
     Home home = new Home();
   }
 }

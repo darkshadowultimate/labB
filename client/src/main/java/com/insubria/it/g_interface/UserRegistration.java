@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 import com.insubria.it.context.PlayerContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.helpers.Validation;
 import com.insubria.it.serverImplClasses.PlayerCredentialsImpl;
 
@@ -90,7 +91,7 @@ public class UserRegistration {
 
     gridFrame.addToView(gridButtons);
 
-    gridFrame.showWindow();
+    FrameHandler.showMainGridContainer(gridFrame);
   }
 
   private String getValueForInputField(int indexInputField) {
@@ -240,16 +241,13 @@ public class UserRegistration {
 
   private void redirectConfirmCodeFrame() {
     ConfirmCode confirmCode = new ConfirmCode();
-    gridFrame.disposeFrame();
   }
 
   private void redirectToLoginFrame() {
     LoginUtente login = new LoginUtente();
-    gridFrame.disposeFrame();
   }
 
   private void redirectToHomeFrame() {
     Home home = new Home();
-    gridFrame.disposeFrame();
   }
 }

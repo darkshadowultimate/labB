@@ -4,6 +4,7 @@ package com.insubria.it.g_interface;
 import com.insubria.it.g_components.Button;
 import com.insubria.it.g_components.GridFrame;
 import com.insubria.it.g_components.Label;
+import com.insubria.it.helpers.FrameHandler;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,10 +22,8 @@ public class AnalyticsDataPage {
     private Label titlePage, data;
     private GridFrame gridButtonFrame, gridContainer, parentGridAnalytics;
 
-    public AnalyticsDataPage(GridFrame gridAnalyticsHome, String titleSection, String dataToShow) {
+    public AnalyticsDataPage(String titleSection, String dataToShow) {
         // The mainTitle needs to be placed inside the constructor to update its value after the user's profile update
-        parentGridAnalytics = gridAnalyticsHome;
-
         mainTitle += titleSection;
 
         gridButtonFrame = new GridFrame(ROWS, COLS_BUTTONS);
@@ -47,7 +46,7 @@ public class AnalyticsDataPage {
 
         gridContainer.addToView(gridButtonFrame);
 
-        gridContainer.showWindow();
+        FrameHandler.showSecondaryGridContainer(gridContainer);
     }
 
     private void addAllEventListeners() {
@@ -65,11 +64,9 @@ public class AnalyticsDataPage {
 
     private void redirectToHomeFrame() {
         Home home = new Home();
-        parentGridAnalytics.disposeFrame();
-        gridContainer.disposeFrame();
     }
 
     private void redirectToAnalyticsFrame() {
-        gridContainer.disposeFrame();
+        FrameHandler.disposeSecondaryGridContainer();
     }
 }

@@ -6,6 +6,7 @@ import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
 import com.insubria.it.g_components.Button;
 import com.insubria.it.g_components.Label;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.helpers.Validation;
 import com.insubria.it.serverImplClasses.GameClientImpl;
 import com.insubria.it.sharedserver.threads.gameThread.abstracts.Game;
@@ -48,7 +49,7 @@ public class CreateNewGame {
     gridFrame.addToView(numPlayers);
     gridFrame.addToView(createGameButton);
 
-    gridFrame.showWindow();
+    FrameHandler.showMainGridContainer(gridFrame);
   }
 
   private void addAllEventListeners() {
@@ -94,6 +95,5 @@ public class CreateNewGame {
 
   public static void redirectToWaitingRoomFrame() {
     WaitingPlayers waitingPlayers = new WaitingPlayers(WaitingPlayers.START_GAME);
-    gridFrame.disposeFrame();
   }
 }

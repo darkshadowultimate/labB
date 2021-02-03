@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import com.insubria.it.context.GameContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
 public class WordsAnalysis {
@@ -26,7 +27,6 @@ public class WordsAnalysis {
   private static final int COLS_GRID_WORDS = 6;
   private static final int COLS_GRID_BUTTONS = 3;
 
-  private static boolean isFrameActive = false;
   private static ArrayList<WordRecord>
         correctWords = new ArrayList<WordRecord>(),
         wrongWords = new ArrayList<WordRecord>();
@@ -41,8 +41,6 @@ public class WordsAnalysis {
 
     correctWords = correctListWords;
     wrongWords = wrongListWords;
-
-    isFrameActive = true;
 
     gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_GRID_CONTAINER);
     gridCorrectWords = new GridFrame(ROWS, COLS_GRID_WORDS);
@@ -76,7 +74,7 @@ public class WordsAnalysis {
     gridContainer.addToView(gridWrongWords);
     gridContainer.addToView(gridButtons);
 
-    gridContainer.showWindow();
+    FrameHandler.showMainGridContainer(gridContainer);
   }
 
   private void addAllEventListeners() {
@@ -111,31 +109,20 @@ public class WordsAnalysis {
     timerText.setLabelValue("Timer: " + currentValue + "s");
   }
 
-  public static boolean isWordsAnalysisFrameActive() {
-    return isFrameActive;
-  }
-
   public static void redirectToGameWinnerFrame(String usernameWinner) {
-    isFrameActive = false;
-    if(gridContainer != null) {
-      gridContainer.disposeFrame();
-    }
     GameWinner gameWinner = new GameWinner(usernameWinner);
   }
 
   public static void redirectToGamePlayFrame() {
-    SingleWordAnalysis.redirectToWordsAnalysisFrame();
-    gridContainer.disposeFrame();
+    FrameHandler.disposeSecondaryGridContainer();
   }
 
   // once the analysis is finished before the timer
   private void redirectToWaitingPlayersFrame() {
-    gridContainer.disposeFrame();
     WaitingPlayers waitingPlayers = new WaitingPlayers(WaitingPlayers.WORDS_ANALYSIS);
   }
 
   public static void redirectToHomeFrame() {
-    gridContainer.disposeFrame();
     Home home = new Home();
   }
 

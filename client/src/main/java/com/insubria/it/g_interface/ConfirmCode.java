@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.serverImplClasses.PlayerCredentialsImpl;
 
 import javax.swing.*;
@@ -42,7 +43,7 @@ public class ConfirmCode {
     gridContainer.addToView(confirmButton);
     gridContainer.addToView(cancelButton);
 
-    gridContainer.showWindow();
+    FrameHandler.showMainGridContainer(gridContainer);
   }
 
   private void addAllEventListeners() {
@@ -85,11 +86,9 @@ public class ConfirmCode {
 
   private void redirectHomeFrame() {
     Home home = new Home();
-    gridContainer.disposeFrame();
   }
 
   private void redirectRegistrationFrame() {
     UserRegistration userRegistration = new UserRegistration(false);
-    gridContainer.disposeFrame();
   }
 }

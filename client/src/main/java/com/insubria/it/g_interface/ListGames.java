@@ -1,14 +1,11 @@
 package com.insubria.it.g_interface;
 
 import com.insubria.it.context.GameContextProvider;
-import com.insubria.it.context.PlayerContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.models.SingleGame;
-import com.insubria.it.serverImplClasses.GameClientImpl;
 import com.insubria.it.serverImplClasses.MonitorClientImpl;
-import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
-import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -79,7 +76,7 @@ public class ListGames {
         gridContainer.addToView(noGamesFetched ? noGamesAvailableLabel : gridTableGames);
         gridContainer.addToView(gridButtons);
 
-        gridContainer.showWindow(1200, 500);
+        FrameHandler.showMainGridContainerWithSizes(gridContainer, 1200, 500);
     }
 
     private void createListGameTable(String gameStatus) {
@@ -232,17 +229,14 @@ public class ListGames {
     }
 
     private void redirectToHomeFrame() {
-        gridContainer.disposeFrame();
         Home home = new Home();
     }
 
     public static void redirectToWaitingPlayersFrame() {
-        gridContainer.disposeFrame();
         WaitingPlayers waitingPlayers = new WaitingPlayers(WaitingPlayers.START_GAME);
     }
 
     private void redirectToNewListGame(String statusGames) {
-        gridContainer.disposeFrame();
         ListGames listGames = new ListGames(statusGames);
     }
 }

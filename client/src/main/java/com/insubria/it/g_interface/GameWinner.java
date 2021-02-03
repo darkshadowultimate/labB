@@ -2,6 +2,7 @@ package com.insubria.it.g_interface;
 
 
 import com.insubria.it.g_components.*;
+import com.insubria.it.helpers.FrameHandler;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,7 +36,7 @@ public class GameWinner {
 
         gridContainer.addToView(continueButton);
 
-        gridContainer.showWindow();
+        FrameHandler.showMainGridContainer(gridContainer);
     }
 
     private void addAllEventListeners() {
@@ -47,7 +48,6 @@ public class GameWinner {
     }
 
     private void redirectToHomeFrame() {
-        gridContainer.disposeFrame();
         Home home = new Home();
     }
 }

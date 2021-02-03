@@ -4,6 +4,7 @@ import com.insubria.it.context.GameContextProvider;
 import com.insubria.it.context.PlayerContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.serverImplClasses.GameClientImpl;
 
 import javax.swing.*;
@@ -23,7 +24,6 @@ public class WaitingPlayers {
     private static final int ROWS = 0;
     private static final int COLS = 1;
 
-    private static boolean isFrameActive = false;
     private Label waitPlayersText;
     private Button cancel;
     private static GridFrame gridContainer;
@@ -37,12 +37,11 @@ public class WaitingPlayers {
 
         addAllEventListeners();
 
-        isFrameActive = true;
-
         gridContainer.addToView(waitPlayersText);
 
         gridContainer.addToView(cancel);
-        gridContainer.showWindow();
+
+        FrameHandler.showMainGridContainer(gridContainer);
     }
 
     private void addAllEventListeners() {
@@ -71,24 +70,10 @@ public class WaitingPlayers {
     }
 
     public static void redirectToCountdownFrame() {
-        isFrameActive = false;
-        gridContainer.disposeFrame();
         WaitingStartGame waitingStartGame = new WaitingStartGame();
     }
 
     public static void redirectToHomeFrame() {
-        isFrameActive = false;
-        gridContainer.disposeFrame();
         Home home = new Home();
-    }
-
-    public static void closeWindow() {
-        if(gridContainer != null) {
-            gridContainer.disposeFrame();
-        }
-    }
-
-    public static boolean checkIsFrameActive() {
-        return isFrameActive;
     }
 }

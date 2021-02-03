@@ -2,6 +2,7 @@ package com.insubria.it.g_interface;
 
 import com.insubria.it.g_components.*;
 import com.insubria.it.context.*;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.serverImplClasses.MonitorClientImpl;
 
 import javax.swing.*;
@@ -33,29 +34,6 @@ public class Analytics {
     private static final int ROWS = 0;
     private static final int COLS = 1;
 
-/*    private static final String[] testStrings = {
-        "UserTot - 1",
-        "UserTot - 2",
-        "UserTot - 3",
-        "UserTot - 4",
-        "UserTot - 5",
-        "UserTot - 6",
-        "UserTot - 7",
-        "UserTot - 8",
-        "UserTot - 9",
-        "UserTot - 10",
-        "UserTot - 11",
-        "UserTot - 12",
-        "UserTot - 13",
-        "UserTot - 14",
-        "UserTot - 15",
-        "UserTot - 16",
-        "UserTot - 17",
-        "UserTot - 18",
-        "UserTot - 19",
-        "UserTot - 20",
-    };*/
-
     private Button[] buttons = new Button[BUTTONS_TEXTS.length];
     private Button homeButton;
     private GridFrame gridContainer;
@@ -75,7 +53,7 @@ public class Analytics {
 
         gridContainer.addToView(homeButton);
 
-        gridContainer.showWindow(800, 1000);
+        FrameHandler.showMainGridContainerWithSizes(gridContainer, 800, 1000);
     }
 
     private void scoreGameAndSession(final String sectionName) {
@@ -88,7 +66,7 @@ public class Analytics {
                     public void confirmMoreScoreGameAndSession(String[] result) throws RemoteException {
                         super.confirmMoreScoreGameAndSession(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -113,7 +91,7 @@ public class Analytics {
                     @Override
                     public void confirmMoreSessionsPlayed(String result) throws RemoteException {
                         super.confirmMoreSessionsPlayed(result);
-                        redirectToAnalyticsPagination(gridContainer, sectionName, result);
+                        redirectToAnalyticsPagination(sectionName, result);
                     }
 
                     @Override
@@ -139,7 +117,7 @@ public class Analytics {
                     public void confirmMoreAvgScoreGameAndSession(String[] result) throws RemoteException {
                         super.confirmMoreAvgScoreGameAndSession(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -165,7 +143,7 @@ public class Analytics {
                     public void confirmMoreProposedDuplicatedWords(String result) throws RemoteException {
                         super.confirmMoreProposedDuplicatedWords(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, result);
+                        redirectToAnalyticsPagination(sectionName, result);
                     }
 
                     @Override
@@ -191,7 +169,7 @@ public class Analytics {
                     public void confirmMoreInvalidProposedWords(String result) throws RemoteException {
                         super.confirmMoreInvalidProposedWords(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, result);
+                        redirectToAnalyticsPagination(sectionName, result);
                     }
 
                     @Override
@@ -217,7 +195,7 @@ public class Analytics {
                     public void confirmValidWordsOccurrences(String[] result) throws RemoteException {
                         super.confirmValidWordsOccurrences(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -243,7 +221,7 @@ public class Analytics {
                     public void confirmWordHighestScore(String[] result) throws RemoteException {
                         super.confirmWordHighestScore(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -269,7 +247,7 @@ public class Analytics {
                     public void confirmAverageRounds(String[] result) throws RemoteException {
                         super.confirmAverageRounds(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -295,7 +273,7 @@ public class Analytics {
                     public void confirmAverageRounds(String[] result) throws RemoteException {
                         super.confirmAverageRounds(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -331,7 +309,7 @@ public class Analytics {
                             it.remove();
                         }
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, resultString);
+                        redirectToAnalyticsPagination(sectionName, resultString);
                     }
 
                     @Override
@@ -357,7 +335,7 @@ public class Analytics {
                     public void confirmDefinitionRequest(String[] result) throws RemoteException {
                         super.confirmDefinitionRequest(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -383,7 +361,7 @@ public class Analytics {
                     public void confirmGameDefinitionRequest(String[] result) throws RemoteException {
                         super.confirmGameDefinitionRequest(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -410,7 +388,7 @@ public class Analytics {
     }
 
     public static void errorResultOperation(GridFrame mainGridContainer, String sectionName, String messageFromServer) {
-        redirectToAnalyticsPagination(mainGridContainer, sectionName, ERROR_NO_DATA_TEXT);
+        redirectToAnalyticsPagination(sectionName, ERROR_NO_DATA_TEXT);
         System.out.println(messageFromServer);
     }
 
@@ -503,10 +481,9 @@ public class Analytics {
 
     private void redirectToHomeFrame() {
         Home home = new Home();
-        gridContainer.disposeFrame();
     }
 
-    private static void redirectToAnalyticsPagination(GridFrame mainGridContainer, String sectionName, String dataFromServer) {
-        AnalyticsDataPage analyticsDataPage = new AnalyticsDataPage(mainGridContainer, sectionName, dataFromServer);
+    private static void redirectToAnalyticsPagination(String sectionName, String dataFromServer) {
+        AnalyticsDataPage analyticsDataPage = new AnalyticsDataPage(sectionName, dataFromServer);
     }
 }

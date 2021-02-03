@@ -2,6 +2,7 @@ package com.insubria.it.g_interface;
 
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.helpers.Validation;
 import com.insubria.it.serverImplClasses.PlayerCredentialsImpl;
 
@@ -39,7 +40,7 @@ public class ResetPassword {
     gridContainer.addToView(insertEmailInput);
     gridContainer.addToView(resetButton);
 
-    gridContainer.showWindow();
+    FrameHandler.showMainGridContainer(gridContainer);
   }
 
 
@@ -85,6 +86,5 @@ public class ResetPassword {
 
   private void redirectToLoginFrame() {
     LoginUtente loginUtente = new LoginUtente();
-    gridContainer.disposeFrame();
   }
 }
