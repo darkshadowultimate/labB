@@ -321,6 +321,12 @@ public class GameThread extends UnicastRemoteObject implements Game {
         this.handleStartNewSession();
     }
 
+    /**
+     * This method performs the count downs for the game and check words
+     * 
+     * @param seconds - Seconds of the timer
+     * @param scope - If the timer is for the game or for the check words
+     */
     private void performCountDown(int seconds, String scope) {
         try {
             while (seconds > 0) {
@@ -541,14 +547,14 @@ public class GameThread extends UnicastRemoteObject implements Game {
     }
 
     /**
-     * This method is called from each player when the session is end and the thread
+     * This method is called from the server for each players because it
      * needs to check the words discovered by the players. If the word is valid
      * (both length, matrix, and dictionary) it will be registered with the score;
      * if not, it will be registered with score 0 and with the reason. If all users
      * have sent the list of words, the thread will progress and retrieve the list
      * of words to each player
      * 
-     * @param player    - The reference of the player that sent the list of words
+     * @param player    - The reference of the player
      * @param wordsList - The list of words discovered by the player in the game
      *                  session
      * 
