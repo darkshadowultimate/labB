@@ -61,7 +61,7 @@ create table enter
 create table discover
 (
 	word varchar(16) not null,
-	id_game integer not null,
+	id_game integer not null constraint discover_id_game references game on delete cascade,
 	email_user varchar(60) not null,
 	username_user varchar(20) not null,
 	session_number_enter integer not null,
