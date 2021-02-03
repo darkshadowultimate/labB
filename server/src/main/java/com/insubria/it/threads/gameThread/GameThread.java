@@ -272,6 +272,8 @@ public class GameThread extends UnicastRemoteObject implements Game {
 
         Registry registry = LocateRegistry.getRegistry(1099);
         registry.unbind(Integer.toString(this.idGame));
+
+        Thread.currentThread().interrupt();
     }
 
     /**
@@ -353,7 +355,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
         } catch (RemoteException exc) {
             System.err.println("Error while contacting the client " + exc);
         } catch (InterruptedException exc) {
-            System.err.println("Error while sleeping " + exc);
+            System.err.println("Thread interrupted");
         }
     }
 
