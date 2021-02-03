@@ -526,7 +526,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      */
-    public synchronized void removePlayerInGame(GameClient player) throws RemoteException {
+    public void removePlayerInGame(GameClient player) throws RemoteException {
         System.out.println("Removing a user to started game...");
 
         try {

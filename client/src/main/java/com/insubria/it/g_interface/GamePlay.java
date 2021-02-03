@@ -40,6 +40,8 @@ public class GamePlay {
   private static GridFrame gridContainer;
 
   public GamePlay(String gameName, int sessionNumber, String[][] matrixLetters, HashMap<String, Integer> playersWithScore) {
+    wordsFound = new ArrayList<>();
+
     // initialize grids
     gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_CONTAINER);
     gridLettersTimerPoints = new GridFrame(ROWS, COLS_GRID_LETTER_TIMER_POINTS);
@@ -144,9 +146,12 @@ public class GamePlay {
     timerText.setLabelValue("Timer: " + currentValue + "s");
   }
 
-  public static void redirectToWordsAnalysisFrame() {
+  public static void redirectToWordsAnalysisFrame(
+    ArrayList<WordRecord> correctListWords,
+    ArrayList<WordRecord> wrongListWords
+  ) {
     gridContainer.disposeFrame();
-    WordsAnalysis wordsAnalysis = new WordsAnalysis();
+    WordsAnalysis wordsAnalysis = new WordsAnalysis(correctListWords, wrongListWords);
   }
 
   public static void redirectToHomeFrame() {

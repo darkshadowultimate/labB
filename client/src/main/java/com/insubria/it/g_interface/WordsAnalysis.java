@@ -31,7 +31,18 @@ public class WordsAnalysis {
   private GridFrame gridCorrectWords, gridWrongWords, gridButtons;
   private static GridFrame gridContainer = null;
 
-  public WordsAnalysis() {
+  public WordsAnalysis(ArrayList<WordRecord> correctListWords, ArrayList<WordRecord> wrongListWords) {
+
+    correctWords = correctListWords;
+    wrongWords = wrongListWords;
+
+    /*correctWords.add(new WordRecord("pane", "username1", 5));
+    correctWords.add(new WordRecord("bacca", "username1", 4));
+    correctWords.add(new WordRecord("auto", "username2", 1));
+
+    wrongWords.add(new WordRecord("ddd", "username2", 0, "What is this??"));
+    wrongWords.add(new WordRecord("auti", "username1", 0, "Come on, man!"));*/
+
     isFrameActive = true;
 
     gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_GRID_CONTAINER);
@@ -67,36 +78,13 @@ public class WordsAnalysis {
     gridContainer.showWindow();
   }
 
-  public void initializeWordsLabels() {
+  private void initializeWordsLabels() {
     this.correctWordsLabels = new Label[correctWords.size()];
     this.wrongWordsLabels = new Label[wrongWords.size()];
 
-    for (int i = 0; i < correctWords.size(); i++) {
-      this.correctWordsLabels[i] = new Label(correctWords.get(i).getWord());
+    attachEventListenersToLabels(correctWords, this.correctWordsLabels, gridCorrectWords);
 
-      int tmpCounter = i;
-
-      this.correctWordsLabels[i].attachMouseListener(new MouseAdapter() {
-        public void mouseClicked(MouseEvent me) {
-          SingleWordAnalysis singleWordAnalysis = new SingleWordAnalysis(correctWords.get(tmpCounter));
-        }
-      });
-      // ***** gridWords ***** //
-      this.gridCorrectWords.addToView(this.correctWordsLabels[i]);
-    }
-    for (int i = 0; i < wrongWords.size(); i++) {
-      this.wrongWordsLabels[i] = new Label(wrongWords.get(i).getWord());
-      // ***** gridWords ***** //
-      this.gridWrongWords.addToView(this.wrongWordsLabels[i]);
-    }
-  }
-
-  public static void updateAcceptedRefusedWords(
-    ArrayList<WordRecord> acceptedArray,
-    ArrayList<WordRecord> refusedArray
-  ) {
-    correctWords = acceptedArray;
-    wrongWords = refusedArray;
+    attachEventListenersToLabels(wrongWords, this.wrongWordsLabels, gridWrongWords);
   }
 
   public static void updateCountdown(int currentValue) {
@@ -118,5 +106,21 @@ public class WordsAnalysis {
   public static void redirectToGamePlayFrame() {
     SingleWordAnalysis.redirectToWordsAnalysisFrame();
     gridContainer.disposeFrame();
+  }
+
+  private void attachEventListenersToLabels(ArrayList<WordRecord> list, Label[] labels, GridFrame grid) {
+    for (int i = 0; i < list.size(); i++) {
+      labels[i] = new Label(list.get(i).getWord());
+
+      int tmpCounter = i;
+
+      labels[i].attachMouseListener(new MouseAdapter() {
+        public void mouseClicked(MouseEvent me) {
+          SingleWordAnalysis singleWordAnalysis = new SingleWordAnalysis(list.get(tmpCounter));
+        }
+      });
+      // ***** gridWords ***** //
+      grid.addToView(labels[i]);
+    }
   }
 }

@@ -113,17 +113,17 @@ public class ListGames {
 
                 joinGameButton[i].attachActionListenerToButton(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                            RemoteObjectContextProvider.setGameRemoteObject(idGameCopy);
-                            
-                            CompletableFuture.runAsync(() -> {
-                                try {
-                                    RemoteObjectContextProvider
-                                    .game
-                                    .addNewPlayer(GameContextProvider.getGameClientReference());
-                                } catch (RemoteException exc) {
-                                    exc.printStackTrace();
-                                }
-                            });
+                        RemoteObjectContextProvider.setGameRemoteObject(idGameCopy);
+
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                RemoteObjectContextProvider
+                                .game
+                                .addNewPlayer(GameContextProvider.getGameClientReference());
+                            } catch (RemoteException exc) {
+                                exc.printStackTrace();
+                            }
+                        });
                     }
                 });
             }
@@ -169,6 +169,13 @@ public class ListGames {
                     @Override
                     public void confirmGetListOfGames(String[][] result) throws RemoteException {
                         super.confirmGetListOfGames(result);
+
+                        //TODO ==> Use 2 arraylists (uno for the game and the other for the players
+
+                        for(int i = 0; i < result[0].length; i++) {
+
+                        }
+
                         gameUserMatrix = result;
                     }
 

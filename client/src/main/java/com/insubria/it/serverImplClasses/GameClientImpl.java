@@ -106,7 +106,9 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * removed It is implemented client side
      */
     public void gameHasBeenRemoved(String reason) throws RemoteException {
-        GamePlay.redirectToHomeFrame();
+        CompletableFuture.runAsync(() -> {
+            GamePlay.redirectToHomeFrame();
+        });
     }
 
     /**
@@ -130,7 +132,9 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * implemented client side
      */
     public void synchronizeInGameTimer(int seconds) throws RemoteException {
-        GamePlay.updateCountdown(seconds);
+        CompletableFuture.runAsync(() -> {
+            GamePlay.updateCountdown(seconds);
+        });
     }
 
     /**
@@ -191,8 +195,7 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
         System.out.println("Ricevuta sendWordsDiscoveredInSession");
 
         CompletableFuture.runAsync(() -> {
-            GamePlay.redirectToWordsAnalysisFrame();
-            WordsAnalysis.updateAcceptedRefusedWords(acceptedArray, refusedArray);
+            GamePlay.redirectToWordsAnalysisFrame(acceptedArray, refusedArray);
         });
     }
 
