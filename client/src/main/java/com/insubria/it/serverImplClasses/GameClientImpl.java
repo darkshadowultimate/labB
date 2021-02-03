@@ -66,9 +66,7 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * correctly added to the game It is implemented client side
      */
     public void confirmAddNewPlayer() throws RemoteException {
-        CompletableFuture.runAsync(() -> {
-            ListGames.redirectToWaitingPlayersFrame();
-        });
+        ListGames.redirectToWaitingPlayersFrame();
     }
 
     /**
@@ -117,11 +115,13 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * It is implemented client side
      */
     public void synchronizePreStartGameTimer(int seconds) throws RemoteException {
-        if(seconds == 30) {
-            WaitingPlayers.redirectToCountdownFrame();
-        } else {
-            WaitingStartGame.updateCountdown(seconds);
-        }
+        CompletableFuture.runAsync(() -> {
+            if(seconds == 30) {
+                WaitingPlayers.redirectToCountdownFrame();
+            } else {
+                WaitingStartGame.updateCountdown(seconds);
+            }
+        });
     }
 
     /**
@@ -139,7 +139,9 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * implemented client side
      */
     public void synchronizeInWaitTimer(int seconds) throws RemoteException {
-        WordsAnalysis.updateCountdown(seconds);
+        CompletableFuture.runAsync(() -> {
+            WordsAnalysis.updateCountdown(seconds);
+        });
     }
 
     /**
@@ -152,12 +154,12 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
         String[][] matrix,
         HashMap<String, Integer> playerScore
     ) throws RemoteException {
-        if(WordsAnalysis.isWordsAnalysisFrameActive()) {
-            WordsAnalysis.redirectToGamePlayFrame();
-        } else {
-            WaitingStartGame.redirectToGamePlayFrame();
-        }
         CompletableFuture.runAsync(() -> {
+            if(WordsAnalysis.isWordsAnalysisFrameActive()) {
+                WordsAnalysis.redirectToGamePlayFrame();
+            } else {
+                WaitingStartGame.redirectToGamePlayFrame();
+            }
             GamePlay gamePlay = new GamePlay(
                 name,
                 sessionNumber,

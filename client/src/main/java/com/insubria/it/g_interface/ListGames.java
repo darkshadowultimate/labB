@@ -113,15 +113,17 @@ public class ListGames {
 
                 joinGameButton[i].attachActionListenerToButton(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        try {
                             RemoteObjectContextProvider.setGameRemoteObject(idGameCopy);
-
-                            RemoteObjectContextProvider
-                            .game
-                            .addNewPlayer(GameContextProvider.getGameClientReference());
-                        } catch(RemoteException exc) {
-                            exc.printStackTrace();
-                        }
+                            
+                            CompletableFuture.runAsync(() -> {
+                                try {
+                                    RemoteObjectContextProvider
+                                    .game
+                                    .addNewPlayer(GameContextProvider.getGameClientReference());
+                                } catch (RemoteException exc) {
+                                    exc.printStackTrace();
+                                }
+                            });
                     }
                 });
             }

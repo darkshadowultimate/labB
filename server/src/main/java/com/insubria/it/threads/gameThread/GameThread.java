@@ -82,12 +82,6 @@ public class GameThread extends UnicastRemoteObject implements Game {
     private GameThreadUtils gameUtil;
 
     /**
-     * It represents the reference to the instance that acts as the timer while the
-     * game and the review part of the game
-     */
-    private TimerThread timerThread;
-
-    /**
      * It represents the reference of the Dictionary object used to check if words
      * are eligible
      */
@@ -219,13 +213,13 @@ public class GameThread extends UnicastRemoteObject implements Game {
         for (GameClient item : this.gameClientObservers) {
             try {
                 item.confirmGameSession(this.name, this.sessionNumber, randomMatrix,
-                        playerScore);
+                                        playerScore);
             } catch (RemoteException exc) {
                 System.err.println("Error while contacting the player");
             }
         }
-        this.timerThread = new TimerThread("isPlaying", this, this.gameClientObservers);
-        this.timerThread.start();
+
+        this.performCountDown(30, "isPlaying");
     }
 
     /**
@@ -248,6 +242,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
             }
             // Populating the ArrayList of refused words
             while (refused.next()) {
+                System.out.println("Word refused is " + refused.getString("word"));
                 refusedArray.add(new WordRecord(refused.getString("word"), refused.getString("username_user"),
                         refused.getInt("score"), refused.getString("reason")));
             }
@@ -263,8 +258,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
             }
         }
 
-        this.timerThread = new TimerThread("isReviewing", this, this.gameClientObservers);
-        this.timerThread.start();
+        this.performCountDown(30, "isReviewing");
     }
 
     /**
@@ -324,9 +318,37 @@ public class GameThread extends UnicastRemoteObject implements Game {
             }
         }
 
-        CompletableFuture.runAsync(() -> {
-            this.handleStartNewSession();
-        });
+        this.handleStartNewSession();
+    }
+
+    private void performCountDown(int seconds, String scope) {
+        try {
+            while (seconds > 0) {
+                for (GameClient singleClient : this.gameClientObservers) {
+                    if (scope.equals("isPlaying")) {
+                        singleClient.synchronizeInGameTimer(seconds);
+                    } else {
+                        singleClient.synchronizeInWaitTimer(seconds);
+                    }
+                }
+                System.out.println("Seconds to wait " + seconds);
+                seconds--;
+                Thread.sleep(1000);
+            }
+    
+            if (scope.equals("isPlaying")) {
+                this.triggerEndOfSessionGameClient();
+            } else {
+                this.increaseSessionNumber();
+                this.handleStartNewSession();
+            }
+        } catch (SQLException exc) {
+            System.err.println("Error while contacting the db " + exc);
+        } catch (RemoteException exc) {
+            System.err.println("Error while contacting the client " + exc);
+        } catch (InterruptedException exc) {
+            System.err.println("Error while sleeping " + exc);
+        }
     }
 
     /**
@@ -342,7 +364,6 @@ public class GameThread extends UnicastRemoteObject implements Game {
                 singlePlayerWords = singlePlayer.triggerEndOfSession();
 
                 System.out.println("The list of words have been reached");
-                
                 this.checkPlayerWords(singlePlayer, singlePlayerWords);
             } catch (RemoteException exc) {
                 System.err.println("Error while contacting the client " + exc);
@@ -402,7 +423,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      */
-    public void addNewPlayer(GameClient player) throws RemoteException {
+    public synchronized void addNewPlayer(GameClient player) throws RemoteException {
         System.out.println("Adding a user to the game...");
         boolean flag = true;
 
@@ -437,9 +458,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
 
             if (this.gameClientObservers.size() == this.maxPlayers) {
                 System.out.println("The game is starting...");
-                CompletableFuture.runAsync(() -> {
-                    this.handleTimer(30);
-                });
+                this.handleTimer(30);
             }
         }
     }
@@ -454,7 +473,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      */
-    public void removePlayerNotStartedGame(GameClient player) throws RemoteException {
+    public synchronized void removePlayerNotStartedGame(GameClient player) throws RemoteException {
         System.out.println("Removing a user to not started game...");
 
         try {
@@ -499,7 +518,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
      * @throws RemoteException - If there is an error while the client contact, it
      *                         throws RemoteException
      */
-    public void removePlayerInGame(GameClient player) throws RemoteException {
+    public synchronized void removePlayerInGame(GameClient player) throws RemoteException {
         System.out.println("Removing a user to started game...");
 
         try {
@@ -507,13 +526,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
             System.out.println("Removing the whole game, sessions and words discovered...");
 
             for (GameClient singlePlayer : this.gameClientObservers) {
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        singlePlayer.gameHasBeenRemoved("Player " + player.getUsername() + " left the game");
-                    } catch(RemoteException exc) {
-                        exc.printStackTrace();
-                    }
-                });
+                singlePlayer.gameHasBeenRemoved("Player " + player.getUsername() + " left the game");
             }
 
             System.out.println("Removing the game...");
@@ -561,7 +574,8 @@ public class GameThread extends UnicastRemoteObject implements Game {
                 pst.setInt(5, this.sessionNumber);
 
                 // Check the word exists in the dictionary
-                if (this.dictionary.exists(singleWord)) {
+                // ALERT ALERT ALERT ALERT ALERT
+                if (true) {
                     // Check the word exists in the matrix
                     if (this.gameUtil.checkWordInMatrix(this.randomMatrix, singleWord)) {
                         if (singleWord.length() >= 3) {
