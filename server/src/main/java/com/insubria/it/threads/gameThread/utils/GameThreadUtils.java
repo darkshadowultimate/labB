@@ -335,9 +335,9 @@ public class GameThreadUtils {
     public boolean checkWordInMatrix(String[][] randomMatrix, String toSearch) {
         Research research = new Research(randomMatrix);
 
-        for (int x = 0; x < randomMatrix.length; x++) {
-            for (int y = 0; y < randomMatrix[0].length; y++) {
-                if (randomMatrix[x][y].equals("" + toSearch.charAt(0))) {
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                if (randomMatrix[x][y].toLowerCase().equals("" + (toSearch.charAt(0) + "").toLowerCase())) {
                     if (research.startSearchProcess(toSearch, x, y)) {
                         return true;
                     }
