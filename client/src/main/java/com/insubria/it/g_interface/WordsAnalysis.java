@@ -18,14 +18,13 @@ public class WordsAnalysis {
   private static final String MAIN_TITLE = "Tutte le parole trovate";
   private static final String ACCEPTED_WORDS = "Parole accettate (seleziona una parola per maggiori dettagli)";
   private static final String REFUSED_WORDS = "Parole rifiutate (seleziona una parola per maggiori dettagli)";
-  private static final String TIMER_TEXT = " Timer: 180s";
-  private static final String CHECK_TERM_BUTTON = "Verifica termine su vocabolario";
+  private static final String TIMER_TEXT = "";
   private static final String STOP_ANALYSIS_BUTTON = "Termina analisi";
   private static final String BACK_TO_HOME_BUTTON = "Esci e torna alla Home";
   private static final int ROWS = 0;
   private static final int COLS_GRID_CONTAINER = 1;
   private static final int COLS_GRID_WORDS = 6;
-  private static final int COLS_GRID_BUTTONS = 3;
+  private static final int COLS_GRID_BUTTONS = 2;
 
   private static ArrayList<WordRecord>
         correctWords = new ArrayList<WordRecord>(),
@@ -33,7 +32,7 @@ public class WordsAnalysis {
   private Label mainTitle, acceptedWords, refusedWords;
   private static Label timerText;
   private Label[] correctWordsLabels, wrongWordsLabels;
-  private Button checkTermButton, stopAnalysisButton, cancelButton;
+  private Button stopAnalysisButton, cancelButton;
   private GridFrame gridCorrectWords, gridWrongWords, gridButtons;
   private static GridFrame gridContainer = null;
 
@@ -54,14 +53,12 @@ public class WordsAnalysis {
 
     this.initializeWordsLabels();
 
-    checkTermButton = new Button(CHECK_TERM_BUTTON);
     stopAnalysisButton = new Button(STOP_ANALYSIS_BUTTON);
     cancelButton = new Button(BACK_TO_HOME_BUTTON);
 
     addAllEventListeners();
 
     // ***** gridButtons ***** //
-    gridButtons.addToView(checkTermButton);
     gridButtons.addToView(stopAnalysisButton);
     gridButtons.addToView(cancelButton);
 

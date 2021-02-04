@@ -7,22 +7,12 @@ public class FrameHandler {
     private static GridFrame secondaryGridContainer = null;
 
     public static void showMainGridContainer(GridFrame gridFrame) {
-        if(mainGridContainer != null) {
-            mainGridContainer.disposeFrame();
-        }
-        mainGridContainer = gridFrame;
+        handleShowMainGridContainerProcess(gridFrame);
         mainGridContainer.showWindow();
     }
 
     public static void showMainGridContainerWithSizes(GridFrame gridFrame, int height, int width) {
-        if(mainGridContainer != null) {
-            mainGridContainer.disposeFrame();
-        }
-        if(secondaryGridContainer != null) {
-            secondaryGridContainer.disposeFrame();
-        }
-        mainGridContainer = gridFrame;
-        secondaryGridContainer = null;
+        handleShowMainGridContainerProcess(gridFrame);
         mainGridContainer.showWindow(height, width);
     }
 
@@ -35,7 +25,17 @@ public class FrameHandler {
     }
 
     public static void disposeSecondaryGridContainer() {
-        secondaryGridContainer.disposeFrame();
-        secondaryGridContainer = null;
+        if(secondaryGridContainer != null) {
+            secondaryGridContainer.disposeFrame();
+            secondaryGridContainer = null;
+        }
+    }
+
+    private static void handleShowMainGridContainerProcess(GridFrame gridFrame) {
+        if(mainGridContainer != null) {
+            mainGridContainer.disposeFrame();
+        }
+        disposeSecondaryGridContainer();
+        mainGridContainer = gridFrame;
     }
 }

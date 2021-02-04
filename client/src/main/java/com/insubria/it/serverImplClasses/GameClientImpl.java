@@ -200,7 +200,10 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * implemented client side
      */
     public void confirmWordDefinitions(String wordDefinitions) throws RemoteException {
-        SingleWordAnalysis.showWordDefinition(wordDefinitions);
+        System.out.println("Definition requested:\n" + wordDefinitions);
+        CompletableFuture.runAsync(() -> {
+            SingleWordAnalysis.showWordDefinition(wordDefinitions);
+        });
     }
 
     /**

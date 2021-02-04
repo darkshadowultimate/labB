@@ -96,10 +96,10 @@ public class Loader {
 			return ItemType.other;
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		Loader loader = new Loader();
-		/*String file_dizionario = "dict_it.oxt";
-		File dizionario = new File(file_dizionario);*/
+		//String file_dizionario = "dict_it.oxt";
+		//File dizionario = new File(file_dizionario);
 
 		try {
 
@@ -108,9 +108,8 @@ public class Loader {
 
 			Dictionary d = loader.loadDictionaryFromFile(new ZipInputStream(inputStream));
 
-			/*
-			 * for(String key: d.getKeys()) { System.out.println(d.getTerm(key)); }
-			 */
+			//for(String key: d.getKeys()) { System.out.println(d.getTerm(key)); }
+
 			System.out.println(d.getSize());
 			System.out.println(d.getTerm("studente"));
 			System.out.println(d.getTerm("studentato"));
@@ -122,5 +121,5 @@ public class Loader {
 		} catch (InvalidKey e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 }

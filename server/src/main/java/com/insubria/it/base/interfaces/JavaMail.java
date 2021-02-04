@@ -15,7 +15,7 @@ public interface JavaMail {
   /**
    * Email used to send the messages
    */
-  String emailSender = "spaglino@studenti.uninsubria.it";
+  String emailSender = "";
 
   /**
    * The password of the email used to send the messages

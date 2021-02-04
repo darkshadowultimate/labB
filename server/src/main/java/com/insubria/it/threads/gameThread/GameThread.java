@@ -1,5 +1,6 @@
 package com.insubria.it.threads.gameThread;
 
+import java.io.InputStream;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -13,8 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
-import java.io.File;
 import java.io.IOException;
+import java.util.zip.ZipInputStream;
 
 import com.insubria.it.base.abstracts.Database;
 
@@ -130,7 +131,25 @@ public class GameThread extends UnicastRemoteObject implements Game {
 
         this.gameUtil = new GameThreadUtils(db);
         this.interruptedFlag = false;
-        //this.dictionary = new Loader().loadDictionaryFromFile(new File("dict-it.oxt"));
+
+        this.initializeDictionary();
+    }
+
+    /**
+     * Method invoked to initialize "dictionary" field of this class,
+     * in order to interact with it. The loaded dictionary is a compressed file type.
+     */
+    private void initializeDictionary() {
+        Loader loader = new Loader();
+
+        try {
+            ClassLoader classLoader = new Object() {}.getClass().getClassLoader();
+            InputStream inputStream = classLoader.getResourceAsStream("dict_it.oxt");
+
+            this.dictionary = loader.loadDictionaryFromFile(new ZipInputStream(inputStream));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -592,7 +611,10 @@ public class GameThread extends UnicastRemoteObject implements Game {
 
                 // Check the word exists in the dictionary
                 // ALERT ALERT ALERT ALERT ALERT
-                if (true) {
+
+                boolean doesWordExist = this.dictionary.exists(singleWord);
+
+                if (doesWordExist) {
                     // Check the word exists in the matrix
                     if (this.gameUtil.checkWordInMatrix(this.randomMatrix, singleWord)) {
                         if (singleWord.length() >= 3) {
@@ -664,7 +686,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
      *                         throws RemoteException
      */
     public void askForWordDefinition(GameClient player, String word) throws RemoteException {
-        System.out.println("Getting the definitions for the " + word);
+        System.out.println("Getting the definitions for the word: " + word);
 
         try {
             // Increasing the requests number for this word
