@@ -88,6 +88,16 @@ public class GameThread extends UnicastRemoteObject implements Game {
     private boolean interruptedFlag;
 
     /**
+     * It represents the flag to interrupt the inReview countdown
+     */
+    private boolean completedReviewFlag;
+
+    /**
+     * It represents the number of players that completed the review before the countdown completed
+     */
+    private int numberOfConfirmed;
+
+    /**
      * It represents the reference of the Dictionary object used to check if words
      * are eligible
      */
@@ -130,7 +140,10 @@ public class GameThread extends UnicastRemoteObject implements Game {
         this.db = db;
 
         this.gameUtil = new GameThreadUtils(db);
+
         this.interruptedFlag = false;
+        this.completedReviewFlag = false;
+        this.numberOfConfirmed = 0;
 
         this.initializeDictionary();
     }
@@ -354,7 +367,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
      */
     private void performCountDown(int seconds, String scope) {
         try {
-            while (seconds > 0 && !this.interruptedFlag) {
+            while (seconds > 0 && !this.interruptedFlag && !this.completedReviewFlag) {
                 for (GameClient singleClient : this.gameClientObservers) {
                     if (scope.equals("isPlaying")) {
                         singleClient.synchronizeInGameTimer(seconds);
@@ -371,6 +384,9 @@ public class GameThread extends UnicastRemoteObject implements Game {
                 if (scope.equals("isPlaying")) {
                     this.triggerEndOfSessionGameClient();
                 } else {
+                    this.numberOfConfirmed = 0;
+                    this.completedReviewFlag = false;
+
                     this.increaseSessionNumber();
                     this.handleStartNewSession();
                 }
@@ -711,6 +727,14 @@ public class GameThread extends UnicastRemoteObject implements Game {
     public void increaseSessionNumber() throws SQLException {
         this.sessionNumber++;
         this.gameUtil.increaseNumberOfRounds(this.idGame);
+    }
+
+    public synchronized void completedReviewBefore() throws RemoteException {
+        this.numberOfConfirmed++;
+
+        if (this.numberOfConfirmed == this.maxPlayers) {
+            this.completedReviewFlag = true;
+        }
     }
 
     /**

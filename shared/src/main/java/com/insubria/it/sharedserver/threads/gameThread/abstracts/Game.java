@@ -45,4 +45,10 @@ public interface Game extends Remote {
      * the GameThread class
      */
     void askForWordDefinition(GameClient player, String word) throws RemoteException;
+
+    /**
+     * The signature of the completedReviewBefore method This method is implemented in
+     * the GameThread class
+     */
+    void completedReviewBefore() throws RemoteException;
 }
