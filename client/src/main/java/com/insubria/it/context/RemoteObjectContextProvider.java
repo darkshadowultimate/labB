@@ -65,6 +65,12 @@ public class RemoteObjectContextProvider {
   }
 
   public static void setGameRemoteObject(String idGame) {
-    game = (Game) getRemoteObjectFromRegistry(idGame);
+    if(idGame != null) {
+      game = (Game) getRemoteObjectFromRegistry(idGame);
+    }
+  }
+
+  public static void resetGameRemoteObject() {
+    game = null;
   }
 }

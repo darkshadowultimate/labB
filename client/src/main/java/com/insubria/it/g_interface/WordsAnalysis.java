@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 import com.insubria.it.context.GameContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
@@ -88,7 +89,16 @@ public class WordsAnalysis {
     });
     stopAnalysisButton.attachActionListenerToButton(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        redirectToWaitingPlayersFrame();
+        try {
+          RemoteObjectContextProvider
+          .game
+          .completedReviewBefore();
+        } catch(RemoteException exc) {
+          exc.printStackTrace();
+        }
+        CompletableFuture.runAsync(() -> {
+          redirectToWaitingPlayersFrame();
+        });
       }
     });
   }
@@ -108,10 +118,6 @@ public class WordsAnalysis {
 
   public static void redirectToGameWinnerFrame(String usernameWinner) {
     GameWinner gameWinner = new GameWinner(usernameWinner);
-  }
-
-  public static void redirectToGamePlayFrame() {
-    FrameHandler.disposeSecondaryGridContainer();
   }
 
   // once the analysis is finished before the timer
