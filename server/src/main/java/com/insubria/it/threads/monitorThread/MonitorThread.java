@@ -12,6 +12,7 @@ import com.insubria.it.base.abstracts.Database;
 import com.insubria.it.sharedserver.threads.monitorThread.interfaces.MonitorClient;
 import com.insubria.it.threads.monitorThread.abstracts.Monitor;
 
+import java.math.BigDecimal;
 import java.rmi.RemoteException;
 
 /**
@@ -314,6 +315,8 @@ public class MonitorThread extends Monitor implements Runnable {
                     tmp += dateFormat.format(new Date());
                 } else if(currentObjResultSet instanceof Long) {
                     tmp += Long.toString(((Long) currentObjResultSet).longValue());
+                } else if (currentObjResultSet instanceof BigDecimal) {
+                    tmp += String.valueOf(currentObjResultSet.doubleValue());
                 } else {
                     tmp += (String) currentObjResultSet;
                 }
