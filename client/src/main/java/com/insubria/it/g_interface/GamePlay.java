@@ -28,6 +28,7 @@ public class GamePlay {
   private static final String LIST_SCORES_TEXT = "<html>Classifica: <br /><br />";
   private static final String INSERT_WORD_TEXT = "Nuova parola trovata";
   private static final String ADD_WORD_BUTTON = "Aggiungi parola";
+  private static final String INCORRECT_WORD_INPUT = "La parola da inserire deve avere almeno 3 lettere";
   private static final int ROWS = 0;
   private static final int ROWS_GRID_LETTERS = 4;
   private static final int COLS_CONTAINER = 1;
@@ -125,9 +126,13 @@ public class GamePlay {
       public void actionPerformed(ActionEvent e) {
         String wordInserted = addNewWordInput.getValueTextField();
 
-        wordsFound.add(wordInserted);
-        listWordsView.addElement(wordInserted);
-        addNewWordInput.setValueInputField("");
+        if(wordInserted.length() > 2) {
+          wordsFound.add(wordInserted);
+          listWordsView.addElement(wordInserted);
+          addNewWordInput.setValueInputField("");
+        } else {
+          JOptionPane.showMessageDialog(null, INCORRECT_WORD_INPUT);
+        }
       }
     });
   }
