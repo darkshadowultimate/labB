@@ -39,12 +39,16 @@ public class GridFrame extends GraphicComponent {
     }
   }
 
+  public void addToView(Component comp) {
+    this.container.add(comp);
+  }
+
   public void removeFromView(GraphicComponent componentToRemove) {
     container.remove(componentToRemove);
   }
 
   public void showWindow(int height, int width) {
-    this.window.setSize(height, width);
+    this.window.setSize(width, height);
     this.setWindowOptions();
   }
 

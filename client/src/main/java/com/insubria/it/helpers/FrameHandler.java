@@ -2,6 +2,8 @@ package com.insubria.it.helpers;
 
 import com.insubria.it.g_components.GridFrame;
 
+import javax.swing.*;
+
 public class FrameHandler {
     private static GridFrame mainGridContainer = null;
     private static GridFrame secondaryGridContainer = null;
@@ -20,6 +22,7 @@ public class FrameHandler {
         if(secondaryGridContainer != null) {
             secondaryGridContainer.disposeFrame();
         }
+        JOptionPane.getRootFrame().dispose();
         secondaryGridContainer = gridFrame;
         secondaryGridContainer.showWindow();
     }
@@ -29,6 +32,7 @@ public class FrameHandler {
             secondaryGridContainer.disposeFrame();
             secondaryGridContainer = null;
         }
+        JOptionPane.getRootFrame().dispose();
     }
 
     private static void handleShowMainGridContainerProcess(GridFrame gridFrame) {
@@ -36,6 +40,7 @@ public class FrameHandler {
             mainGridContainer.disposeFrame();
         }
         disposeSecondaryGridContainer();
+        JOptionPane.getRootFrame().dispose();
         mainGridContainer = gridFrame;
     }
 }

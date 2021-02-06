@@ -24,7 +24,7 @@ public class ResetPassword {
   // Variables
   private Label mainTitle;
   private InputLabel insertEmailInput;
-  private Button resetButton;
+  private Button resetButton, backToLogin;
   private GridFrame gridContainer;
 
   public ResetPassword() {
@@ -33,12 +33,14 @@ public class ResetPassword {
     mainTitle = new Label(MAIN_TITLE);
     insertEmailInput = new InputLabel(INSERT_EMAIL_TEXT);
     resetButton = new Button(RESET_BUTTON_TEXT);
+    backToLogin = new Button(Button.BACK_TO_LOGIN);
 
     addAllEventListeners();
 
     gridContainer.addToView(mainTitle);
     gridContainer.addToView(insertEmailInput);
     gridContainer.addToView(resetButton);
+    gridContainer.addToView(backToLogin);
 
     FrameHandler.showMainGridContainer(gridContainer);
   }
@@ -74,6 +76,12 @@ public class ResetPassword {
         } else {
           JOptionPane.showMessageDialog(null, ERROR_EMAIL_FIELD_TEXT);
         }
+      }
+    });
+    backToLogin.attachActionListenerToButton(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        redirectToLoginFrame();
       }
     });
   }

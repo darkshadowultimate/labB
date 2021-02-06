@@ -29,7 +29,6 @@ public class Analytics {
         "Identificativo partita di cui si è richiesta la definizione di una parola: ",
     };
     private static final String TITLE_WINDOW = "Il Paroliere - Analitycs";
-    private static final String HOME_BUTTON_TEXT = "Torna alla Home";
     private static final String ERROR_NO_DATA_TEXT = "Nessun dato disponibile";
     private static final int ROWS = 0;
     private static final int COLS = 1;
@@ -41,7 +40,7 @@ public class Analytics {
     public Analytics() {
         gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS);
 
-        homeButton = new Button(HOME_BUTTON_TEXT);
+        homeButton = new Button(Button.BACK_TO_HOME);
         
         addAllEventListeners();
 
@@ -53,7 +52,7 @@ public class Analytics {
 
         gridContainer.addToView(homeButton);
 
-        FrameHandler.showMainGridContainerWithSizes(gridContainer, 800, 1000);
+        FrameHandler.showMainGridContainerWithSizes(gridContainer, 1000, 800);
     }
 
     private void scoreGameAndSession(final String sectionName) {

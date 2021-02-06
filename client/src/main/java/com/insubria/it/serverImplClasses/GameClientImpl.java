@@ -82,7 +82,7 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
     /**
      * The signature of the confirmRemovePlayerNotStartedGame method Called when the
      * player is correctly removed form a not started game It is implemented client
-     * side
+     *
      */
     public void confirmRemovePlayerNotStartedGame() throws RemoteException {
         CompletableFuture.runAsync(() -> {
