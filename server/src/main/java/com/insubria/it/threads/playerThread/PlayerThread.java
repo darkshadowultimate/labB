@@ -274,6 +274,7 @@ public class PlayerThread extends Player implements Runnable {
     private void deleteUserAccount(String email, Connection dbConnection) throws SQLException {
         String sqlDelete = "DELETE FROM users WHERE email = ?";
         PreparedStatement pst = dbConnection.prepareStatement(sqlDelete);
+        pst.setString(1, email);
 
         this.db.performChangeState(pst);
         pst.close();
@@ -309,7 +310,7 @@ public class PlayerThread extends Player implements Runnable {
         PlayerCredentials player
     ) throws InterruptedException, RemoteException, SQLException, MessagingException {
 
-        if (!this.checkProfileExists(this.email, this.username)) {
+        if (!this.checkProfileExists(email, username)) {
             Connection dbConnection = this.db.getDatabaseConnection();
             String token = UUID.randomUUID().toString();
             String sqlInsert = "INSERT INTO users(email, username, name, surname, password, code) VALUES (?, ?, ?, ?, ?, ?)";
@@ -328,7 +329,7 @@ public class PlayerThread extends Player implements Runnable {
                     "Your activation code is the following: " + token);
 
             player.confirmPlayerRegistration();
-            Thread.sleep(600000);
+            Thread.sleep(60);
 
             if (!this.checkHasConfirmedAccount(email)) {
                 System.out.println("Removing the account due to confirmation timeout...");
