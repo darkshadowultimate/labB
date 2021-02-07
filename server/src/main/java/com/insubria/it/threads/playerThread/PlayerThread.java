@@ -329,7 +329,7 @@ public class PlayerThread extends Player implements Runnable {
                     "Your activation code is the following: " + token);
 
             player.confirmPlayerRegistration();
-            Thread.sleep(60);
+            Thread.sleep(600000);
 
             if (!this.checkHasConfirmedAccount(email)) {
                 System.out.println("Removing the account due to confirmation timeout...");
