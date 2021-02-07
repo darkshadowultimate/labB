@@ -216,7 +216,7 @@ public class ListGames {
         });
         viewStartedGamesButton.attachActionListenerToButton(new ActionListener() {
             public void actionPerformed(ActionEvent me) {
-                redirectToNewListGame("started");
+                redirectToNewListGame("playing");
             }
         });
         homeButton.attachActionListenerToButton(new ActionListener() {
