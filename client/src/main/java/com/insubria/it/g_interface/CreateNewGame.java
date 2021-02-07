@@ -35,8 +35,8 @@ public class CreateNewGame {
     gridFrame = new GridFrame(TITLE_WINDOW, ROWS, COLS);
 
     titleLabel = new Label(TITLE_TOP);
-    nameGame = new InputLabel(NAME_GAME_LABEL);
-    numPlayers = new InputLabel(NUM_PLAYERS_LABEL);
+    nameGame = new InputLabel(NAME_GAME_LABEL, false);
+    numPlayers = new InputLabel(NUM_PLAYERS_LABEL, false);
     createGameButton = new Button(CREATE_GAME_BUTTON_TEXT);
     backToHome = new Button(Button.BACK_TO_HOME);
 

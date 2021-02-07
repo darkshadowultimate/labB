@@ -69,7 +69,7 @@ public class GamePlay {
     listScoresText = new Label(playersScores);
 
     // initialize input labels
-    addNewWordInput = new InputLabel(INSERT_WORD_TEXT);
+    addNewWordInput = new InputLabel(INSERT_WORD_TEXT, false);
 
     // initialize buttons
     addWordButton = new Button(ADD_WORD_BUTTON);

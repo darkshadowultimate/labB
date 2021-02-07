@@ -57,15 +57,15 @@ public class UserRegistration {
 
     // initialize labels and textfields (inside JPanels)
     for (int i = 0; i < LABELS_TEXTS.length; i++) {
-      inputLabels[i] = new InputLabel(LABELS_TEXTS[i]);
+      inputLabels[i] = new InputLabel(LABELS_TEXTS[i], false);
       if(isUserLogged) {
         inputLabels[i].setValueInputField(getValueForInputField(i));
       }
     }
 
     if(isUserLogged) {
-      inputLabels[4] = new InputLabel(NEW_PASSWORD_LABEL_TEXT);
-      oldPasswordInput = new InputLabel(OLD_PASSWORD_LABEL_TEXT);
+      inputLabels[4] = new InputLabel(NEW_PASSWORD_LABEL_TEXT, true);
+      oldPasswordInput = new InputLabel(OLD_PASSWORD_LABEL_TEXT, true);
     }
 
     submitButton = new Button(CONFIRM_BUTTON_TEXT);

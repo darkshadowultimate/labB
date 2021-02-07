@@ -31,7 +31,7 @@ public class ResetPassword {
     gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS);
 
     mainTitle = new Label(MAIN_TITLE);
-    insertEmailInput = new InputLabel(INSERT_EMAIL_TEXT);
+    insertEmailInput = new InputLabel(INSERT_EMAIL_TEXT, false);
     resetButton = new Button(RESET_BUTTON_TEXT);
     backToLogin = new Button(Button.BACK_TO_LOGIN);
 
