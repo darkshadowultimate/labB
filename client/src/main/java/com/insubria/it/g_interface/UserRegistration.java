@@ -17,13 +17,13 @@ public class UserRegistration {
     "Nome",
     "Cognome",
     "Nickname",
-    "E-mail",
-    "Password",
-    "Conferma password"
+    "E-mail"
   };
   private static final String TITLE_WINDOW_REGISTRATION = "Registrazione utente";
   private static final String TITLE_WINDOW_UPDATE_PROFILE = "Aggiornamento profilo utente";
   private static final String MAIN_LABEL_REGISTRATION = "Registrazione";
+  private static final String PASSWORD_LABEL_TEXT = "Password";
+  private static final String CONFIRM_PASSWORD_LABEL_TEXT = "Conferma password";
   private static final String MAIN_LABEL_UPDATE_PROFILE = "Aggionarmento profilo utente";
   private static final String OLD_PASSWORD_LABEL_TEXT = "Vecchia password";
   private static final String NEW_PASSWORD_LABEL_TEXT = "Nuova password";
@@ -37,7 +37,7 @@ public class UserRegistration {
   private static final int COLS_BUTTONS = 2;
   // Arrays variables
   private InputLabel[] inputLabels = new InputLabel[LABELS_TEXTS.length];
-  private InputLabel oldPasswordInput;
+  private InputLabel registrPassword, registrConfirmPassword, oldPasswordInput, newPassword;
   // Single variables
   private Label titleRegistration;
   private Button submitButton, cancelButton;
@@ -55,21 +55,8 @@ public class UserRegistration {
 
     titleRegistration = new Label(isUserLogged ? MAIN_LABEL_UPDATE_PROFILE : MAIN_LABEL_REGISTRATION);
 
-    // initialize labels and textfields (inside JPanels)
-    for (int i = 0; i < LABELS_TEXTS.length; i++) {
-      inputLabels[i] = new InputLabel(LABELS_TEXTS[i], false);
-      if(isUserLogged) {
-        inputLabels[i].setValueInputField(getValueForInputField(i));
-      }
-    }
-
-    if(isUserLogged) {
-      inputLabels[4] = new InputLabel(NEW_PASSWORD_LABEL_TEXT, true);
-      oldPasswordInput = new InputLabel(OLD_PASSWORD_LABEL_TEXT, true);
-    }
-
     submitButton = new Button(CONFIRM_BUTTON_TEXT);
-    cancelButton = new Button(Button.BACK_TO_LOGIN);
+    cancelButton = new Button(isUserLogged ? Button.BACK_TO_HOME : Button.BACK_TO_LOGIN);
 
     if(isUserLogged) {
       addAllEventListenersChangeUserProfile();
@@ -79,12 +66,30 @@ public class UserRegistration {
 
     // add all elements to container
     gridFrame.addToView(titleRegistration);
+
     for (int i = 0; i < LABELS_TEXTS.length; i++) {
-      if(isUserLogged && i == 4) {
-        gridFrame.addToView(oldPasswordInput);
+      inputLabels[i] = new InputLabel(LABELS_TEXTS[i], false);
+      if(isUserLogged) {
+        inputLabels[i].setValueInputField(getValueForInputField(i));
       }
+
       gridFrame.addToView(inputLabels[i]);
     }
+
+    if(isUserLogged) {
+      oldPasswordInput = new InputLabel(OLD_PASSWORD_LABEL_TEXT, true);
+      newPassword = new InputLabel(NEW_PASSWORD_LABEL_TEXT, true);
+
+      gridFrame.addToView(oldPasswordInput);
+      gridFrame.addToView(newPassword);
+    } else {
+      registrPassword = new InputLabel(PASSWORD_LABEL_TEXT, true);
+      registrConfirmPassword = new InputLabel(CONFIRM_PASSWORD_LABEL_TEXT, true);
+
+      gridFrame.addToView(registrPassword);
+      gridFrame.addToView(registrConfirmPassword);
+    }
+
     gridButtons.addToView(submitButton);
     gridButtons.addToView(cancelButton);
 
@@ -112,13 +117,12 @@ public class UserRegistration {
     submitButton.attachActionListenerToButton(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         // this is until I create the integration with server side
-        if(checkFormFields(inputLabels)) {
+        if(checkFormFields(inputLabels, false)) {
           final String name = inputLabels[0].getValueTextField();
           final String surname = inputLabels[1].getValueTextField();
           final String username = inputLabels[2].getValueTextField();
           final String email = inputLabels[3].getValueTextField();
-          String password = inputLabels[4].getValueTextField();
-
+          String password = registrPassword.getValueTextField();
 
           try {
             RemoteObjectContextProvider
@@ -163,12 +167,12 @@ public class UserRegistration {
     submitButton.attachActionListenerToButton(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         // this is until I create the integration with server side
-        if(checkFormFields(inputLabels)) {
+        if(checkFormFields(inputLabels, true)) {
           final String name = inputLabels[0].getValueTextField();
           final String surname = inputLabels[1].getValueTextField();
           final String username = inputLabels[2].getValueTextField();
           final String email = inputLabels[3].getValueTextField();
-          final String password = inputLabels[4].getValueTextField();
+          final String password = newPassword.getValueTextField();
           final String oldPassword = oldPasswordInput.getValueTextField();
 
           try {
@@ -212,7 +216,7 @@ public class UserRegistration {
     });
   }
 
-  private boolean checkFormFields(InputLabel[] inputFields) {
+  private boolean checkFormFields(InputLabel[] inputFields, boolean isUserLogged) {
 
     for (int i = 0; i < LABELS_TEXTS.length; i++) {
       if(!Validation.isFieldFilled(inputFields[i].getValueTextField())) {
@@ -226,12 +230,21 @@ public class UserRegistration {
       return false;
     }
 
-    String password = inputFields[LABELS_TEXTS.length - 2].getValueTextField();
-    String confirmPassword = inputFields[LABELS_TEXTS.length - 1].getValueTextField();
+    if(isUserLogged) {
+      String oldPasswordString = oldPasswordInput.getValueTextField();
+      String newPasswordString = newPassword.getValueTextField();
 
-    return
-      password.equals(confirmPassword) &&
-      password.length() > 3;
+      return Validation.isFieldFilled(oldPasswordString) && Validation.isFieldFilled(newPasswordString);
+    } else {
+      String password = registrPassword.getValueTextField();
+      String confirmPassword = registrConfirmPassword.getValueTextField();
+
+      return
+        Validation.isFieldFilled(password) &&
+        Validation.isFieldFilled(confirmPassword) &&
+        password.length() > 3 &&
+        password.equals(confirmPassword);
+    }
   }
 
   private void updatePlayerContextProvider(String name, String surname, String username, String email) {
