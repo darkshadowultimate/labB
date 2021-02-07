@@ -44,7 +44,7 @@ public class ListGames {
     public ListGames(String gameStatus) {
         getListOfGamesFromServer(gameStatus).join();
 
-        singleGames = createListOfSingleGames(gameUserMatrix);
+        singleGames = createListOfSingleGames(gameUserMatrix, gameStatus);
 
         boolean noGamesFetched = singleGames == null;
 
@@ -147,7 +147,7 @@ public class ListGames {
         }
     }
 
-    private SingleGame[] createListOfSingleGames(String[][] matrix) {
+    private SingleGame[] createListOfSingleGames(String[][] matrix, String gameStatus) {
         if(matrix == null) {
             return null;
         }
@@ -159,7 +159,9 @@ public class ListGames {
         for(int i = 0; i < matrixLength; i++) {
             SingleGame tmpSingleGame = SingleGame.createSingleGameFromString(matrix[0][i], matrix[1][i]);
 
-            if(Integer.parseInt(tmpSingleGame.getMaxPlayers()) > Integer.parseInt(tmpSingleGame.getCurrentNumPlayers())) {
+            if(gameStatus.equals("playing")) {
+                validGamesOpen.add(tmpSingleGame);
+            } else if(Integer.parseInt(tmpSingleGame.getMaxPlayers()) > Integer.parseInt(tmpSingleGame.getCurrentNumPlayers())) {
                 validGamesOpen.add(tmpSingleGame);
             }
         }
