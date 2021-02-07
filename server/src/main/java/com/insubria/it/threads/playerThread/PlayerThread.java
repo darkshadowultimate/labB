@@ -363,7 +363,7 @@ public class PlayerThread extends Player implements Runnable {
             throws RemoteException, SQLException {
         System.out.println("Confirming the player account...");
         Connection dbConnection = this.db.getDatabaseConnection();
-        String sqlUpdate = "UPDATE users SET code = null AND is_confirmed = true WHERE code = ?";
+        String sqlUpdate = "UPDATE users SET is_confirmed = TRUE, code = NULL WHERE code = ?";
         PreparedStatement pst = dbConnection.prepareStatement(sqlUpdate);
         pst.setString(1, confirmationCode);
 
