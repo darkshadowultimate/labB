@@ -625,9 +625,6 @@ public class GameThread extends UnicastRemoteObject implements Game {
                 pst.setString(4, player.getUsername());
                 pst.setInt(5, this.sessionNumber);
 
-                // Check the word exists in the dictionary
-                // ALERT ALERT ALERT ALERT ALERT
-
                 boolean doesWordExist = this.dictionary.exists(singleWord);
 
                 if (doesWordExist) {
