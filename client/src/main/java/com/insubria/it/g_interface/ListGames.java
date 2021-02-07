@@ -26,9 +26,7 @@ public class ListGames {
     private static final String OPEN_GAMES_BUTTON = "Visualizza partite aperte";
     private static final String STARTED_GAMES_BUTTON = "Visualizza partite in corso";
     private static final String JOIN_BUTTON = "PARTECIPA";
-    private static final String HOME_BUTTON = "Torna alla Home";
     private static final String NO_GAMES_AVAILABLE = "Al momento non ci sono partite disponibili";
-    private static final String GET_LIST_GAMES_ERROR_TEXT = "Ops... Sembra che ci sia stato un errore nel caricare le partite";
     private static final int ROWS = 0;
     private static final int COLS_CONTAINER = 1;
     private static final int COLS_TITLES = 7;
@@ -64,7 +62,7 @@ public class ListGames {
 
         viewOpenGamesButton = new Button(OPEN_GAMES_BUTTON);
         viewStartedGamesButton = new Button(STARTED_GAMES_BUTTON);
-        homeButton = new Button(HOME_BUTTON);
+        homeButton = new Button(Button.BACK_TO_HOME);
 
         addAllEventListeners();
 
@@ -76,7 +74,7 @@ public class ListGames {
         gridContainer.addToView(noGamesFetched ? noGamesAvailableLabel : gridTableGames);
         gridContainer.addToView(gridButtons);
 
-        FrameHandler.showMainGridContainerWithSizes(gridContainer, 1200, 500);
+        FrameHandler.showMainGridContainerWithSizes(gridContainer, 500, 1200);
     }
 
     private void createListGameTable(String gameStatus) {
@@ -192,9 +190,9 @@ public class ListGames {
                     public void errorGetListOfGames(String reason) throws RemoteException {
                         super.errorGetListOfGames(reason);
 
-                        System.out.println("Error function called by the server");
+                        System.out.println("Error function called by the server:\n" + reason);
 
-                        JOptionPane.showMessageDialog(null, GET_LIST_GAMES_ERROR_TEXT);
+                        //JOptionPane.showMessageDialog(null, GET_LIST_GAMES_ERROR_TEXT);
                     }
                 }, gameStatus);
             } catch(RemoteException exc) {

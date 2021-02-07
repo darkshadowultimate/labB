@@ -32,7 +32,7 @@ public class ConfirmCode {
     gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS);
 
     mainTitle = new Label(MAIN_TITLE);
-    insertConfirmCodeInput = new InputLabel(INSERT_CONFIRM_CODE_TEXT);
+    insertConfirmCodeInput = new InputLabel(INSERT_CONFIRM_CODE_TEXT, false);
     confirmButton = new Button(CONFIRM_BUTTON);
     cancelButton = new Button(CANCEL_BUTTON);
 

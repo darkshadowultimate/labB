@@ -257,7 +257,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
             }
         }
 
-        this.performCountDown(30, "isPlaying");
+        this.performCountDown(180, "isPlaying");
     }
 
     /**
@@ -296,7 +296,7 @@ public class GameThread extends UnicastRemoteObject implements Game {
             }
         }
 
-        this.performCountDown(30, "isReviewing");
+        this.performCountDown(180, "isReviewing");
     }
 
     /**

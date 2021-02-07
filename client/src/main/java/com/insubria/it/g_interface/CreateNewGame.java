@@ -8,8 +8,6 @@ import com.insubria.it.g_components.Button;
 import com.insubria.it.g_components.Label;
 import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.helpers.Validation;
-import com.insubria.it.serverImplClasses.GameClientImpl;
-import com.insubria.it.sharedserver.threads.gameThread.abstracts.Game;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -25,22 +23,22 @@ public class CreateNewGame {
   private static final String NUM_PLAYERS_LABEL = "N° giocatori (2 - 6)";
   private static final String CREATE_GAME_BUTTON_TEXT = "Organizza partita";
   private static final String FIELDS_ERROR_TEXT = "Tutti i campi devono essere compilati.\nIl numero di giocatori deve essere compreso fra 2 e 6";
-  private static final String CREATE_GAME_ERROR_TEXT = "Ops.. C'è stato un problema durante la creazione del gioco";
   private static final int ROWS = 0;
   private static final int COLS = 1;
   // Variables
   private Label titleLabel;
   private InputLabel nameGame, numPlayers;
-  private Button createGameButton;
+  private Button createGameButton, backToHome;
   private static GridFrame gridFrame;
 
   public CreateNewGame() {
     gridFrame = new GridFrame(TITLE_WINDOW, ROWS, COLS);
 
     titleLabel = new Label(TITLE_TOP);
-    nameGame = new InputLabel(NAME_GAME_LABEL);
-    numPlayers = new InputLabel(NUM_PLAYERS_LABEL);
+    nameGame = new InputLabel(NAME_GAME_LABEL, false);
+    numPlayers = new InputLabel(NUM_PLAYERS_LABEL, false);
     createGameButton = new Button(CREATE_GAME_BUTTON_TEXT);
+    backToHome = new Button(Button.BACK_TO_HOME);
 
     addAllEventListeners();
 
@@ -48,6 +46,7 @@ public class CreateNewGame {
     gridFrame.addToView(nameGame);
     gridFrame.addToView(numPlayers);
     gridFrame.addToView(createGameButton);
+    gridFrame.addToView(backToHome);
 
     FrameHandler.showMainGridContainer(gridFrame);
   }
@@ -85,6 +84,12 @@ public class CreateNewGame {
         }
       }
     });
+    backToHome.attachActionListenerToButton(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        redirectToHomeFrame();
+      }
+    });
   }
 
   private boolean checkInputFields(String nameGame, int numMaxPlayers) {
@@ -95,5 +100,9 @@ public class CreateNewGame {
 
   public static void redirectToWaitingRoomFrame() {
     WaitingPlayers waitingPlayers = new WaitingPlayers(WaitingPlayers.START_GAME);
+  }
+
+  public static void redirectToHomeFrame() {
+    Home home = new Home();
   }
 }

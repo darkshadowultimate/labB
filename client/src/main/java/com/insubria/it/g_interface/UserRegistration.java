@@ -28,7 +28,6 @@ public class UserRegistration {
   private static final String OLD_PASSWORD_LABEL_TEXT = "Vecchia password";
   private static final String NEW_PASSWORD_LABEL_TEXT = "Nuova password";
   private static final String CONFIRM_BUTTON_TEXT = "CONFERMA";
-  private static final String CANCEL_BUTTON_TEXT = "ANNULLA";
   private static final String CHECK_FORM_ERROR_TEXT = "Tutti i campi devono essere compilati e le passwords devono coincidere";
   private static final String REGISTRATION_ERROR_TEXT = "Ops... Sembra che sia stato un problema durante la registrazione...";
   private static final String UPDATE_PROFILE_ERROR_TEXT = "Ops... Sembra che sia stato un problema durante l'aggiornamento del profilo...";
@@ -58,19 +57,19 @@ public class UserRegistration {
 
     // initialize labels and textfields (inside JPanels)
     for (int i = 0; i < LABELS_TEXTS.length; i++) {
-      inputLabels[i] = new InputLabel(LABELS_TEXTS[i]);
+      inputLabels[i] = new InputLabel(LABELS_TEXTS[i], false);
       if(isUserLogged) {
         inputLabels[i].setValueInputField(getValueForInputField(i));
       }
     }
 
     if(isUserLogged) {
-      inputLabels[4] = new InputLabel(NEW_PASSWORD_LABEL_TEXT);
-      oldPasswordInput = new InputLabel(OLD_PASSWORD_LABEL_TEXT);
+      inputLabels[4] = new InputLabel(NEW_PASSWORD_LABEL_TEXT, true);
+      oldPasswordInput = new InputLabel(OLD_PASSWORD_LABEL_TEXT, true);
     }
 
     submitButton = new Button(CONFIRM_BUTTON_TEXT);
-    cancelButton = new Button(CANCEL_BUTTON_TEXT);
+    cancelButton = new Button(Button.BACK_TO_LOGIN);
 
     if(isUserLogged) {
       addAllEventListenersChangeUserProfile();

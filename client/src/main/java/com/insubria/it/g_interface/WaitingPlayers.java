@@ -20,7 +20,6 @@ public class WaitingPlayers {
     private static final String TITLE_WINDOW = "Il Paroliere - Attesa giocatori";
     private static final String WAIT_PLAYERS_TEXT = "In attesa di altri giocatori...";
     private static final String WAIT_PLAYERS_WORD_ANALYSIS_TEXT = "In attesa che gli altri giocatori terminino la fase di analisi...";
-    private static final String HOME_BUTTON = "Torna alla Home";
     private static final int ROWS = 0;
     private static final int COLS = 1;
 
@@ -33,13 +32,15 @@ public class WaitingPlayers {
 
         waitPlayersText = new Label(getMainTitleLabelText(context));
 
-        cancel = new Button(HOME_BUTTON);
+        cancel = new Button(Button.BACK_TO_HOME);
 
         addAllEventListeners();
 
         gridContainer.addToView(waitPlayersText);
 
-        gridContainer.addToView(cancel);
+        if(context != WORDS_ANALYSIS) {
+            gridContainer.addToView(cancel);
+        }
 
         FrameHandler.showMainGridContainer(gridContainer);
     }

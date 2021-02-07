@@ -3,9 +3,13 @@ package com.insubria.it.g_interface;
 import com.insubria.it.context.GameContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+import com.insubria.it.g_components.Button;
+import com.insubria.it.g_components.Label;
 import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
@@ -17,12 +21,14 @@ import java.util.Map;
 public class GamePlay {
   // Constants
   private static final String TITLE_WINDOW = "Il Paroliere - Svolgimento partita";
+  private static final String GAME_NAME_TEXT = "<html>Nome della partita: ";
+  private static final String SESSION_TEXT = "Sessione n° ";
   private static final String TIMER_TEXT = "Timer: 180s";
   private static final String WORDS_FOUND_TEXT = "<html>Parole trovate: <br/><br/>";
   private static final String LIST_SCORES_TEXT = "<html>Classifica: <br /><br />";
   private static final String INSERT_WORD_TEXT = "Nuova parola trovata";
   private static final String ADD_WORD_BUTTON = "Aggiungi parola";
-  private static final String EXIT_GAMEPLAY_BUTTON = "Esci dalla partita";
+  private static final String INCORRECT_WORD_INPUT = "La parola da inserire deve avere almeno 3 lettere";
   private static final int ROWS = 0;
   private static final int ROWS_GRID_LETTERS = 4;
   private static final int COLS_CONTAINER = 1;
@@ -30,6 +36,7 @@ public class GamePlay {
   private static final int COLS_GRID_LETTERS = 4;
   private static final int COLS_GRID_TIMER_WORDS = 1;
   private static final int COLS_GRID_ADD_WORD = 1;
+  private static final int COLS_GRID_LIST_WORD = 1;
   private static final int COLS_BUTTONS = 2;
   // Variables
   private static ArrayList<String> wordsFound = new ArrayList<String>();
@@ -37,7 +44,9 @@ public class GamePlay {
   private static Label timerText = new Label(TIMER_TEXT);
   private InputLabel addNewWordInput;
   private Button addWordButton, cancelButton;
-  private GridFrame gridLettersTimerPoints, gridLetters, gridTimerWords, gridAddWord, gridButtons;
+  private DefaultListModel<String> listWordsView = new DefaultListModel<>();
+  private JList<String> jlist = new JList<>(listWordsView);
+  private GridFrame gridLettersTimerPoints, gridLetters, gridListWords, gridTimerWords, gridAddWord, gridButtons;
   private static GridFrame gridContainer;
 
   public GamePlay(String gameName, int sessionNumber, String[][] matrixLetters, HashMap<String, Integer> playersWithScore) {
@@ -47,6 +56,7 @@ public class GamePlay {
     gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_CONTAINER);
     gridLettersTimerPoints = new GridFrame(ROWS, COLS_GRID_LETTER_TIMER_POINTS);
     gridLetters = new GridFrame(ROWS_GRID_LETTERS, COLS_GRID_LETTERS);
+    gridListWords = new GridFrame(ROWS, COLS_GRID_LIST_WORD);
     gridTimerWords = new GridFrame(ROWS, COLS_GRID_TIMER_WORDS);
     gridAddWord = new GridFrame(ROWS, COLS_GRID_ADD_WORD);
     gridButtons = new GridFrame(ROWS, COLS_BUTTONS);
@@ -54,24 +64,31 @@ public class GamePlay {
     String playersScores = getLabelTextForPlayerScores(playersWithScore);
 
     // initialize labels
-    mainTitle = new Label(gameName);
+    mainTitle = new Label(GAME_NAME_TEXT + gameName + "  /  " + SESSION_TEXT + sessionNumber);
     wordsFoundText = new Label(WORDS_FOUND_TEXT);
     listScoresText = new Label(playersScores);
 
     // initialize input labels
-    addNewWordInput = new InputLabel(INSERT_WORD_TEXT);
+    addNewWordInput = new InputLabel(INSERT_WORD_TEXT, false);
 
     // initialize buttons
     addWordButton = new Button(ADD_WORD_BUTTON);
-    cancelButton = new Button(EXIT_GAMEPLAY_BUTTON);
+    cancelButton = new Button(Button.EXIT_GAME);
+
+    JScrollPane scrollPane = new JScrollPane();
+    scrollPane.setViewportView(jlist);
 
     // ***** gridLettersTimerPoints *****
     fillGridLetters(matrixLetters);
 
     addAllEventListeners();
 
+    gridListWords.addToView(wordsFoundText);
+    gridListWords.addToView(scrollPane);
+
     gridTimerWords.addToView(timerText);
-    gridTimerWords.addToView(wordsFoundText);
+    //gridTimerWords.addToView(wordsFoundText);
+    gridTimerWords.addToView(gridListWords);
 
     gridLettersTimerPoints.addToView(gridLetters);
     gridLettersTimerPoints.addToView(gridTimerWords);
@@ -90,7 +107,7 @@ public class GamePlay {
     gridContainer.addToView(gridLettersTimerPoints);
     gridContainer.addToView(gridButtons);
 
-    FrameHandler.showMainGridContainerWithSizes(gridContainer, 1200, 500);
+    FrameHandler.showMainGridContainerWithSizes(gridContainer, 500, 1400);
   }
 
   private void addAllEventListeners() {
@@ -109,9 +126,13 @@ public class GamePlay {
       public void actionPerformed(ActionEvent e) {
         String wordInserted = addNewWordInput.getValueTextField();
 
-        wordsFound.add(wordInserted);
-        wordsFoundText.setLabelValue(wordsFoundText.getLabelText() + "- " + wordInserted + "<br />");
-        addNewWordInput.setValueInputField("");
+        if(wordInserted.length() > 2) {
+          wordsFound.add(wordInserted);
+          listWordsView.addElement(wordInserted);
+          addNewWordInput.setValueInputField("");
+        } else {
+          JOptionPane.showMessageDialog(null, INCORRECT_WORD_INPUT);
+        }
       }
     });
   }

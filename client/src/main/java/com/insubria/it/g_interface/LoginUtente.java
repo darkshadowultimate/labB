@@ -30,8 +30,8 @@ public class LoginUtente {
         gridFrame = new GridFrame(TITLE_WINDOW, ROWS, COLS);
 
         credTitle = new Label(TITLE_TOP);
-        email = new InputLabel(LABEL_EMAIL);
-        password = new InputLabel(LABEL_PSWD);
+        email = new InputLabel(LABEL_EMAIL, false);
+        password = new InputLabel(LABEL_PSWD, true);
         submitButton = new Button(BUTTON_SUBMIT_TEXT);
         pswdLink = new Label(LINK_FORGOT_PASSWORD);
         regLink = new Label(LINK_REGISTRATION);
