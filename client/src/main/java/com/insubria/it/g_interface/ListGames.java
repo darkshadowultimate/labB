@@ -1,21 +1,27 @@
 package com.insubria.it.g_interface;
 
 import com.insubria.it.context.GameContextProvider;
-import com.insubria.it.context.PlayerContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
 import com.insubria.it.g_components.*;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.models.SingleGame;
-import com.insubria.it.serverImplClasses.GameClientImpl;
 import com.insubria.it.serverImplClasses.MonitorClientImpl;
-import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * The ListGames class creates the ListGames frame to allow the user
+ * to see the list of games in open and playing status
+ */
 public class ListGames {
+    /**
+     * Static text that will be used with some UI components to communicate with the user
+     */
     private static final String TITLE_WINDOW = "Il Paroliere - Lista partite";
     private static final String MAIN_TITLE = "Visualizzazione delle partite";
     private static final String GAME_NAME_TEXT = "Nome partita";
@@ -27,27 +33,58 @@ public class ListGames {
     private static final String OPEN_GAMES_BUTTON = "Visualizza partite aperte";
     private static final String STARTED_GAMES_BUTTON = "Visualizza partite in corso";
     private static final String JOIN_BUTTON = "PARTECIPA";
-    private static final String HOME_BUTTON = "Torna alla Home";
     private static final String NO_GAMES_AVAILABLE = "Al momento non ci sono partite disponibili";
-    private static final String GET_LIST_GAMES_ERROR_TEXT = "Ops... Sembra che ci sia stato un errore nel caricare le partite";
+    /**
+     * Rows for the grid container (0 stands for: unlimited number of rows)
+     */
     private static final int ROWS = 0;
+    /**
+     * Columns for the grid container (only one element for row)
+     */
     private static final int COLS_CONTAINER = 1;
     private static final int COLS_TITLES = 7;
     private static final int COLS_BUTTONS = 4;
 
+    /**
+     * gameUserMatrix - matrix composed by game info and list of players partecipating to that game
+     */
     private String[][] gameUserMatrix;
+    /**
+     * singleGames - array of games fetched from server
+     */
     private SingleGame[] singleGames;
+    /**
+     * Labels to communicate with the user what he's looking at
+     */
     private Label[] gameNameText, dateText, maxPlayersText, currentPlayersText, playersText, gameStatusText;
     private Label mainTitle, noGamesAvailableLabel;
+    /**
+     * joinGameButton - array of buttons placed in every row to allow the user to participate to the game
+     */
     private ButtonWithData[] joinGameButton;
+    /**
+     * viewOpenGamesButton - show all games with status open
+     * viewStartedGamesButton - show all games with status playing
+     * homeButton - Redirect user to the Home frame
+     */
     private Button viewOpenGamesButton, viewStartedGamesButton, homeButton;
+    /**
+     * Grid containers to handle UI elements visualization
+     */
     private static GridFrame gridContainer;
     private GridFrame gridTableGames, gridButtons;
 
+    /**
+     * Constructor of the class (creates the frame and its visual components)
+     *
+     * @param gameStatus - "open" or "playing"
+     */
     public ListGames(String gameStatus) {
         getListOfGamesFromServer(gameStatus).join();
 
-        boolean noGamesFetched = gameUserMatrix == null;
+        singleGames = createListOfSingleGames(gameUserMatrix, gameStatus);
+
+        boolean noGamesFetched = singleGames == null;
 
         gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_CONTAINER);
         gridTableGames = new GridFrame(ROWS, COLS_TITLES);
@@ -63,7 +100,7 @@ public class ListGames {
 
         viewOpenGamesButton = new Button(OPEN_GAMES_BUTTON);
         viewStartedGamesButton = new Button(STARTED_GAMES_BUTTON);
-        homeButton = new Button(HOME_BUTTON);
+        homeButton = new Button(Button.BACK_TO_HOME);
 
         addAllEventListeners();
 
@@ -75,12 +112,15 @@ public class ListGames {
         gridContainer.addToView(noGamesFetched ? noGamesAvailableLabel : gridTableGames);
         gridContainer.addToView(gridButtons);
 
-        gridContainer.showWindow(1200, 500);
+        FrameHandler.showMainGridContainerWithSizes(gridContainer, 500, 1200);
     }
 
+    /**
+     * This method update the UI in order to show the games fetched from the server
+     *
+     * @param gameStatus - "open" or "playing"
+     */
     private void createListGameTable(String gameStatus) {
-        singleGames = createListOfSingleGames(gameUserMatrix);
-
         int lengthListGames = singleGames.length + 1;
 
         gameNameText = new Label[lengthListGames];
@@ -113,15 +153,17 @@ public class ListGames {
 
                 joinGameButton[i].attachActionListenerToButton(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        try {
-                            RemoteObjectContextProvider.setGameRemoteObject(idGameCopy);
+                        RemoteObjectContextProvider.setGameRemoteObject(idGameCopy);
 
-                            RemoteObjectContextProvider
-                            .game
-                            .addNewPlayer(GameContextProvider.getGameClientReference());
-                        } catch(RemoteException exc) {
-                            exc.printStackTrace();
-                        }
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                RemoteObjectContextProvider
+                                .game
+                                .addNewPlayer(GameContextProvider.getGameClientReference());
+                            } catch (RemoteException exc) {
+                                exc.printStackTrace();
+                            }
+                        });
                     }
                 });
             }
@@ -148,16 +190,45 @@ public class ListGames {
         }
     }
 
-    private SingleGame[] createListOfSingleGames(String[][] matrix) {
+    /**
+     * This method returns and array of SingleGame, extracting info from matrix of String
+     *
+     * @param matrix - matrix of games with their relative participants
+     * @param gameStatus - "open" or "playing"
+     */
+    private SingleGame[] createListOfSingleGames(String[][] matrix, String gameStatus) {
+        if(matrix == null) {
+            return null;
+        }
+
         int matrixLength = matrix[0].length;
 
-        SingleGame[] resultArray = new SingleGame[matrixLength];
+        ArrayList<SingleGame> validGamesOpen = new ArrayList<SingleGame>();
+
         for(int i = 0; i < matrixLength; i++) {
-            resultArray[i] = SingleGame.createSingleGameFromString(matrix[0][i], matrix[1][i]);
+            SingleGame tmpSingleGame = SingleGame.createSingleGameFromString(matrix[0][i], matrix[1][i]);
+
+            if(gameStatus.equals("playing")) {
+                validGamesOpen.add(tmpSingleGame);
+            } else if(Integer.parseInt(tmpSingleGame.getMaxPlayers()) > Integer.parseInt(tmpSingleGame.getCurrentNumPlayers())) {
+                validGamesOpen.add(tmpSingleGame);
+            }
         }
-        return resultArray;
+
+        if(validGamesOpen.size() == 0) {
+            return null;
+        }
+
+        singleGames = new SingleGame[validGamesOpen.size()];
+
+        return validGamesOpen.toArray(singleGames);
     }
 
+    /**
+     * Fetch list of games (matrix String[][]) from server
+     *
+     * @param gameStatus - "open" or "playing"
+     */
     private CompletableFuture getListOfGamesFromServer(String gameStatus) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -167,6 +238,7 @@ public class ListGames {
                     @Override
                     public void confirmGetListOfGames(String[][] result) throws RemoteException {
                         super.confirmGetListOfGames(result);
+
                         gameUserMatrix = result;
                     }
 
@@ -174,9 +246,9 @@ public class ListGames {
                     public void errorGetListOfGames(String reason) throws RemoteException {
                         super.errorGetListOfGames(reason);
 
-                        System.out.println("Error function called by the server");
+                        System.out.println("Error function called by the server:\n" + reason);
 
-                        JOptionPane.showMessageDialog(null, GET_LIST_GAMES_ERROR_TEXT);
+                        //JOptionPane.showMessageDialog(null, GET_LIST_GAMES_ERROR_TEXT);
                     }
                 }, gameStatus);
             } catch(RemoteException exc) {
@@ -192,6 +264,9 @@ public class ListGames {
         });
     }
 
+    /**
+     * This method defines and attaches all ActionListeners to the appropriate UI elements
+     */
     private void addAllEventListeners() {
         viewOpenGamesButton.attachActionListenerToButton(new ActionListener() {
             public void actionPerformed(ActionEvent me) {
@@ -200,7 +275,7 @@ public class ListGames {
         });
         viewStartedGamesButton.attachActionListenerToButton(new ActionListener() {
             public void actionPerformed(ActionEvent me) {
-                redirectToNewListGame("started");
+                redirectToNewListGame("playing");
             }
         });
         homeButton.attachActionListenerToButton(new ActionListener() {
@@ -210,18 +285,24 @@ public class ListGames {
         });
     }
 
+    /**
+     * This method displays on screen the Home section
+     */
     private void redirectToHomeFrame() {
-        gridContainer.disposeFrame();
         Home home = new Home();
     }
 
+    /**
+     * This method displays on screen the WaitingPlayers section
+     */
     public static void redirectToWaitingPlayersFrame() {
-        gridContainer.disposeFrame();
-        WaitingPlayers waitingPlayers = new WaitingPlayers();
+        WaitingPlayers waitingPlayers = new WaitingPlayers(WaitingPlayers.START_GAME);
     }
 
+    /**
+     * This method displays on screen the ListGames section showing games with status "playing"
+     */
     private void redirectToNewListGame(String statusGames) {
-        gridContainer.disposeFrame();
         ListGames listGames = new ListGames(statusGames);
     }
 }

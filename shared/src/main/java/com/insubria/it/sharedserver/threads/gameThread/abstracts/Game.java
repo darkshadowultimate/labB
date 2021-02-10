@@ -41,14 +41,14 @@ public interface Game extends Remote {
     void removePlayerInGame(GameClient player) throws RemoteException;
 
     /**
-     * The signature of the checkPlayerWords method This method is implemented in the
-     * GameThread class
-     */
-    void checkPlayerWords(GameClient player, ArrayList<String> wordsList) throws RemoteException;
-
-    /**
      * The signature of the askForWordDefinition method This method is implemented in
      * the GameThread class
      */
     void askForWordDefinition(GameClient player, String word) throws RemoteException;
+
+    /**
+     * The signature of the completedReviewBefore method This method is implemented in
+     * the GameThread class
+     */
+    void completedReviewBefore() throws RemoteException;
 }

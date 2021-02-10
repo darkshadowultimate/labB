@@ -274,6 +274,7 @@ public class PlayerThread extends Player implements Runnable {
     private void deleteUserAccount(String email, Connection dbConnection) throws SQLException {
         String sqlDelete = "DELETE FROM users WHERE email = ?";
         PreparedStatement pst = dbConnection.prepareStatement(sqlDelete);
+        pst.setString(1, email);
 
         this.db.performChangeState(pst);
         pst.close();
@@ -309,7 +310,7 @@ public class PlayerThread extends Player implements Runnable {
         PlayerCredentials player
     ) throws InterruptedException, RemoteException, SQLException, MessagingException {
 
-        if (!this.checkProfileExists(this.email, this.username)) {
+        if (!this.checkProfileExists(email, username)) {
             Connection dbConnection = this.db.getDatabaseConnection();
             String token = UUID.randomUUID().toString();
             String sqlInsert = "INSERT INTO users(email, username, name, surname, password, code) VALUES (?, ?, ?, ?, ?, ?)";
@@ -362,7 +363,7 @@ public class PlayerThread extends Player implements Runnable {
             throws RemoteException, SQLException {
         System.out.println("Confirming the player account...");
         Connection dbConnection = this.db.getDatabaseConnection();
-        String sqlUpdate = "UPDATE users SET code = null AND is_confirmed = true WHERE code = ?";
+        String sqlUpdate = "UPDATE users SET is_confirmed = TRUE, code = NULL WHERE code = ?";
         PreparedStatement pst = dbConnection.prepareStatement(sqlUpdate);
         pst.setString(1, confirmationCode);
 

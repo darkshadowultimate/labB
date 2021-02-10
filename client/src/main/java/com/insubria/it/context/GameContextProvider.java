@@ -2,17 +2,11 @@ package com.insubria.it.context;
 
 
 import com.insubria.it.serverImplClasses.GameClientImpl;
-import com.insubria.it.sharedserver.threads.gameThread.abstracts.Game;
 
 import java.rmi.RemoteException;
 
 public class GameContextProvider {
-    private static GameClientImpl gameClientReference;
-    private static Game gameReference;
-
-    public static void setGameReference(Game game) {
-        gameReference = game;
-    }
+    private static GameClientImpl gameClientReference = null;
 
     public static void initGameClientReference() {
         String username = PlayerContextProvider.getUsernamePlayer();
@@ -20,13 +14,7 @@ public class GameContextProvider {
 
         try {
             gameClientReference = new GameClientImpl(username, email);
-        } catch(RemoteException exc) {
-            gameClientReference = null;
-        }
-    }
-
-    public static Game getGameReference() {
-        return gameReference;
+        } catch(RemoteException exc) {}
     }
 
     public static GameClientImpl getGameClientReference() {

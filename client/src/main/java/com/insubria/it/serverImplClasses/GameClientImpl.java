@@ -1,9 +1,8 @@
 package com.insubria.it.serverImplClasses;
 
+import com.insubria.it.context.GameContextProvider;
 import com.insubria.it.context.RemoteObjectContextProvider;
-import com.insubria.it.g_interface.CreateNewGame;
-import com.insubria.it.g_interface.ListGames;
-import com.insubria.it.g_interface.WaitingPlayers;
+import com.insubria.it.g_interface.*;
 import com.insubria.it.sharedserver.threads.gameThread.interfaces.GameClient;
 import com.insubria.it.sharedserver.threads.gameThread.utils.WordRecord;
 
@@ -67,21 +66,23 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * correctly added to the game It is implemented client side
      */
     public void confirmAddNewPlayer() throws RemoteException {
-        CompletableFuture.runAsync(() -> {
-            ListGames.redirectToWaitingPlayersFrame();
-        });
+        ListGames.redirectToWaitingPlayersFrame();
     }
 
     /**
      * The signature of the errorAddNewPlayer method Called when the player is not
      * added and the reason is returned It is implemented client side
      */
-    public void errorAddNewPlayer(String reason) throws RemoteException {}
+    public void errorAddNewPlayer(String reason) throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            JOptionPane.showMessageDialog(null, reason);
+        });
+    }
 
     /**
      * The signature of the confirmRemovePlayerNotStartedGame method Called when the
      * player is correctly removed form a not started game It is implemented client
-     * side
+     *
      */
     public void confirmRemovePlayerNotStartedGame() throws RemoteException {
         CompletableFuture.runAsync(() -> {
@@ -104,28 +105,48 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
      * The signature of the gameHasBeenRemoved method Called when the game has been
      * removed It is implemented client side
      */
-    public void gameHasBeenRemoved(String reason) throws RemoteException {}
+    public void gameHasBeenRemoved(String reason) throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            Home home = new Home();
+        });
+    }
 
     /**
      * The signature of the synchronizePreStartGameTimer method Called when the
      * thread needs to synchronize the player with the pre-start timer (30 seconds)
      * It is implemented client side
      */
-    public void synchronizePreStartGameTimer(int seconds) throws RemoteException {}
+    public void synchronizePreStartGameTimer(int seconds) throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            if(seconds == 30) {
+                WaitingPlayers.redirectToCountdownFrame();
+            } else {
+                WaitingStartGame.updateCountdown(seconds);
+            }
+        });
+    }
 
     /**
      * The signature of the synchronizeInGameTimer method Called when the thread
      * needs to synchronize the player with the in-game timer (3 minutes) It is
      * implemented client side
      */
-    public void synchronizeInGameTimer(int seconds) throws RemoteException {}
+    public void synchronizeInGameTimer(int seconds) throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            GamePlay.updateCountdown(seconds);
+        });
+    }
 
     /**
      * The signature of the synchronizeInWaitTimer method Called when the thread
      * needs to synchronize the player with the review timer (3 minutes) It is
      * implemented client side
      */
-    public void synchronizeInWaitTimer(int seconds) throws RemoteException {}
+    public void synchronizeInWaitTimer(int seconds) throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            WordsAnalysis.updateCountdown(seconds);
+        });
+    }
 
     /**
      * The signature of the confirmGameSession method Called when a new session is
@@ -136,13 +157,26 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
         int sessionNumber,
         String[][] matrix,
         HashMap<String, Integer> playerScore
-    ) throws RemoteException {}
+    ) throws RemoteException {
+        CompletableFuture.runAsync(() -> {
+            GamePlay gamePlay = new GamePlay(
+                name,
+                sessionNumber,
+                matrix,
+                playerScore
+            );
+        });
+    }
 
     /**
      * The signature of the triggerEndOfSession method Called when the current
      * session expires (because of time out) It is implemented client side
      */
-    public void triggerEndOfSession() throws RemoteException {}
+    public ArrayList<String> triggerEndOfSession() throws RemoteException {
+        System.out.println("Ricevuta triggerEndOfSession");
+
+        return GamePlay.getWordsFound();
+    }
 
     /**
      * The signature of the sendWordsDiscoveredInSession method Called when the
@@ -152,26 +186,41 @@ public class GameClientImpl extends UnicastRemoteObject implements GameClient {
     public void sendWordsDiscoveredInSession(
         ArrayList<WordRecord> acceptedArray,
         ArrayList<WordRecord> refusedArray
-    ) throws RemoteException {}
+    ) throws RemoteException {
+        System.out.println("Ricevuta sendWordsDiscoveredInSession");
+
+        CompletableFuture.runAsync(() -> {
+            GamePlay.redirectToWordsAnalysisFrame(acceptedArray, refusedArray);
+        });
+    }
 
     /**
      * The signature of the confirmWordDefinitions method Called when the thread
      * looked for a word definition and it returns it to the player It is
      * implemented client side
      */
-    public void confirmWordDefinitions(String wordDefinitions) throws RemoteException {}
+    public void confirmWordDefinitions(String wordDefinitions) throws RemoteException {
+        System.out.println("Definition requested:\n" + wordDefinitions);
+        CompletableFuture.runAsync(() -> {
+            SingleWordAnalysis.showWordDefinition(wordDefinitions);
+        });
+    }
 
     /**
      * The signature of the errorWordDefinitions method Called when the thread
      * didn't find the word definition correctly and the reason is returned It is
      * implemented client side
      */
-    public void errorWordDefinitions(String reason) throws RemoteException {}
+    public void errorWordDefinitions(String reason) throws RemoteException {
+        JOptionPane.showMessageDialog(null, reason);
+    }
 
     /**
      * The signature of the gameWonByUser method Called when the game is won by a
      * player and the username is sent to all the players It is implemented client
      * side
      */
-    public void gameWonByUser(String username) throws RemoteException {}
+    public void gameWonByUser(String username) throws RemoteException {
+        WordsAnalysis.redirectToGameWinnerFrame(username);
+    }
 }

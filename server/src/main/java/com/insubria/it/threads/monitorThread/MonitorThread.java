@@ -12,6 +12,7 @@ import com.insubria.it.base.abstracts.Database;
 import com.insubria.it.sharedserver.threads.monitorThread.interfaces.MonitorClient;
 import com.insubria.it.threads.monitorThread.abstracts.Monitor;
 
+import java.math.BigDecimal;
 import java.rmi.RemoteException;
 
 /**
@@ -91,16 +92,17 @@ public class MonitorThread extends Monitor implements Runnable {
                 + "GROUP BY id_game, session_number_enter, username_user, email_user " + "ORDER BY SUM(score) DESC "
                 + "LIMIT 1;";
         Connection dbConnection = null;
-        Statement stm = null;
+        Statement stm1 = null, stm2 = null;
         try {
             dbConnection = this.db.getDatabaseConnection();
-            stm = dbConnection.createStatement();
+            stm1 = dbConnection.createStatement();
+            stm2 = dbConnection.createStatement();
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
 
-        ResultSet result1 = this.db.performSimpleQuery(sqlQuery1, stm),
-                result2 = this.db.performSimpleQuery(sqlQuery2, stm);
+        ResultSet result1 = this.db.performSimpleQuery(sqlQuery1, stm1),
+                result2 = this.db.performSimpleQuery(sqlQuery2, stm2);
         if (result1.isBeforeFirst() && result2.isBeforeFirst()) {
             result1.next();
             result2.next();
@@ -108,7 +110,7 @@ public class MonitorThread extends Monitor implements Runnable {
             String[] returnArray = new String[2];
             returnArray[0] = result1.getString("id_game") + " " + result1.getString("username_user") + " "
                     + result1.getString("email_user") + " " + result1.getInt("score");
-            returnArray[1] = result2.getString("id_game") + " " + result2.getInt("session_number") + " "
+            returnArray[1] = result2.getString("id_game") + " " + result2.getInt("session_number_enter") + " "
                     + result2.getString("username_user") + " " + result2.getString("email_user") + " "
                     + result2.getInt("score");
             this.monitorClient.confirmMoreScoreGameAndSession(returnArray);
@@ -118,7 +120,8 @@ public class MonitorThread extends Monitor implements Runnable {
         }
         result1.close();
         result2.close();
-        stm.close();
+        stm1.close();
+        stm2.close();
         dbConnection.close();
     }
 
@@ -180,16 +183,17 @@ public class MonitorThread extends Monitor implements Runnable {
                 + "GROUP BY id_game, session_number_enter, username_user, email_user " + "ORDER BY AVG(score) DESC "
                 + "LIMIT 1;";
         Connection dbConnection = null;
-        Statement stm = null;
+        Statement stm1 = null, stm2 = null;
         try {
             dbConnection = this.db.getDatabaseConnection();
-            stm = dbConnection.createStatement();
+            stm1 = dbConnection.createStatement();
+            stm2 = dbConnection.createStatement();
         } catch (SQLException exc) {
             System.err.println("Error while establishing the connection with the DB " + exc);
         }
 
-        ResultSet result1 = this.db.performSimpleQuery(sqlQuery1, stm),
-                result2 = this.db.performSimpleQuery(sqlQuery2, stm);
+        ResultSet result1 = this.db.performSimpleQuery(sqlQuery1, stm1),
+                result2 = this.db.performSimpleQuery(sqlQuery2, stm2);
         if (result1.isBeforeFirst() && result2.isBeforeFirst()) {
             result1.next();
             result2.next();
@@ -197,7 +201,7 @@ public class MonitorThread extends Monitor implements Runnable {
             String[] returnArray = new String[2];
             returnArray[0] = result1.getString("id_game") + " " + result1.getString("username_user") + " "
                     + result1.getString("email_user") + " " + result1.getInt("score");
-            returnArray[1] = result2.getString("id_game") + " " + result2.getInt("session_number") + " "
+            returnArray[1] = result2.getString("id_game") + " " + result2.getInt("session_number_enter") + " "
                     + result2.getString("username_user") + " " + result2.getString("email_user") + " "
                     + result2.getInt("score");
             this.monitorClient.confirmMoreAvgScoreGameAndSession(returnArray);
@@ -207,7 +211,8 @@ public class MonitorThread extends Monitor implements Runnable {
         }
         result1.close();
         result2.close();
-        stm.close();
+        stm1.close();
+        stm2.close();
         dbConnection.close();
     }
 
@@ -314,6 +319,8 @@ public class MonitorThread extends Monitor implements Runnable {
                     tmp += dateFormat.format(new Date());
                 } else if(currentObjResultSet instanceof Long) {
                     tmp += Long.toString(((Long) currentObjResultSet).longValue());
+                } else if (currentObjResultSet instanceof BigDecimal) {
+                    tmp += String.valueOf(((BigDecimal) currentObjResultSet).doubleValue());
                 } else {
                     tmp += (String) currentObjResultSet;
                 }

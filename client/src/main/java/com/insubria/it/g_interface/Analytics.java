@@ -2,6 +2,7 @@ package com.insubria.it.g_interface;
 
 import com.insubria.it.g_components.*;
 import com.insubria.it.context.*;
+import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.serverImplClasses.MonitorClientImpl;
 
 import javax.swing.*;
@@ -12,7 +13,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * The Analytics class creates the Analytics frame to allow the user
+ * to obtain information about analytics aspect of the game
+ */
 public class Analytics {
+    /**
+     * Static text that will be used with some UI components to communicate with the user
+     */
     private static final String[] BUTTONS_TEXTS = {
         "Giocatore con punteggio più alto (per sessione e partita): ",
         "Giocatore con più sessioni di gioco: ",
@@ -28,42 +36,36 @@ public class Analytics {
         "Identificativo partita di cui si è richiesta la definizione di una parola: ",
     };
     private static final String TITLE_WINDOW = "Il Paroliere - Analitycs";
-    private static final String HOME_BUTTON_TEXT = "Torna alla Home";
     private static final String ERROR_NO_DATA_TEXT = "Nessun dato disponibile";
+    /**
+     * Rows for the grid container (0 stands for: unlimited number of rows)
+     */
     private static final int ROWS = 0;
+    /**
+     * Columns for the grid container (only one element for row)
+     */
     private static final int COLS = 1;
 
-/*    private static final String[] testStrings = {
-        "UserTot - 1",
-        "UserTot - 2",
-        "UserTot - 3",
-        "UserTot - 4",
-        "UserTot - 5",
-        "UserTot - 6",
-        "UserTot - 7",
-        "UserTot - 8",
-        "UserTot - 9",
-        "UserTot - 10",
-        "UserTot - 11",
-        "UserTot - 12",
-        "UserTot - 13",
-        "UserTot - 14",
-        "UserTot - 15",
-        "UserTot - 16",
-        "UserTot - 17",
-        "UserTot - 18",
-        "UserTot - 19",
-        "UserTot - 20",
-    };*/
-
+    /**
+     * Each of these buttons will show a specific analytic result if clicked
+     */
     private Button[] buttons = new Button[BUTTONS_TEXTS.length];
+    /**
+     * homeButton - Send the user back to the Home section
+     */
     private Button homeButton;
+    /**
+     * Grid containers to handle UI elements visualization
+     */
     private GridFrame gridContainer;
 
+    /**
+     * Constructor of the class (creates the frame and its visual components)
+     */
     public Analytics() {
         gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS);
 
-        homeButton = new Button(HOME_BUTTON_TEXT);
+        homeButton = new Button(Button.BACK_TO_HOME);
         
         addAllEventListeners();
 
@@ -75,9 +77,15 @@ public class Analytics {
 
         gridContainer.addToView(homeButton);
 
-        gridContainer.showWindow(800, 1000);
+        FrameHandler.showMainGridContainerWithSizes(gridContainer, 1000, 800);
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method moreScoreGameAndSession
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void scoreGameAndSession(final String sectionName) {
         try {
             RemoteObjectContextProvider
@@ -88,7 +96,7 @@ public class Analytics {
                     public void confirmMoreScoreGameAndSession(String[] result) throws RemoteException {
                         super.confirmMoreScoreGameAndSession(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -104,6 +112,12 @@ public class Analytics {
         }
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method moreSessionsPlayed
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void sessionsPlayed(final String sectionName) {
         try {
             RemoteObjectContextProvider
@@ -113,7 +127,7 @@ public class Analytics {
                     @Override
                     public void confirmMoreSessionsPlayed(String result) throws RemoteException {
                         super.confirmMoreSessionsPlayed(result);
-                        redirectToAnalyticsPagination(gridContainer, sectionName, result);
+                        redirectToAnalyticsPagination(sectionName, result);
                     }
 
                     @Override
@@ -129,6 +143,12 @@ public class Analytics {
         }
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method moreAvgScoreGameAndSession
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void avgScoreGameAndSession(final String sectionName) {
         try {
             RemoteObjectContextProvider
@@ -139,7 +159,7 @@ public class Analytics {
                     public void confirmMoreAvgScoreGameAndSession(String[] result) throws RemoteException {
                         super.confirmMoreAvgScoreGameAndSession(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -155,6 +175,12 @@ public class Analytics {
         }
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method moreProposedDuplicatedWords
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void proposedDuplicatedWords(final String sectionName) {
         try {
             RemoteObjectContextProvider
@@ -165,7 +191,7 @@ public class Analytics {
                     public void confirmMoreProposedDuplicatedWords(String result) throws RemoteException {
                         super.confirmMoreProposedDuplicatedWords(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, result);
+                        redirectToAnalyticsPagination(sectionName, result);
                     }
 
                     @Override
@@ -181,6 +207,12 @@ public class Analytics {
         }
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method moreInvalidProposedWords
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void invalidProposedWords(final String sectionName) {
         try {
             RemoteObjectContextProvider
@@ -191,7 +223,7 @@ public class Analytics {
                     public void confirmMoreInvalidProposedWords(String result) throws RemoteException {
                         super.confirmMoreInvalidProposedWords(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, result);
+                        redirectToAnalyticsPagination(sectionName, result);
                     }
 
                     @Override
@@ -207,6 +239,12 @@ public class Analytics {
         }
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method validWordsOccurrences
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void validWordsOccurrencesList(final String sectionName) {
         try {
             RemoteObjectContextProvider
@@ -217,7 +255,7 @@ public class Analytics {
                     public void confirmValidWordsOccurrences(String[] result) throws RemoteException {
                         super.confirmValidWordsOccurrences(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -233,6 +271,12 @@ public class Analytics {
         }
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method wordHighestScore
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void wordHighestScoreList(final String sectionName) {
         try {
             RemoteObjectContextProvider
@@ -243,7 +287,7 @@ public class Analytics {
                     public void confirmWordHighestScore(String[] result) throws RemoteException {
                         super.confirmWordHighestScore(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -259,6 +303,12 @@ public class Analytics {
         }
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method averageRounds
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void averageRoundsList(final String sectionName) {
         try {
             RemoteObjectContextProvider
@@ -269,7 +319,7 @@ public class Analytics {
                     public void confirmAverageRounds(String[] result) throws RemoteException {
                         super.confirmAverageRounds(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -285,17 +335,23 @@ public class Analytics {
         }
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method minMaxRounds
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void minMaxRoundsList(final String sectionName) {
         try {
             RemoteObjectContextProvider
             .server
-            .averageRounds(
+            .minMaxRounds(
                 new MonitorClientImpl() {
                     @Override
                     public void confirmAverageRounds(String[] result) throws RemoteException {
                         super.confirmAverageRounds(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -311,6 +367,12 @@ public class Analytics {
         }
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method charactersAvgOccurrence
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void charactersAvgOccurrenceList(final String sectionName) {
         try {
             RemoteObjectContextProvider
@@ -331,7 +393,7 @@ public class Analytics {
                             it.remove();
                         }
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, resultString);
+                        redirectToAnalyticsPagination(sectionName, resultString);
                     }
 
                     @Override
@@ -347,6 +409,12 @@ public class Analytics {
         }
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method definitionRequest
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void definitionRequestList(final String sectionName) {
         try {
             RemoteObjectContextProvider
@@ -357,7 +425,7 @@ public class Analytics {
                     public void confirmDefinitionRequest(String[] result) throws RemoteException {
                         super.confirmDefinitionRequest(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -373,6 +441,12 @@ public class Analytics {
         }
     }
 
+    /**
+     * Creates a new frame overlapping the current one, showing the info returned from the method gameDefinitionRequest
+     * of the remote server object
+     *
+     * @param sectionName Name of the button clicked that describe what type of data that will be shown
+     */
     private void gameDefinitionRequestList(final String sectionName) {
         try {
             RemoteObjectContextProvider
@@ -383,7 +457,7 @@ public class Analytics {
                     public void confirmGameDefinitionRequest(String[] result) throws RemoteException {
                         super.confirmGameDefinitionRequest(result);
 
-                        redirectToAnalyticsPagination(gridContainer, sectionName, convertArrayIntoStringFormatted(result));
+                        redirectToAnalyticsPagination(sectionName, convertArrayIntoStringFormatted(result));
                     }
 
                     @Override
@@ -399,6 +473,11 @@ public class Analytics {
         }
     }
 
+    /**
+     * Return a String object by concatenating all String array's objects and separating each of them with a new line
+     *
+     * @param arrayString Array of String objects
+     */
     public static String convertArrayIntoStringFormatted(String[] arrayString) {
         String resultStringFormatted = "<html>";
 
@@ -409,11 +488,21 @@ public class Analytics {
         return resultStringFormatted;
     }
 
+    /**
+     * Return a String object by concatenating all String array's objects and separating each of them with a new line
+     *
+     * @param mainGridContainer Current grid container
+     * @param sectionName Name of the section (every section shows different data)
+     * @param messageFromServer The error message returned by the server
+     */
     public static void errorResultOperation(GridFrame mainGridContainer, String sectionName, String messageFromServer) {
-        redirectToAnalyticsPagination(mainGridContainer, sectionName, ERROR_NO_DATA_TEXT);
+        redirectToAnalyticsPagination(sectionName, ERROR_NO_DATA_TEXT);
         System.out.println(messageFromServer);
     }
 
+    /**
+     * This method defines and attaches all ActionListeners to the appropriate UI elements
+     */
     private void addAllEventListeners() {
         homeButton.attachActionListenerToButton(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -422,6 +511,10 @@ public class Analytics {
         });
     }
 
+    /**
+     * This method returns an ActionListener object which differs for every Button type element.
+     * Every Button will show different info and will call a specific method to do that
+     */
     private ActionListener getCorrectActionListener(final int indexButton) {
         switch(indexButton) {
             case 0:
@@ -501,12 +594,17 @@ public class Analytics {
         }
     }
 
+    /**
+     * This method displays on screen the Home section
+     */
     private void redirectToHomeFrame() {
         Home home = new Home();
-        gridContainer.disposeFrame();
     }
 
-    private static void redirectToAnalyticsPagination(GridFrame mainGridContainer, String sectionName, String dataFromServer) {
-        AnalyticsDataPage analyticsDataPage = new AnalyticsDataPage(mainGridContainer, sectionName, dataFromServer);
+    /**
+     * This method displays on screen the AnalyticsDataPage section to show the specific data requested
+     */
+    private static void redirectToAnalyticsPagination(String sectionName, String dataFromServer) {
+        AnalyticsDataPage analyticsDataPage = new AnalyticsDataPage(sectionName, dataFromServer);
     }
 }

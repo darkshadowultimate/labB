@@ -15,12 +15,12 @@ public interface JavaMail {
   /**
    * Email used to send the messages
    */
-  String emailSender = "spaglino@studenti.uninsubria.it";
+  String emailSender = "";
 
   /**
    * The password of the email used to send the messages
    */
-  String passwordSender = "Studioecarriera1234.";
+  String passwordSender = "";
 
   /**
    * The signature of the sendEmail method. This method is defined in the

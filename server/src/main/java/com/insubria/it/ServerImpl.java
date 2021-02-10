@@ -6,7 +6,6 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
-
 import com.insubria.it.base.abstracts.Database;
 import com.insubria.it.base.classes.AccessController;
 
@@ -393,8 +392,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
   }
 
   /**
-   * This main method starts when the server is started. As first thing it will
-   * set the RMI security manager (it will allow any kind of operations) Then the
+   * This main method starts when the server is started. As first thing the
    * server will use the AccessController class and its methods to check that an
    * administrator user exists. If it exists, the server will impersonate that
    * user; if not, the server will create a new one asking the user for uid and
@@ -407,9 +405,6 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
    *                         creation of the registry
    */
   public static void main(String[] args) throws RemoteException {
-    /*if (System.getSecurityManager() == null) {
-      System.setSecurityManager(new SecurityManager());
-    }*/
     ServerImpl server = new ServerImpl();
 
     AccessController accessController = new AccessController();

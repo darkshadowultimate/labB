@@ -75,7 +75,7 @@ public class Research {
     private boolean makeResearch (String toSearch, int x, int y, int[][] visitedMatrix) {
         if (!toSearch.equals("")) {
             if (!this.alreadyVisited(x, y, visitedMatrix)) {
-                if (this.matrix[x][y].equals("" + toSearch.charAt(0))) {
+                if (this.matrix[x][y].toLowerCase().equals("" + (toSearch.charAt(0) + "").toLowerCase())) {
                     visitedMatrix[x][y] = 1;
                     StringBuilder sb = new StringBuilder(toSearch);
                     sb.deleteCharAt(0);
