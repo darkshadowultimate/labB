@@ -14,7 +14,14 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * The ListGames class creates the ListGames frame to allow the user
+ * to see the list of games in open and playing status
+ */
 public class ListGames {
+    /**
+     * Static text that will be used with some UI components to communicate with the user
+     */
     private static final String TITLE_WINDOW = "Il Paroliere - Lista partite";
     private static final String MAIN_TITLE = "Visualizzazione delle partite";
     private static final String GAME_NAME_TEXT = "Nome partita";
@@ -27,20 +34,51 @@ public class ListGames {
     private static final String STARTED_GAMES_BUTTON = "Visualizza partite in corso";
     private static final String JOIN_BUTTON = "PARTECIPA";
     private static final String NO_GAMES_AVAILABLE = "Al momento non ci sono partite disponibili";
+    /**
+     * Rows for the grid container (0 stands for: unlimited number of rows)
+     */
     private static final int ROWS = 0;
+    /**
+     * Columns for the grid container (only one element for row)
+     */
     private static final int COLS_CONTAINER = 1;
     private static final int COLS_TITLES = 7;
     private static final int COLS_BUTTONS = 4;
 
+    /**
+     * gameUserMatrix - matrix composed by game info and list of players partecipating to that game
+     */
     private String[][] gameUserMatrix;
+    /**
+     * singleGames - array of games fetched from server
+     */
     private SingleGame[] singleGames;
+    /**
+     * Labels to communicate with the user what he's looking at
+     */
     private Label[] gameNameText, dateText, maxPlayersText, currentPlayersText, playersText, gameStatusText;
     private Label mainTitle, noGamesAvailableLabel;
+    /**
+     * joinGameButton - array of buttons placed in every row to allow the user to participate to the game
+     */
     private ButtonWithData[] joinGameButton;
+    /**
+     * viewOpenGamesButton - show all games with status open
+     * viewStartedGamesButton - show all games with status playing
+     * homeButton - Redirect user to the Home frame
+     */
     private Button viewOpenGamesButton, viewStartedGamesButton, homeButton;
+    /**
+     * Grid containers to handle UI elements visualization
+     */
     private static GridFrame gridContainer;
     private GridFrame gridTableGames, gridButtons;
 
+    /**
+     * Constructor of the class (creates the frame and its visual components)
+     *
+     * @param gameStatus - "open" or "playing"
+     */
     public ListGames(String gameStatus) {
         getListOfGamesFromServer(gameStatus).join();
 
@@ -77,6 +115,11 @@ public class ListGames {
         FrameHandler.showMainGridContainerWithSizes(gridContainer, 500, 1200);
     }
 
+    /**
+     * This method update the UI in order to show the games fetched from the server
+     *
+     * @param gameStatus - "open" or "playing"
+     */
     private void createListGameTable(String gameStatus) {
         int lengthListGames = singleGames.length + 1;
 
@@ -147,6 +190,12 @@ public class ListGames {
         }
     }
 
+    /**
+     * This method returns and array of SingleGame, extracting info from matrix of String
+     *
+     * @param matrix - matrix of games with their relative participants
+     * @param gameStatus - "open" or "playing"
+     */
     private SingleGame[] createListOfSingleGames(String[][] matrix, String gameStatus) {
         if(matrix == null) {
             return null;
@@ -175,6 +224,11 @@ public class ListGames {
         return validGamesOpen.toArray(singleGames);
     }
 
+    /**
+     * Fetch list of games (matrix String[][]) from server
+     *
+     * @param gameStatus - "open" or "playing"
+     */
     private CompletableFuture getListOfGamesFromServer(String gameStatus) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -210,6 +264,9 @@ public class ListGames {
         });
     }
 
+    /**
+     * This method defines and attaches all ActionListeners to the appropriate UI elements
+     */
     private void addAllEventListeners() {
         viewOpenGamesButton.attachActionListenerToButton(new ActionListener() {
             public void actionPerformed(ActionEvent me) {
@@ -228,14 +285,23 @@ public class ListGames {
         });
     }
 
+    /**
+     * This method displays on screen the Home section
+     */
     private void redirectToHomeFrame() {
         Home home = new Home();
     }
 
+    /**
+     * This method displays on screen the WaitingPlayers section
+     */
     public static void redirectToWaitingPlayersFrame() {
         WaitingPlayers waitingPlayers = new WaitingPlayers(WaitingPlayers.START_GAME);
     }
 
+    /**
+     * This method displays on screen the ListGames section showing games with status "playing"
+     */
     private void redirectToNewListGame(String statusGames) {
         ListGames listGames = new ListGames(statusGames);
     }

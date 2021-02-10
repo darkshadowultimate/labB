@@ -3,10 +3,26 @@ package com.insubria.it.g_components;
 import java.awt.*;
 import javax.swing.*;
 
+/**
+ * The GridFrame class is a Container element to organize the visualization of UI elements
+ */
 public class GridFrame extends GraphicComponent {
+  /**
+   * The window that the user will see
+   */
   private JFrame window;
+  /**
+   * The container which organize the visualization of UI elements
+   */
   private Container container;
 
+  /**
+   * Constructor of the class (creates the window with title)
+   *
+   * @param windowTitle - Text displayed as title on the Frame
+   * @param rows - rows contained in the container
+   * @param cols - columns contained in the container
+   */
   public GridFrame(String windowTitle, int rows, int cols) {
     this.window = new JFrame(windowTitle);
     // Setting up grid container
@@ -14,6 +30,12 @@ public class GridFrame extends GraphicComponent {
     this.container.setLayout(new GridLayout(rows, cols));
   }
 
+  /**
+   * Constructor of the class (used to create the container and not the window)
+   *
+   * @param rows - rows contained in the container
+   * @param cols - columns contained in the container
+   */
   public GridFrame(int rows, int cols) {
     this.window = new JFrame();
     // Setting up grid container
@@ -21,7 +43,11 @@ public class GridFrame extends GraphicComponent {
     this.container.setLayout(new GridLayout(rows, cols));
   }
 
-  // Add a component to the 'container' field
+  /**
+   * Add component to the container
+   *
+   * @param component - a UI element which extends GraphicComponent
+   */
   public void addToView(GraphicComponent component) {
     // check the instance of 'component' and call 'getGraphicComponent' method to
     // retrive a JComponent
@@ -39,6 +65,11 @@ public class GridFrame extends GraphicComponent {
     }
   }
 
+  /**
+   * Add component to the container
+   *
+   * @param comp - a UI element which doesn't extends GraphicComponent
+   */
   public void addToView(Component comp) {
     this.container.add(comp);
   }
@@ -52,6 +83,9 @@ public class GridFrame extends GraphicComponent {
     this.setWindowOptions();
   }
 
+  /**
+   * Show the window to the user
+   */
   // Configure the JFrame's options and open the window with the components inside
   // the 'container' field
   public void showWindow() {
@@ -59,6 +93,9 @@ public class GridFrame extends GraphicComponent {
     this.setWindowOptions();
   }
 
+  /**
+   * Set configurations for JFrame
+   */
   private void setWindowOptions() {
     // position the frame in the center of the screen
     this.window.setLocationRelativeTo(null);
@@ -66,10 +103,16 @@ public class GridFrame extends GraphicComponent {
     this.window.setVisible(true);
   }
 
+  /**
+   * Remove the window to the user
+   */
   public void disposeFrame() {
     this.window.dispose();
   }
 
+  /**
+   * Returns the Component
+   */
   public Component getGraphicComponent() {
     return this.container;
   }

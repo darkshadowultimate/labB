@@ -13,7 +13,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 
+/**
+ * The SingleWordAnalysis class creates the SingleWordAnalysis frame to allow the user
+ * to consult the information relative to a single word during words analysis
+ */
 public class SingleWordAnalysis {
+    /**
+     * Static text that will be used with some UI components to communicate with the user
+     */
     private static final String TITLE_WINDOW = "Il Paroliere - Analisi parola singola";
     private static final String MAIN_TITLE = "Analisi della parola: ";
     private static final String PLAYER_FOUNDER_TEXT = "Parola trovata da: ";
@@ -22,15 +29,36 @@ public class SingleWordAnalysis {
     private static final String DEFINITION_REQUEST_BUTTON_TEXT = "Visualizza la definizione della parola";
     private static final String BACK_BUTTON_TEXT = "Chiudi finestra";
 
+    /**
+     * Labels to communicate with the user what he's looking at
+     */
     private Label mainTitleLabel, playerFounderLabel, scoreWordLabel, reasonWrongWordLabel;
+    /**
+     * requestDefinitionButton - shows a JOptionPane with the definition of the current word
+     * backButton - closes this frame
+     */
     private Button requestDefinitionButton, backButton;
+    /**
+     * Grid containers to handle UI elements visualization
+     */
     private GridFrame gridButtons;
     private static GridFrame gridContainer = null;
 
+    /**
+     * Rows for the grid container (0 stands for: unlimited number of rows)
+     */
     private static final int ROWS = 0;
+    /**
+     * Columns for the grid container
+     */
     private static final int COLS_GRID_CONTAINER = 1;
     private static final int COLS_GRID_BUTTONS = 2;
 
+    /**
+     * Constructor of the class (creates the frame and its visual components)
+     *
+     * @param wordToAnalyse - Class with all the information about the word to analyse
+     */
     public SingleWordAnalysis(WordRecord wordToAnalyse) {
         gridContainer = new GridFrame(TITLE_WINDOW, ROWS, COLS_GRID_CONTAINER);
         gridButtons = new GridFrame(ROWS, COLS_GRID_BUTTONS);
@@ -68,6 +96,9 @@ public class SingleWordAnalysis {
         FrameHandler.showSecondaryGridContainer(gridContainer);
     }
 
+    /**
+     * This method defines and attaches all ActionListeners to the appropriate UI elements
+     */
     private void addAllEventListeners(final String wordString, boolean isThereAReason) {
         // if the word is wrong, then it doesn't have a definition
         if(!isThereAReason) {
@@ -93,6 +124,11 @@ public class SingleWordAnalysis {
         });
     }
 
+    /**
+     * This method shows a JOptionPane with the definition of the current word
+     *
+     * @param wordDefinition - definition of the word to analyse
+     */
     public static void showWordDefinition(String wordDefinition) {
         JOptionPane.showMessageDialog(null, wordDefinition);
     }

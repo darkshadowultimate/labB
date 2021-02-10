@@ -11,8 +11,14 @@ import com.insubria.it.helpers.FrameHandler;
 import com.insubria.it.helpers.Validation;
 import com.insubria.it.serverImplClasses.PlayerCredentialsImpl;
 
+/**
+ * The UserRegistration class creates the UserRegistration frame to allow the user
+ * to create a new account or (if logged in), to update the info of the account
+ */
 public class UserRegistration {
-  // Constants
+  /**
+   * Static text that will be used with some UI components to communicate with the user
+   */
   private static final String[] LABELS_TEXTS = {
     "Nome",
     "Cognome",
@@ -32,17 +38,43 @@ public class UserRegistration {
   private static final String REGISTRATION_ERROR_TEXT = "Ops... Sembra che sia stato un problema durante la registrazione...";
   private static final String UPDATE_PROFILE_ERROR_TEXT = "Ops... Sembra che sia stato un problema durante l'aggiornamento del profilo...";
   private static final String UPDATE_PROFILE_SUCCESS_TEXT = "Il profilo è stato aggiornato con successo!";
+  /**
+   * Rows for the grid container (0 stands for: unlimited number of rows)
+   */
   private static final int ROWS = 0;
+  /**
+   * Columns for the grid container
+   */
   private static final int COLS = 1;
   private static final int COLS_BUTTONS = 2;
-  // Arrays variables
+
+  /**
+   * inputLabels - all the fields for the information to insert (except the password fields)
+   */
   private InputLabel[] inputLabels = new InputLabel[LABELS_TEXTS.length];
+  /**
+   * password field (for registration and profile updating)
+   */
   private InputLabel registrPassword, registrConfirmPassword, oldPasswordInput, newPassword;
-  // Single variables
+  /**
+   * Labels to communicate with the user what he's looking at
+   */
   private Label titleRegistration;
+  /**
+   * submitButton - confirm the operation
+   * cancel - redirect the user to the Login or (if logged in), to the Home
+   */
   private Button submitButton, cancelButton;
+  /**
+   * Grid containers to handle UI elements visualization
+   */
   private GridFrame gridFrame, gridButtons;
 
+  /**
+   * Constructor of the class (creates the frame and its visual components)
+   *
+   * @param isUserLogged - boolean to understand if the user is logged in
+   */
   public UserRegistration(boolean isUserLogged) {
     gridFrame = new GridFrame(
       isUserLogged
@@ -98,6 +130,11 @@ public class UserRegistration {
     FrameHandler.showMainGridContainer(gridFrame);
   }
 
+  /**
+   * This method returns the right value of the right input field
+   *
+   * @param indexInputField - index to identify the correct input field
+   */
   private String getValueForInputField(int indexInputField) {
     switch(indexInputField) {
       case 0:
@@ -113,6 +150,9 @@ public class UserRegistration {
     }
   }
 
+  /**
+   * This method defines and attaches all ActionListeners to the appropriate UI elements (user NOT logged in)
+   */
   private void addAllEventListenersRegistration() {
     submitButton.attachActionListenerToButton(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -163,6 +203,9 @@ public class UserRegistration {
     });
   }
 
+  /**
+   * This method defines and attaches all ActionListeners to the appropriate UI elements (user logged in)
+   */
   private void addAllEventListenersChangeUserProfile() {
     submitButton.attachActionListenerToButton(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -216,6 +259,9 @@ public class UserRegistration {
     });
   }
 
+  /**
+   * Returns true if all the input fields are valid; otherwise false
+   */
   private boolean checkFormFields(InputLabel[] inputFields, boolean isUserLogged) {
 
     for (int i = 0; i < LABELS_TEXTS.length; i++) {
@@ -247,18 +293,30 @@ public class UserRegistration {
     }
   }
 
+  /**
+   * Update the static fields of the PlayerContextProvider class, to keep track of them across the application
+   */
   private void updatePlayerContextProvider(String name, String surname, String username, String email) {
     PlayerContextProvider.setPlayerInfo(name, surname, username, email);
   }
 
+  /**
+   * This method displays on screen the ConfirmCode section
+   */
   private void redirectConfirmCodeFrame() {
     ConfirmCode confirmCode = new ConfirmCode();
   }
 
+  /**
+   * This method displays on screen the LoginUtente section
+   */
   private void redirectToLoginFrame() {
     LoginUtente login = new LoginUtente();
   }
 
+  /**
+   * This method displays on screen the Home section
+   */
   private void redirectToHomeFrame() {
     Home home = new Home();
   }
